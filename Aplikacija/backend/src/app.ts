@@ -5,12 +5,15 @@ import questionRoutes from './routes/questionRoutes';
 import gameRoutes from './routes/gameRoutes'
 
 import dotenv from 'dotenv';
+import cors from 'cors';
 dotenv.config();
 
 
 
 const app: Application = express();
 console.log('MongoDB Preparing...');
+app.use(cors());
+
 
 connectDB()
 
@@ -20,9 +23,13 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // Basic Route
-app.get('/', (req: Request, res: Response) => {
+app.get('/home', (req: Request, res: Response) => {
     res.send('Hello World from HigherLower!');
 });
+
+app.get('/config', (req, res) => {
+    res.json({ port:process.env.PORT });
+  });
 
 // app.use('/api/users', usersRouter);
 // app.use('/api/posts', postsRouter);

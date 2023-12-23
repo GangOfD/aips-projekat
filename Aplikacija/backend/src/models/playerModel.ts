@@ -29,9 +29,8 @@ const playerSchema: Schema = new mongoose.Schema({
   age: {
     type: Number,
     default: 0,
-  },
-  dateOfBirth: {
-    type: Date,
+    min: 3,
+    max: 103,
   },
 });
 

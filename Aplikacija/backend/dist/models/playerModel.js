@@ -25,9 +25,8 @@ const playerSchema = new mongoose_1.default.Schema({
     age: {
         type: Number,
         default: 0,
-    },
-    dateOfBirth: {
-        type: Date,
+        min: 3,
+        max: 103,
     },
 });
 const Player = mongoose_1.default.model('Player', playerSchema);

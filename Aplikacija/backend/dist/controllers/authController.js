@@ -13,15 +13,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.loginPlayer = exports.registerPlayer = void 0;
-const bcrypt_1 = __importDefault(require("bcryptjs"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const playerModel_1 = __importDefault(require("../models/playerModel"));
 const registerPlayer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, email, password, age, dateOfBirth } = req.body;
+        const { username, email, password, age } = req.body;
         const salt = yield bcrypt_1.default.genSalt(10);
         const hashedPassword = yield bcrypt_1.default.hash(password, salt);
-        const player = new playerModel_1.default({ username, email, password: hashedPassword, age, dateOfBirth });
+        const player = new playerModel_1.default({ username, email, password: hashedPassword, age });
         yield player.save();
         res.status(201).json({ message: 'Player registered successfully!' });
     }

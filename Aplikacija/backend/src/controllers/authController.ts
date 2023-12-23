@@ -4,12 +4,12 @@ import Player from '../models/playerModel';
 
 export const registerPlayer = async (req:any, res:any) => {
   try {
-    const { username, email, password, age, dateOfBirth } = req.body;
+    const { username, email, password, age } = req.body;
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const player = new Player({ username, email, password: hashedPassword, age, dateOfBirth });
+    const player = new Player({ username, email, password: hashedPassword, age });
     await player.save();
 
     res.status(201).json({ message: 'Player registered successfully!' });
