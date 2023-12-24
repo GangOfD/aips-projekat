@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
 import Navbar from "components/Navbar";
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
-const HomePage=()=>{
+const GamePage=()=>{
 
     const token=useSelector((state)=>state.token);
     const navigate=useNavigate();
@@ -21,4 +21,4 @@ const HomePage=()=>{
     ) 
 }
 
-export default HomePage;
+export default GamePage;

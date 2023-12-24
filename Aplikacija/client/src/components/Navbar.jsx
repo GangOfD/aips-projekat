@@ -26,6 +26,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
+  const token= useSelector((state)=>state.token);
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
 
   const theme = useTheme();
@@ -33,21 +34,23 @@ const Navbar = () => {
   const dark = theme.palette.neutral.dark;
   const background = theme.palette.background.default;
   const primaryLight = theme.palette.primary.light;
-  const alt = theme.palette.background.alt;
+  const primaryDark= theme.palette.primary.dark;
+  const neutralMain= theme.palette.neutral.main;
+  
 
   //const fullName = `${user.firstName} ${user.lastName}`;
 
   return (
-    <FlexBetween padding="1rem 6%" backgroundColor={alt}>
+    <FlexBetween padding="1rem 6%" backgroundColor={neutralLight}>
       <FlexBetween gap="1.75rem">
         <Typography
           fontWeight="bold"
           fontSize="clamp(1rem, 2rem, 2.25rem)"
-          color="neutralLight"
-          onClick={() => navigate("/home")}
+          color={theme.palette.mode === "dark" ? primaryLight : dark}
+          onClick={() => navigate("/home",)}
           sx={{
             "&:hover": {
-              color: primaryLight,
+              color: neutralMain,
               cursor: "pointer",
             },
           }}
@@ -66,7 +69,7 @@ const Navbar = () => {
               <LightMode sx={{ color: dark, fontSize: "25px" }} />
             )}
           </IconButton>
-          {user  && (<FormControl variant="standard" value={"fullName"}>
+          {token  && (<FormControl variant="standard" value={"fullName"}>
             <Select
               value={"fullName"}
               sx={{
@@ -87,7 +90,13 @@ const Navbar = () => {
               <MenuItem value={"fullName"}>
                 <Typography>{"fullName"}</Typography>
               </MenuItem>
-              <MenuItem onClick={() => dispatch(setLogout())}>Log Out</MenuItem>
+              <MenuItem onClick={() => {
+                dispatch(setLogout());
+                navigate("/");
+                }}
+              >
+                Log Out
+              </MenuItem>
             </Select>
           </FormControl>)}
         </FlexBetween>
@@ -139,7 +148,7 @@ const Navbar = () => {
               )}
             </IconButton>
             
-            {user  && (<FormControl variant="standard" value={"fullName"}>
+            {token  && (<FormControl variant="standard" value={"fullName"}>
             <Select
               value={"fullName"}
               sx={{
@@ -160,7 +169,13 @@ const Navbar = () => {
               <MenuItem value={"fullName"}>
                 <Typography>{"fullName"}</Typography>
               </MenuItem>
-              <MenuItem onClick={() => dispatch(setLogout())}>Log Out</MenuItem>
+              <MenuItem onClick={() => {
+                dispatch(setLogout());
+                navigate("/");
+                }}
+              >
+                Log Out
+              </MenuItem>
             </Select>
           </FormControl>)}
           </FlexBetween>
