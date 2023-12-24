@@ -38,7 +38,6 @@ const Navbar = () => {
   const neutralMain= theme.palette.neutral.main;
   
 
-  //const fullName = `${user.firstName} ${user.lastName}`;
 
   return (
     <FlexBetween padding="1rem 6%" backgroundColor={neutralLight}>
@@ -69,11 +68,11 @@ const Navbar = () => {
               <LightMode sx={{ color: dark, fontSize: "25px" }} />
             )}
           </IconButton>
-          {token  && (<FormControl variant="standard" value={"fullName"}>
+          {token  && (<FormControl variant="standard" value={user.username}>
             <Select
-              value={"fullName"}
+              value={user.username}
               sx={{
-                backgroundColor: neutralLight,
+                backgroundColor: primaryLight,
                 width: "150px",
                 borderRadius: "0.25rem",
                 p: "0.25rem 1rem",
@@ -82,13 +81,14 @@ const Navbar = () => {
                   width: "3rem",
                 },
                 "& .MuiSelect-select:focus": {
-                  backgroundColor: neutralLight,
+                  backgroundColor: primaryLight,
                 },
+               
               }}
               input={<InputBase />}
             >
-              <MenuItem value={"fullName"}>
-                <Typography>{"fullName"}</Typography>
+              <MenuItem onClick={()=>navigate(`/profile/${user.username}`)}value={user.username}>
+                <Typography>{user.username}</Typography>
               </MenuItem>
               <MenuItem onClick={() => {
                 dispatch(setLogout());
@@ -148,11 +148,11 @@ const Navbar = () => {
               )}
             </IconButton>
             
-            {token  && (<FormControl variant="standard" value={"fullName"}>
+            {token  && (<FormControl variant="standard" value={user.username}>
             <Select
-              value={"fullName"}
+              value={user.username}
               sx={{
-                backgroundColor: neutralLight,
+                backgroundColor: primaryLight,
                 width: "150px",
                 borderRadius: "0.25rem",
                 p: "0.25rem 1rem",
@@ -161,13 +161,13 @@ const Navbar = () => {
                   width: "3rem",
                 },
                 "& .MuiSelect-select:focus": {
-                  backgroundColor: neutralLight,
+                  backgroundColor: primaryLight,
                 },
               }}
               input={<InputBase />}
             >
-              <MenuItem value={"fullName"}>
-                <Typography>{"fullName"}</Typography>
+              <MenuItem onClick={()=>navigate(`/profile/${user.username}`)} value={user.username}>
+                <Typography>{user.username}</Typography>
               </MenuItem>
               <MenuItem onClick={() => {
                 dispatch(setLogout());
