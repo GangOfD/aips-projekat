@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Player from '../models/playerModel'; 
+import userDto from '../models/userDto';
 
 export const registerPlayer = async (req:any, res:any) => {
   try {
@@ -32,8 +33,12 @@ export const loginPlayer = async (req:any, res:any) => {
       throw new Error('JWT_SECRET is not defined in the environment');
     }
     
+    let user: userDto | null;
+    user = new userDto(player.email, player.username, player.age);
+
+
     const token = jwt.sign({ _id: player._id }, process.env.JWT_SECRET);
-        res.header('auth-token', token).json({ message: 'Logged in successfully', token });
+    res.header('auth-token', token).json({ message: 'Logged in successfully', token,user });
 
   } catch (error:any) {
     res.status(500).json({ message: error.message });

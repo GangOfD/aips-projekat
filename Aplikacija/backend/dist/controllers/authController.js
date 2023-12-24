@@ -16,6 +16,7 @@ exports.loginPlayer = exports.registerPlayer = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const playerModel_1 = __importDefault(require("../models/playerModel"));
+const userDto_1 = __importDefault(require("../models/userDto"));
 const registerPlayer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, email, password, age } = req.body;
@@ -42,8 +43,10 @@ const loginPlayer = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         if (!process.env.JWT_SECRET) {
             throw new Error('JWT_SECRET is not defined in the environment');
         }
+        let user;
+        user = new userDto_1.default(player.email, player.username, player.age);
         const token = jsonwebtoken_1.default.sign({ _id: player._id }, process.env.JWT_SECRET);
-        res.header('auth-token', token).json({ message: 'Logged in successfully', token });
+        res.header('auth-token', token).json({ message: 'Logged in successfully', token, user });
     }
     catch (error) {
         res.status(500).json({ message: error.message });

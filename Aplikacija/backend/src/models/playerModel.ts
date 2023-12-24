@@ -5,7 +5,6 @@ interface IPlayer extends Document {
   email: string;
   password: string;
   age?: number;
-  dateOfBirth?: Date;
 }
 
 const playerSchema: Schema = new mongoose.Schema({
