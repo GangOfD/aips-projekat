@@ -3,6 +3,7 @@ import connectDB from './database/mongodb'
 import authRoutes from './routes/authRoutes';
 import questionRoutes from './routes/questionRoutes';
 import gameRoutes from './routes/gameRoutes'
+import playerRoutes from './routes/playerRoutes'
 
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -36,6 +37,8 @@ app.get('/config', (req, res) => {
 app.use('/auth',authRoutes)
 app.use('/question',questionRoutes)
 app.use('/games', gameRoutes);
+app.use('/player', playerRoutes);
+
 
 
 //Middleware, error handling
