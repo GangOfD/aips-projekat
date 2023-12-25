@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { setLogin } from "state";
 
 
+
 const registerSchema = yup.object().shape({
   username: yup.string().required("required"),
   email: yup.string().email("invalid email").required("required"),
@@ -91,13 +92,12 @@ const Form = () => {
         }
 
         const loggedIn = await loggedInResponse.json();
-        console.log(loggedIn.token);
         onSubmitProps.resetForm();
-        navigate("/home");
+
         if (loggedIn) {
             dispatch(
                 setLogin({
-                //user: loggedIn.user,
+                user: loggedIn.user,
                 token: loggedIn.token,
                 })
             );
