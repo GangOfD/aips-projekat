@@ -83,6 +83,8 @@ export const deletePlayer = async (req: Request, res: Response) => {
       const playerToDelete = await findPlayerByIdOrName(IdOrName);
   
       if (!playerToDelete) {
+        console.log(IdOrName);
+        
         return res.status(404).json({ message: 'Player not found' });
       }
 

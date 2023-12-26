@@ -80,7 +80,7 @@ const Form = () => {
   const login = async (values, onSubmitProps) => {
 
     try{
-        console.log(values);
+        
         const loggedInResponse = await fetch("http://localhost:3002/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
