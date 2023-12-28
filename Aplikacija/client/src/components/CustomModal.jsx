@@ -5,6 +5,7 @@ import { Cancel } from "@mui/icons-material";
 const CustomModal = ({ open, onClose, title, content }) => {
 
     const theme=useTheme();
+    
   return (
     <Modal
       open={open}
@@ -36,7 +37,12 @@ const CustomModal = ({ open, onClose, title, content }) => {
         <Typography id="modal-title" variant="h6" component="h2">
           {title}
         </Typography>
-        {content}
+        {content.map((room,index)=>(
+          <Typography key={index}>
+          {room.gameId}
+        </Typography>
+        )
+        )}
       </Box>
     </Modal>
   );

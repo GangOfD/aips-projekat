@@ -21,7 +21,7 @@ import {
   import * as yup from "yup";
   import CustomModal from "./CustomModal";
 
-  const JoinGame=()=>{
+  const JoinGame=({freeRooms})=>{
 
     const token=useSelector((state)=>state.token);
     const user=useSelector((state)=>state.user);
@@ -30,14 +30,11 @@ import {
     const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const [message,setMessage]=useState("");
-    const [freeRooms, setFreeRooms]=useState([]);
     const [roomModal, setRoomModal]=useState(false);
 
-    useEffect(()=>{
-        getFreeRooms();
-    },[])
+    
 
-    console.log(freeRooms);
+    
     const joinGameSchema = yup.object().shape({
         roomId: yup.string().required("required"),
        });
@@ -64,15 +61,30 @@ import {
                   body: JSON.stringify(values),
                 }
               );
+
+              const joinedGame = await joinGameResponse.json();
               if (!joinGameResponse.ok) {
-                throw new Error('Mistake during joining game fetching');
+                
+                if(joinGameResponse.status==404){
+        
+                    setMessage(joinedGame.message);
+                }
+                else if (joinGameResponse.status==400){
+                    if(joinedGame.message='You have already joined this game'){
+                        navigate(`/game/${values.roomId}`);
+                    }
+                }
+                else{
+                    throw new Error('Mistake during create game fetching');
+                }
+                
+              }
+
+              else{
+                navigate(`/game/${values.roomId}`);
               }
             
-              const joinedGame = await joinGameResponse.json();
-              console.log(joinedGame);
-              setMessage(`You can't join game because: ${joinedGame.message}`);
-              setMessage(`You can't join game because: `);
-              navigate(`/game/${values.roomId}`);
+              
               
 
         }
@@ -81,32 +93,7 @@ import {
         }
     };
 
-    const  getFreeRooms= async () =>{
-        
-        try{
-            // const freeGamesResponse= await fetch(
-            //     `http://localhost:3002/game/`,
-            //     {
-            //       method: "GET",
-            //       headers: { "Content-Type": "application/json" },
-            //       body: JSON.stringify(values),
-            //     }
-            //   );
-            //   if (!freeGamesResponse.ok) {
-            //     throw new Error('Mistake during games fetching');
-            //   }
-            
-            //   const freeGames = await freeGamesResponse.json();
-            //   console.log(freeGames);
-           
-            setFreeRooms([123,32,42,14,42,421,4242]);
-              
-
-        }
-        catch(error){
-            console.error("Mistake during joining game",error);
-        }
-    };
+    
 
     
 
@@ -255,9 +242,7 @@ import {
                 open={roomModal}
                 onClose={() => setRoomModal(prevModal => !prevModal)}
                 title="Free rooms ids"
-                content={freeRooms.map((room, index) => (
-                <Typography key={index}>{room}</Typography>
-                ))}
+                content={freeRooms}
             />
         </>
           
