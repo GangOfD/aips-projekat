@@ -21,12 +21,12 @@ export const updatePlayer = async (req: Request, res: Response) => {
         const isPasswordValid = await bcrypt.compare(oldPassword, playerToUpdate.password);
 
         if (!isPasswordValid) {
-          return res.status(401).json({ message: 'Incorrect password, unable to delete player' });
+          return res.status(401).json({ message: 'Incorrect password' });
         }
 
         const updateFields: any = {};
 
-        if (username !== undefined && !await Player.findOne({username:username})) {
+        if (username && !await Player.findOne({username:username})) {
             updateFields.username = username;
         }
 
@@ -62,9 +62,9 @@ export const updatePlayer = async (req: Request, res: Response) => {
         const response = {
             message,
             user: {
-                age: playerToUpdate.age,
-                email: playerToUpdate.email,
-                username: playerToUpdate.username,
+                age: updatedPlayer.age,
+                email: updatedPlayer.email,
+                username: updatedPlayer.username,
             },
         };
 

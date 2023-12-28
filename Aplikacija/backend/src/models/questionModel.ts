@@ -3,16 +3,24 @@ import mongoose, { Schema, Document } from 'mongoose';
 interface IOption {
   text: string;
   picture: string;
+  hint:string;
 }
 
 interface IQuestion extends Document {
   questionText: string;
   options: IOption[];
   correctAnswerIndex: number;
+  tags:string[];
+  difficulty:{ //procenat koliko ljudi pogadja odgovor 
+    type:number,
+    default:undefined,
+    min:0,
+    max:100
+  }
 }
 
 const questionSchema: Schema = new Schema({
-  questionText: {
+  question: {
     type: String,
     required: true,
   },

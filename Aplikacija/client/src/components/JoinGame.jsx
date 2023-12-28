@@ -53,21 +53,24 @@ import {
     const  joinGame= async (values) =>{
         console.log(values);
         try{
-            // const joinGameResponse= await fetch(
-            //     `http://localhost:3002/game/${values.roomId}`,
-            //     {
-            //       method: "POST",
-            //       headers: { "Content-Type": "application/json" },
-            //       body: JSON.stringify(values),
-            //     }
-            //   );
-            //   if (!joinGameResponse.ok) {
-            //     throw new Error('Mistake during joining game fetching');
-            //   }
+            const joinGameResponse= await fetch(
+                `http://localhost:3002/games/join`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                  },
+                  body: JSON.stringify(values),
+                }
+              );
+              if (!joinGameResponse.ok) {
+                throw new Error('Mistake during joining game fetching');
+              }
             
-            //   const joinedGame = await joinGameResponse.json();
-            //   console.log(joinedGame);
-            //   setMessage(`You can't join game because: ${joinedGame.message}`);
+              const joinedGame = await joinGameResponse.json();
+              console.log(joinedGame);
+              setMessage(`You can't join game because: ${joinedGame.message}`);
               setMessage(`You can't join game because: `);
               navigate(`/game/${values.roomId}`);
               

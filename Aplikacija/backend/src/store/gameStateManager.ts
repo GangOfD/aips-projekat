@@ -1,4 +1,3 @@
-// src/game/GameStateManager.ts
 
 import { Server as SocketIOServer } from 'socket.io';
 import ICommand from '../commands/ICommand';

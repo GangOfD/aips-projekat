@@ -1,12 +1,23 @@
+import { Request, Response } from 'express';
+import { Query } from 'express-serve-static-core'; 
+
 import Question from '../models/questionModel';
 
-// Get all questions
-export const getQuestions = async (req:any, res:any) => {
+
+export const getQuestions = async (questionNumber: number) => {
   try {
-    const questions = await Question.find();
-    res.json(questions);
-  } catch (err:any) {
-    res.status(500).json({ message: err.message });
+    const questions = await Question.find().limit(questionNumber);
+
+    const plainQuestions = await Promise.all(questions.map(async (question) => {
+      const plainQuestion = question.toObject();
+      plainQuestion.options = await Promise.all(plainQuestion.options.flat());
+      return plainQuestion;
+    }));
+
+    return plainQuestions.map((question) => question._id);
+  } catch (err) {
+    console.error(err);
+    return;
   }
 };
 

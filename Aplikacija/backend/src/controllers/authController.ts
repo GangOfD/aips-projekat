@@ -37,8 +37,9 @@ export const loginPlayer = async (req:any, res:any) => {
     user = new userDto(player.email, player.username, player.age);
 
 
-    const token = jwt.sign({ _id: player._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ _id: player._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.header('auth-token', token).json({ message: 'Logged in successfully', token,user });
+    console.log(req.headers)
 
   } catch (error:any) {
     res.status(500).json({ message: error.message });

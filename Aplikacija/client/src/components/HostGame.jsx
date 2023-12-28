@@ -46,22 +46,25 @@ import {
     };
 
     const  createGame= async (values) =>{
-        console.log(values);
+        console.log(values, " A token je : " , token);
         try{
-            // const createGameResponse= await fetch(
-            //     `http://localhost:3002/game/${values.roomId}`,
-            //     {
-            //       method: "POST",
-            //       headers: { "Content-Type": "application/json" },
-            //       body: JSON.stringify(values),
-            //     }
-            //   );
-            //   if (!createGameResponse.ok) {
-            //     throw new Error('Mistake during create game fetching');
-            //   }
+            const createGameResponse= await fetch(
+                `http://localhost:3002/games/`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                  },
+                  body: JSON.stringify(values),
+                }
+              );
+              if (!createGameResponse.ok) {
+                throw new Error('Mistake during create game fetching');
+              }
             
-            //   const createdGame = await createGameResponse.json();
-            //   console.log(createdGame);
+              const createdGame = await createGameResponse.json();
+              console.log(createdGame);
               setMessage("Game is succesfuly created");
               navigate(`/game/${values.roomId}`);
               
@@ -75,20 +78,23 @@ import {
     const  deleteGame= async (values) =>{
         console.log(values);
         try{
-            // const deleteGameResponse= await fetch(
-            //     `http://localhost:3002/game/${values.roomId}`,
-            //     {
-            //       method: "DELETE",
-            //       headers: { "Content-Type": "application/json" },
-            //       body: JSON.stringify(values),
-            //     }
-            //   );
-            //   if (!deleteGameResponse.ok) {
-            //     throw new Error('Mistake during delete game fetching');
-            //   }
+            const deleteGameResponse= await fetch(
+                `http://localhost:3002/games/`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                  },
+                    body: JSON.stringify(values),
+                }
+              );
+              if (!deleteGameResponse.ok) {
+                throw new Error('Mistake during delete game fetching');
+              }
             
-            //   const deletedGame = await deleteGameResponse.json();
-            //   console.log(deletedGame);
+              const deletedGame = await deleteGameResponse.json();
+              console.log(deletedGame);
               setMessage("Game is succesfuly deleted");
               
               

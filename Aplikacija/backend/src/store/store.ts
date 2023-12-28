@@ -10,7 +10,8 @@ class Store {
         return this.userStates[userId];
     }
 
-    async saveResultsToDatabase(): Promise<void> {
+    async saveResultsToDatabase(): Promise<boolean> {
+        return false;
       
     }
 
