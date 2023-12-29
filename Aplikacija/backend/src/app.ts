@@ -9,8 +9,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 dotenv.config();
 
-
-
 const app: Application = express();
 console.log('MongoDB Preparing...');
 app.use(cors());

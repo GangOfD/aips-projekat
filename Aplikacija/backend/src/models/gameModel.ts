@@ -11,7 +11,7 @@ interface IQuestion extends Document {
 }
 
 interface IGame extends Document {
-    gameId: string;
+    gameId: string; 
     createdBy: mongoose.Types.ObjectId;
     players: mongoose.Types.ObjectId[];
     questions: mongoose.Types.ObjectId[]; 

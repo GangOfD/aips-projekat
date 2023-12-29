@@ -69,10 +69,6 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
       console.log("Game already exists");
       return res.status(403).json({ message: 'Game with this ID already exists' });
     }
-    if (existingGame) {
-      console.log("Game already exists");
-      return res.status(403).json({ message: 'Game with this ID already exists' });
-    }
 
     const numberOfQuestionsString = process.env.QUESTIONS_NUMBER || '5';
     const numberOfQuestions = parseInt(numberOfQuestionsString, 10);
