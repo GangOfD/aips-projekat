@@ -63,6 +63,8 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
     const { roomId } = req.body;
     const userId = req.userId;
 
+    console.log(userId);
+    
     const existingGame = await Game.findOne({ gameId: roomId });
 
     if (existingGame) {

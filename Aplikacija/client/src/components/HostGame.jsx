@@ -19,7 +19,7 @@ import {
   import { Formik } from "formik";
   import * as yup from "yup";
 
-  const HostGame=()=>{
+  const HostGame=({getFreeRooms})=>{
 
     const token=useSelector((state)=>state.token);
     const user=useSelector((state)=>state.user);
@@ -42,7 +42,7 @@ import {
     const handleFormSubmit = async (values, action) => {
         if(action==="host" && values.roomId)  await createGame(values);
         if(action==="delete" && values.roomId)  await deleteGame(values);
-        // if(action==="join" )  await joinGame(values);
+        
     };
 
     const  createGame= async (values) =>{
@@ -59,14 +59,22 @@ import {
                   body: JSON.stringify(values),
                 }
               );
-              if (!createGameResponse.ok) {
-                throw new Error('Mistake during create game fetching');
-              }
-            
+
               const createdGame = await createGameResponse.json();
-              console.log(createdGame);
-              setMessage("Game is succesfuly created");
-              navigate(`/game/${values.roomId}`);
+              if (!createGameResponse.ok) {
+                if(createGameResponse.status==403){
+                  setMessage(createdGame.message);
+                }
+                else{
+                  throw new Error('Mistake during create game fetching');
+                }
+                
+              }
+              else{
+                navigate(`/game/${values.roomId}`);
+              }
+             
+              
               
 
         }
@@ -89,14 +97,23 @@ import {
                     body: JSON.stringify(values),
                 }
               );
-              if (!deleteGameResponse.ok) {
-                throw new Error('Mistake during delete game fetching');
-              }
-            
+
               const deletedGame = await deleteGameResponse.json();
-              console.log(deletedGame);
-              setMessage("Game is succesfuly deleted");
-              
+
+              if (!deleteGameResponse.ok) {
+                if(deleteGameResponse.status==404){
+                  setMessage(deletedGame.message);
+                }
+                else{
+                  throw new Error('Mistake during delete game fetching');
+                }
+                
+              }
+              else{
+                setMessage(deletedGame.message);
+                getFreeRooms();
+
+              }
               
 
         }
@@ -139,7 +156,7 @@ import {
                   fontWeight="bold"
                   letterSpacing="1px"
                 >
-                  Host a game
+                  Host game
                 </Typography>
     
                 <Box
@@ -194,6 +211,7 @@ import {
                     <IconButton
                       onClick={() => {
                         handleFormSubmit(values, "host");
+                        resetForm();
                       }}
                       sx={{ 
                         backgroundColor: theme.palette.success.dark,

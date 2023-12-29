@@ -47,6 +47,7 @@ const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
+  const [message, setMessage]= useState("");
 
   const register = async (values, onSubmitProps) => {
     
@@ -87,14 +88,19 @@ const Form = () => {
         body: JSON.stringify(values),
         });
 
-        if(!loggedInResponse.ok){
-            throw new Error('Mistake during log fetching');
-        }
-
         const loggedIn = await loggedInResponse.json();
-        onSubmitProps.resetForm();
 
-        if (loggedIn) {
+        if(!loggedInResponse.ok){
+            if(loggedInResponse.status==400){
+                  setMessage(loggedIn.message);
+                }
+            else{
+                  throw new Error('Mistake during create game fetching');
+            }
+        }
+       
+        else{
+          if (loggedIn.user) {
             dispatch(
                 setLogin({
                 user: loggedIn.user,
@@ -103,6 +109,10 @@ const Form = () => {
             );
             navigate("/home");
          }
+        }
+        onSubmitProps.resetForm();
+
+        
     }
     catch(error){
         console.error('Mistake during login:', error);
@@ -187,6 +197,17 @@ const Form = () => {
               helperText={touched.password && errors.password}
               sx={{ gridColumn: "span 2" }}
             />
+
+            <Typography
+                color={palette.primary.light}
+                fontSize={{ xs: "1.0rem", md: "1.0rem" }}
+                textAlign="center"
+                fontWeight="bold"
+                letterSpacing="1px"
+                gridColumn= "span 4"         
+            >
+                {message}
+            </Typography>
           </Box>
 
           {/* BUTTONS */}
