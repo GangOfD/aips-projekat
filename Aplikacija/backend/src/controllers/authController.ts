@@ -2,6 +2,9 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Player from '../models/playerModel'; 
 import userDto from '../models/userDto';
+import {PlayerRepository} from '../repository/playerRepository'
+
+const playerRepo = new PlayerRepository(Player);
 
 export const registerPlayer = async (req:any, res:any) => {
   try {
@@ -11,7 +14,8 @@ export const registerPlayer = async (req:any, res:any) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const player = new Player({ username, email, password: hashedPassword, age });
-    await player.save();
+    await playerRepo.create(player);
+    // await player.save();
 
     res.status(201).json({ message: 'Player registered successfully!' });
   } catch (error:any) {
@@ -23,9 +27,10 @@ export const loginPlayer = async (req:any, res:any) => {
   try {
     const { email, password } = req.body;
 
-    const player = await Player.findOne({ email });
+    // const player = await Player.findOne({ email });
+       const player = await playerRepo.findByEmail(email);
     if (!player) return res.status(400).json({ message: 'Invalid email or password' });
-
+   
     const validPassword = await bcrypt.compare(password, player.password);
     if (!validPassword) return res.status(400).json({ message: 'Invalid email or password' });
 

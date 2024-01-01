@@ -1,26 +1,29 @@
 import { Request, Response } from 'express';
 import { Query } from 'express-serve-static-core'; 
+import { QuestionRepository } from '../repository/questionRepository';
 
 import Question from '../models/questionModel';
+import { IQuestion } from '../models/questionModel';
+
+const questionRepo = new QuestionRepository(Question);
 
 
-export const getQuestions = async (questionNumber: number) => {
+export const getQuestions = async (req: Request, res: Response) => {
   try {
-    const questions = await Question.find().limit(questionNumber);
-
-    const plainQuestions = await Promise.all(questions.map(async (question) => {
-      const plainQuestion = question.toObject();
-      plainQuestion.options = await Promise.all(plainQuestion.options.flat());
-      return plainQuestion;
-    }));
-
-    return plainQuestions.map((question) => question._id);
-  } catch (err) {
-    console.error(err);
-    return;
+    const questions = await questionRepo.getAll();
+    return res.json(questions);
+  } catch (error:any) {
+    return res.status(500).json({ message: error.message });
   }
 };
 
+export const fetchQuestionsForGame = async (numberOfQuestions: number) => {
+  try {
+    return await questionRepo.getQuestions(numberOfQuestions);
+  } catch (error) {
+    throw error; 
+  }
+};
 
 export const addQuestion = async (req: any, res: any) => {
   try {

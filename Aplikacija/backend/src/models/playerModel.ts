@@ -4,7 +4,7 @@ import { validPassword } from '../utils/validPassword';
 
 // }
 
-interface IPlayer extends Document {
+export interface IPlayer extends Document {
   username: string;
   email: string;
   password: string;

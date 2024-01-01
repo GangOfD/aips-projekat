@@ -10,7 +10,7 @@ interface IQuestion extends Document {
     responses: IPlayerResponse[];
 }
 
-interface IGame extends Document {
+export interface IGame extends Document {
     gameId: string; 
     createdBy: mongoose.Types.ObjectId;
     players: mongoose.Types.ObjectId[];
@@ -35,7 +35,7 @@ const gameSchema = new Schema<IGame>({
     players: [{ type: Schema.Types.ObjectId, ref: 'Player' }],
     questions: [{ type: Schema.Types.ObjectId, ref: 'Question' }], 
     status: { type: String, enum: ['waiting', 'inProgress', 'completed'], default: 'waiting' },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
 });
 
 const Game = mongoose.model<IGame>('Game', gameSchema);

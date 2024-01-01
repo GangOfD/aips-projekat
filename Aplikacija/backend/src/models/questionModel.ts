@@ -6,7 +6,7 @@ interface IOption {
   hint:string;
 }
 
-interface IQuestion extends Document {
+export interface IQuestion extends Document {
   questionText: string;
   options: IOption[];
   correctAnswerIndex: number;
