@@ -17,13 +17,16 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const playerModel_1 = __importDefault(require("../models/playerModel"));
 const userDto_1 = __importDefault(require("../models/userDto"));
+const playerRepository_1 = require("../repository/playerRepository");
+const playerRepo = new playerRepository_1.PlayerRepository(playerModel_1.default);
 const registerPlayer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, email, password, age } = req.body;
         const salt = yield bcrypt_1.default.genSalt(10);
         const hashedPassword = yield bcrypt_1.default.hash(password, salt);
         const player = new playerModel_1.default({ username, email, password: hashedPassword, age });
-        yield player.save();
+        yield playerRepo.create(player);
+        // await player.save();
         res.status(201).json({ message: 'Player registered successfully!' });
     }
     catch (error) {
@@ -34,7 +37,8 @@ exports.registerPlayer = registerPlayer;
 const loginPlayer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
-        const player = yield playerModel_1.default.findOne({ email });
+        // const player = await Player.findOne({ email });
+        const player = yield playerRepo.findByEmail(email);
         if (!player)
             return res.status(400).json({ message: 'Invalid email or password' });
         const validPassword = yield bcrypt_1.default.compare(password, player.password);
@@ -45,8 +49,9 @@ const loginPlayer = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }
         let user;
         user = new userDto_1.default(player.email, player.username, player.age);
-        const token = jsonwebtoken_1.default.sign({ _id: player._id }, process.env.JWT_SECRET);
+        const token = jsonwebtoken_1.default.sign({ _id: player._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.header('auth-token', token).json({ message: 'Logged in successfully', token, user });
+        console.log(req.headers);
     }
     catch (error) {
         res.status(500).json({ message: error.message });

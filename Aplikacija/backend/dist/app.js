@@ -1,15 +1,30 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.io = void 0;
 const express_1 = __importDefault(require("express"));
 const mongodb_1 = __importDefault(require("./database/mongodb"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const questionRoutes_1 = __importDefault(require("./routes/questionRoutes"));
 const gameRoutes_1 = __importDefault(require("./routes/gameRoutes"));
+const playerRoutes_1 = __importDefault(require("./routes/playerRoutes"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
+const http_1 = require("http");
+const socket_io_1 = require("socket.io");
+const gameController_1 = require("./controllers/gameController");
+const simulateClient_1 = require("./simulateClient");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 console.log('MongoDB Preparing...');
@@ -25,16 +40,46 @@ app.get('/home', (req, res) => {
 app.get('/config', (req, res) => {
     res.json({ port: process.env.PORT });
 });
-// app.use('/api/users', usersRouter);
-// app.use('/api/posts', postsRouter);
+// Routes
 app.use('/auth', authRoutes_1.default);
 app.use('/question', questionRoutes_1.default);
 app.use('/games', gameRoutes_1.default);
-//Middleware, error handling
+app.use('/player', playerRoutes_1.default);
+// Middleware for error handling
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
+// Creating the HTTP server and wrapping the Express app
+const httpServer = (0, http_1.createServer)(app);
+const io = new socket_io_1.Server(httpServer);
+exports.io = io;
+io.on('connection', (socket) => {
+    console.log('A user connected');
+    socket.on('joinGame', (data) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield (0, gameController_1.joinGame)(data, socket);
+        }
+        catch (error) {
+            console.error('Error in socket joinGame:', error);
+            socket.emit('joinError', 'Error joining game');
+        }
+    }));
+});
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Change app.listen to httpServer.listen to include Socket.IO in the server
+httpServer.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+setTimeout(() => {
+    const fakeClientData = { roomId: '67', userId: '657f1f0a3176e2817db8312c' };
+    io.emit('joinGame', fakeClientData);
+}, 5000);
+(0, simulateClient_1.simulateClient)();
 exports.default = app;
+if (process.env.NODE_ENV === 'development') {
+    app.get('/trigger-simulated-client', (req, res) => {
+        (0, simulateClient_1.simulateClient)();
+        res.send('Simulated client triggered');
+    });
+}

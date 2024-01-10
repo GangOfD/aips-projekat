@@ -12,19 +12,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteQuestion = exports.updateQuestion = exports.getQuestion = exports.addQuestion = exports.getQuestions = void 0;
+exports.deleteQuestion = exports.updateQuestion = exports.getQuestion = exports.addQuestion = exports.fetchQuestionsForGame = exports.getQuestions = void 0;
+const questionRepository_1 = require("../repository/questionRepository");
 const questionModel_1 = __importDefault(require("../models/questionModel"));
-// Get all questions
+const questionRepo = new questionRepository_1.QuestionRepository(questionModel_1.default);
 const getQuestions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const questions = yield questionModel_1.default.find();
-        res.json(questions);
+        const questions = yield questionRepo.getAll();
+        return res.json(questions);
     }
-    catch (err) {
-        res.status(500).json({ message: err.message });
+    catch (error) {
+        return res.status(500).json({ message: error.message });
     }
 });
 exports.getQuestions = getQuestions;
+const fetchQuestionsForGame = (numberOfQuestions) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        return yield questionRepo.getQuestions(numberOfQuestions);
+    }
+    catch (error) {
+        throw error;
+    }
+});
+exports.fetchQuestionsForGame = fetchQuestionsForGame;
 const addQuestion = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { questionText, options, correctAnswerIndex } = req.body;

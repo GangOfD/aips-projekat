@@ -12,43 +12,142 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getAllAvailableGames = exports.getAllGames = exports.createGame = exports.deleteGame = exports.joinGame = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
+const questionController_1 = require("./questionController");
 const gameModel_1 = __importDefault(require("../models/gameModel"));
-const playerModel_1 = __importDefault(require("../models/playerModel"));
-const questionModel_1 = __importDefault(require("../models/questionModel"));
+const gameRepository_1 = require("../repository/gameRepository");
+const gameRepo = new gameRepository_1.GameRepo(gameModel_1.default);
+// export const joinGame = async (req: RequestWithUserId, res: Response) => {
+//   try {
+//     const { roomId } = req.body;
+//     const userId = req.userId;
+//     const game = await gameRepo.getById(roomId);
+//     if (!game) {
+//       return res.status(404).json({ message: 'Game not found' });
+//     }
+//     const userIdObj = new mongoose.Types.ObjectId(userId);
+//     if (game.players.length >= 3 || game.players.includes(userIdObj)) {
+//       return res.status(400).json({ message: 'You have already joined this game' });
+//     }
+//     if (userId) {
+//       const updatedGame = await gameRepo.update(game._id, { 
+//         players: [...game.players, userIdObj] 
+//       });
+//       console.log("Joined")
+//       res.json({ message: 'Joined the game successfully', game: updatedGame });
+//     } else {
+//       res.status(400).json({ message: 'User ID is required' });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
+const joinGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { roomId, userId } = data;
+        const game = yield gameRepo.getById(roomId);
+        if (!game) {
+            socket.emit('joinError', 'Game not found');
+            return;
+        }
+        const userIdObj = new mongoose_1.default.Types.ObjectId(userId);
+        if (game.players.length >= 3 || game.players.includes(userIdObj)) {
+            socket.emit('joinError', 'You have already joined this game');
+            return;
+        }
+        // Update game with new player
+        const updatedGame = yield gameRepo.update(game._id, {
+            players: [...game.players, userIdObj]
+        });
+        // Notify the user and other players
+        socket.emit('gameJoined', { roomId });
+        socket.broadcast.emit('playerJoined', { roomId, userId });
+    }
+    catch (error) {
+        console.error('Error in joinGame:', error);
+        socket.emit('joinError', 'Error joining game');
+    }
+});
+exports.joinGame = joinGame;
+const deleteGame = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { roomId } = req.body;
+        const userId = req.userId;
+        // const game = await Game.findOne({gameId:roomId});
+        const game = yield gameRepo.getById(roomId);
+        if (!game) {
+            return res.status(404).json({ message: 'Game not found' });
+        }
+        if (game.createdBy.toString() !== userId) {
+            return res.status(403).json({ message: 'You are not authorized to delete this game' });
+        }
+        // await Game.findByIdAndDelete(game._id);
+        yield gameRepo.delete(game._id);
+        res.json({ message: 'Game deleted successfully' });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+exports.deleteGame = deleteGame;
 const createGame = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { createdBy } = req.body;
-        const creator = yield playerModel_1.default.findById(createdBy);
-        if (!creator) {
-            return res.status(404).json({ message: 'Player not found' });
+        const { roomId } = req.body;
+        const userId = req.userId;
+        console.log(roomId, typeof roomId);
+        const existingGame = yield gameRepo.getById(roomId);
+        if (existingGame) {
+            return res.status(403).json({ message: 'Game with this ID already exists' });
         }
-        const questionDocs = yield questionModel_1.default.aggregate([{ $sample: { size: 5 } }]);
-        const questions = questionDocs.map(doc => ({
-            question: doc._id,
-            responses: []
-        }));
-        const newGame = new gameModel_1.default({ createdBy, questions, status: 'waiting' });
-        yield newGame.save();
-        res.status(201).json(newGame);
+        const numberOfQuestions = parseInt(process.env.numberOfQuestions || '5', 10);
+        if (isNaN(numberOfQuestions) || numberOfQuestions <= 0) {
+            return res.status(400).json({ message: 'Invalid number of questions' });
+        }
+        const questions = yield (0, questionController_1.fetchQuestionsForGame)(numberOfQuestions);
+        const newGame = {
+            gameId: roomId,
+            createdBy: new mongoose_1.default.Types.ObjectId(userId),
+            players: [],
+            questions: questions.map(q => q._id),
+            status: 'waiting',
+            createdAt: new Date()
+        };
+        const createdGame = yield gameRepo.create(newGame);
+        res.json({ message: 'Game created successfully', game: createdGame });
     }
     catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
-const getAllGames = (res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.createGame = createGame;
+const getAllGames = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const creator = yield gameModel_1.default.find();
-        if (!creator) {
-            return res.status(404).json({ message: 'Games not found' });
-        }
-        //paginacija
-        res.status(201).json(creator);
+        const userId = req.userId;
+        const games = yield gameModel_1.default.find({ players: new mongoose_1.default.Types.ObjectId(userId) });
+        res.json({ games });
     }
     catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
-exports.default = {
-    createGame,
-    getAllGames
-};
+exports.getAllGames = getAllGames;
+const getAllAvailableGames = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        //const userId = req.userId;
+        const availableGames = yield gameModel_1.default.find({
+            status: 'waiting',
+            //  players: { $not: { $in: [new mongoose.Types.ObjectId(userId)] } },
+        });
+        res.json({ availableGames });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+exports.getAllAvailableGames = getAllAvailableGames;

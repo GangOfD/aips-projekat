@@ -33,11 +33,12 @@ const questionSchema = new mongoose_1.Schema({
     responses: [playerResponseSchema]
 });
 const gameSchema = new mongoose_1.Schema({
+    gameId: { type: String, required: true, unique: true }, // po ovome korisnici pronalaze Game
     createdBy: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Player', required: true },
     players: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Player' }],
-    questions: [questionSchema],
+    questions: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Question' }],
     status: { type: String, enum: ['waiting', 'inProgress', 'completed'], default: 'waiting' },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
 });
 const Game = mongoose_1.default.model('Game', gameSchema);
 exports.default = Game;

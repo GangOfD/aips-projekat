@@ -3,6 +3,12 @@ import mongoose, { isValidObjectId, Types } from 'mongoose';
 import { fetchQuestionsForGame, getQuestions } from './questionController';
 import Game, { IGame } from '../models/gameModel';
 import { GameRepo as GameRepository} from '../repository/gameRepository';
+import { SocketEvent } from '../socket-decorators';
+import { io } from '../app';
+import { Socket } from 'socket.io';
+import Store from '../store/store'
+
+
 
 const gameRepo = new GameRepository(Game);
 
@@ -10,33 +16,71 @@ interface RequestWithUserId extends Request {
   userId?: string;
 }
 
-export const joinGame = async (req: RequestWithUserId, res: Response) => {
+// export const joinGame = async (req: RequestWithUserId, res: Response) => {
+//   try {
+//     const { roomId } = req.body;
+//     const userId = req.userId;
+
+//     const game = await gameRepo.getById(roomId);
+//     if (!game) {
+//       return res.status(404).json({ message: 'Game not found' });
+//     }
+
+//     const userIdObj = new mongoose.Types.ObjectId(userId);
+//     if (game.players.length >= 3 || game.players.includes(userIdObj)) {
+//       return res.status(400).json({ message: 'You have already joined this game' });
+//     }
+
+//     if (userId) {
+//       const updatedGame = await gameRepo.update(game._id, { 
+//         players: [...game.players, userIdObj] 
+//       });
+//       console.log("Joined")
+//       res.json({ message: 'Joined the game successfully', game: updatedGame });
+//     } else {
+//       res.status(400).json({ message: 'User ID is required' });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
+export const joinGame = async (data: { roomId: string, userId: string }, socket: Socket) => {
   try {
-    const { roomId } = req.body;
-    const userId = req.userId;
+    const { roomId, userId } = data;
 
     const game = await gameRepo.getById(roomId);
     if (!game) {
-      return res.status(404).json({ message: 'Game not found' });
+      socket.emit('joinError', 'Game not found');
+      return;
     }
 
     const userIdObj = new mongoose.Types.ObjectId(userId);
-    if (game.players.length >= 3 || game.players.includes(userIdObj)) {
-      return res.status(400).json({ message: 'You have already joined this game' });
+    if (game.players.includes(userIdObj)) {
+      socket.emit('joinError', 'You have already joined this game');
+      return;
     }
 
-    if (userId) {
-      const updatedGame = await gameRepo.update(game._id, { 
-        players: [...game.players, userIdObj] 
-      });
-      console.log("Joined")
-      res.json({ message: 'Joined the game successfully', game: updatedGame });
-    } else {
-      res.status(400).json({ message: 'User ID is required' });
+    if (game.players.length==4) {
+      socket.emit('joinError', 'Game is already full');
+      return;
     }
+
+    const updatedGame = await gameRepo.update(game._id, { 
+      players: [...game.players, userIdObj] 
+    });
+
+    if (game.players.length==4) {
+      Store.setGame(roomId, game);
+      
+      socket.emit('gameStarted');
+      socket.broadcast.emit('gameStarted');
+  } 
+    socket.emit('gameJoined', { roomId });
+    socket.broadcast.emit('playerJoined', { roomId, userId });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error in joinGame:', error);
+    socket.emit('joinError', 'Error joining game');
   }
 };
 
