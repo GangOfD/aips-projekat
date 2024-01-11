@@ -50,6 +50,7 @@ const LoginPage = () => {
         p="2rem"
         m="2rem auto"
         borderRadius="1.5rem"
+       
       >
         <Typography 
          fontWeight="500"
