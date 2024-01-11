@@ -195,7 +195,8 @@ const Form = () => {
               name="password"
               error={Boolean(touched.password) && Boolean(errors.password)}
               helperText={touched.password && errors.password}
-              sx={{ gridColumn: "span 2" }}
+              sx={{ gridColumn: "span 2"}}
+              
             />
 
             <Typography

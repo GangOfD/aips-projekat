@@ -20,8 +20,9 @@ import {
   import { Formik } from "formik";
   import * as yup from "yup";
   import CustomModal from "./CustomModal";
+  import socket from "Socket/socketInstance";
 
-  const JoinGame=({freeRooms})=>{
+const JoinGame=({freeRooms})=>{
 
     const token=useSelector((state)=>state.token);
     const user=useSelector((state)=>state.user);
@@ -31,20 +32,31 @@ import {
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const [message,setMessage]=useState("");
     const [roomModal, setRoomModal]=useState(false);
-
     
 
-    
+    socket.on('joinError',({res})=>{
+        setMessage(res);
+    })
+
+    socket.on('gameJoined', ({ roomId }) => {
+        console.log(`Pridruzili ste se sobi ${roomId} `);
+        //navigate(`/game/${roomId}`);
+       
+    });
+
     const joinGameSchema = yup.object().shape({
         roomId: yup.string().required("required"),
        });
+
 
     const joinGameValues = {
             roomId:""
     };    
 
     const handleFormSubmit = async (values, action) => {
-         if(action==="join" && values.roomId)  await joinGame(values);
+        // if(action==="join" && values.roomId)  await joinGame(values);
+        console.log(values.roomId, user.username);
+        if(action==="join" && values.roomId)  socket.emit('joinGame', {roomId:values.roomId,username:user.username});
     };
 
     const  joinGame= async (values) =>{
