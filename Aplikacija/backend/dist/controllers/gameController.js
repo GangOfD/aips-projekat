@@ -17,6 +17,9 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const questionController_1 = require("./questionController");
 const gameModel_1 = __importDefault(require("../models/gameModel"));
 const gameRepository_1 = require("../repository/gameRepository");
+const store_1 = __importDefault(require("../store/store"));
+const gameStateManager_1 = __importDefault(require("../store/gameStateManager"));
+const playerModel_1 = __importDefault(require("../models/playerModel"));
 const gameRepo = new gameRepository_1.GameRepo(gameModel_1.default);
 // export const joinGame = async (req: RequestWithUserId, res: Response) => {
 //   try {
@@ -45,6 +48,7 @@ const gameRepo = new gameRepository_1.GameRepo(gameModel_1.default);
 //   }
 // };
 const joinGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     try {
         const { roomId, userId } = data;
         const game = yield gameRepo.getById(roomId);
@@ -53,17 +57,38 @@ const joinGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* (
             return;
         }
         const userIdObj = new mongoose_1.default.Types.ObjectId(userId);
-        if (game.players.length >= 3 || game.players.includes(userIdObj)) {
+        if (game.players.includes(userIdObj)) {
             socket.emit('joinError', 'You have already joined this game');
             return;
         }
-        // Update game with new player
+        if (game.players.length == 4) {
+            socket.emit('joinError', 'Game is already full');
+            return;
+        }
         const updatedGame = yield gameRepo.update(game._id, {
             players: [...game.players, userIdObj]
         });
-        // Notify the user and other players
-        socket.emit('gameJoined', { roomId });
-        socket.broadcast.emit('playerJoined', { roomId, userId });
+        const playerIds = game.players;
+        const players = yield playerModel_1.default.find({ _id: { $in: playerIds } });
+        const playerNames = players.map(player => player.username);
+        let DTO = {
+            createdAt: game.createdAt,
+            players: playerNames,
+            status: game.status,
+            gameId: game.gameId,
+            createdBy: (_b = (_a = (yield playerModel_1.default.findById(game.createdBy))) === null || _a === void 0 ? void 0 : _a.username) !== null && _b !== void 0 ? _b : "Unknown"
+        };
+        if ((updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.players.length) == 4) {
+            store_1.default.setGame(roomId, updatedGame);
+            console.log("Socket is emitting");
+            socket.emit('gameStarted', DTO);
+            socket.broadcast.emit('gameStarted', updatedGame);
+            gameStateManager_1.default.startGameCycle(roomId);
+        }
+        else {
+            socket.emit('gameJoined', { DTO });
+            socket.broadcast.emit('playerJoined', { DTO });
+        }
     }
     catch (error) {
         console.error('Error in joinGame:', error);

@@ -22,7 +22,7 @@ class Store {
     private games: { [roomId: string]: GameData } = {};
     private userStates: { [userId: string]: UserState } = {};
 
-      
+    initStore(roomId:any){}
     setGame(roomId: string, gameData: any): void {
         this.games[roomId] = {
             ...gameData,

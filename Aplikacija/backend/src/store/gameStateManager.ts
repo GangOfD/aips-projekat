@@ -2,6 +2,8 @@
 import { Server as SocketIOServer } from 'socket.io';
 import ICommand from '../commands/ICommand';
 import Store from '../store/store';
+import Question from '../models/questionModel';
+import { resourceLimits } from 'worker_threads';
 
 class GameStateManager {
     private io: SocketIOServer;
@@ -9,17 +11,18 @@ class GameStateManager {
     private questionTimer: NodeJS.Timeout | null = null;
     private roomId;
 
-    constructor(io: SocketIOServer,roomId) {
+    constructor(io: SocketIOServer,roomId:any) {
         this.io = io;
         this.roomId=roomId
     }
-    
-    startGame() {
-        //Store.initializeGameState();  // Set up initial game state
-        this.io.emit('gameStarted');  // Notify players
-        this.showQuestion();          // Start with the first question
-    }
-    
+
+    static startGameCycle (roomId: string ){
+        Store.initStore(roomId)
+        console.log("game started, hello from gameStateManager")
+        while (false){
+ 
+        }
+   }
 
     showQuestion() {
         const question = Store.getNextQuestion(this.roomId);

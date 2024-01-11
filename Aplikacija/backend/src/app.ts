@@ -57,8 +57,6 @@ io.on('connection', (socket) => {
       }
     });
 
-
-
   });
 
 const PORT = process.env.PORT || 3000;
@@ -75,10 +73,3 @@ export { io };
 simulateClient();
 
 export default app;
-
-if (process.env.NODE_ENV === 'development') {
-  app.get('/trigger-simulated-client', (req: Request, res: Response) => {
-      simulateClient();
-      res.send('Simulated client triggered');
-  });
-}

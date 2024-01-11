@@ -7,6 +7,9 @@ import { SocketEvent } from '../socket-decorators';
 import { io } from '../app';
 import { Socket } from 'socket.io';
 import Store from '../store/store'
+import GameStateManager from '../store/gameStateManager'
+import {gameDto} from '../models/gameDto'
+import Player from '../models/playerModel';
 
 
 
@@ -61,28 +64,43 @@ export const joinGame = async (data: { roomId: string, userId: string }, socket:
       return;
     }
 
-    if (game.players.length==4) {
+    if (game.players.length == 4) {
       socket.emit('joinError', 'Game is already full');
       return;
     }
 
     const updatedGame = await gameRepo.update(game._id, { 
-      players: [...game.players, userIdObj] 
+      players: [...game.players, userIdObj]
     });
 
-    if (game.players.length==4) {
-      Store.setGame(roomId, game);
-      
-      socket.emit('gameStarted');
-      socket.broadcast.emit('gameStarted');
-  } 
-    socket.emit('gameJoined', { roomId });
-    socket.broadcast.emit('playerJoined', { roomId, userId });
+    const playerIds = game.players;
+    const players = await Player.find({ _id: { $in: playerIds } });
+    const playerNames = players.map(player => player.username);
+    let DTO: gameDto = {
+      createdAt: game.createdAt,
+      players:playerNames,
+      status:game.status,
+      gameId:game.gameId,
+      createdBy: (await Player.findById(game.createdBy))?.username ?? "Unknown"
+    };
+
+    if (updatedGame?.players.length == 4) {
+      Store.setGame(roomId, updatedGame);  
+      console.log("Socket is emitting");
+      socket.emit('gameStarted', DTO); 
+      socket.broadcast.emit('gameStarted', updatedGame);   
+      GameStateManager.startGameCycle(roomId);
+
+    } else {
+      socket.emit('gameJoined', { DTO });
+      socket.broadcast.emit('playerJoined', { DTO });
+    }
   } catch (error) {
     console.error('Error in joinGame:', error);
     socket.emit('joinError', 'Error joining game');
   }
 };
+
 
 
 export const deleteGame = async (req: RequestWithUserId, res: Response) => {
@@ -177,3 +195,4 @@ export const getAllAvailableGames = async (req: RequestWithUserId, res: Response
       res.status(500).json({ message: 'Internal server error' });
     }
   };
+

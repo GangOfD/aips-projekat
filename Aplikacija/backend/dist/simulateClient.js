@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -11,11 +20,21 @@ const simulateClient = () => {
     socket.on('connect', () => {
         console.log('Simulated client connected');
         // Emit events or perform actions as the client
-        socket.emit('joinGame', { roomId: '67', userId: '657deb4e40fd08aea087377c' });
+        socket.emit('joinGame', { roomId: '67', userId: '6593383bda44f032bf567eff' });
         // Handle any events that the server sends to the client
         socket.on('gameJoined', (data) => {
             console.log('Joined game:', data);
         });
+        socket.on('gameStarted', (data) => __awaiter(void 0, void 0, void 0, function* () {
+            try {
+                //redirektujes, prikazes data, ime sobe i korisnici koji su u sobi.
+                console.log("Socket is receiving!");
+            }
+            catch (error) {
+                console.error('Error in socket joinGame:', error);
+                socket.emit('joinError', 'Error joining game');
+            }
+        }));
     });
     // Handle disconnection
     socket.on('disconnect', () => {

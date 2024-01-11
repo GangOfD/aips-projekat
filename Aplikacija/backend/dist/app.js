@@ -33,7 +33,6 @@ app.use((0, cors_1.default)());
 // Middleware
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-// Basic Route
 app.get('/home', (req, res) => {
     res.send('Hello World from HigherLower!');
 });
@@ -45,12 +44,10 @@ app.use('/auth', authRoutes_1.default);
 app.use('/question', questionRoutes_1.default);
 app.use('/games', gameRoutes_1.default);
 app.use('/player', playerRoutes_1.default);
-// Middleware for error handling
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
-// Creating the HTTP server and wrapping the Express app
 const httpServer = (0, http_1.createServer)(app);
 const io = new socket_io_1.Server(httpServer);
 exports.io = io;
@@ -67,7 +64,6 @@ io.on('connection', (socket) => {
     }));
 });
 const PORT = process.env.PORT || 3000;
-// Change app.listen to httpServer.listen to include Socket.IO in the server
 httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
@@ -77,9 +73,3 @@ setTimeout(() => {
 }, 5000);
 (0, simulateClient_1.simulateClient)();
 exports.default = app;
-if (process.env.NODE_ENV === 'development') {
-    app.get('/trigger-simulated-client', (req, res) => {
-        (0, simulateClient_1.simulateClient)();
-        res.send('Simulated client triggered');
-    });
-}
