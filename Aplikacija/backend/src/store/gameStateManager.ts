@@ -9,56 +9,61 @@ class GameStateManager {
     private io: SocketIOServer;
     private currentQuestion: any;
     private questionTimer: NodeJS.Timeout | null = null;
-    private roomId;
+    private roomId: string;
+    private counter: number = 0;
 
-    constructor(io: SocketIOServer,roomId:any) {
+    constructor(io: SocketIOServer, roomId: string) {
         this.io = io;
-        this.roomId=roomId
+        this.roomId = roomId;
     }
 
-    static startGameCycle (roomId: string ){
-        Store.initStore(roomId)
-        console.log("game started, hello from gameStateManager")
-        while (false){
- 
-        }
-   }
+    async startGameCycle(roomId:string) {
+        await Store.initStore(roomId);
+        console.log("Game started, hello from GameStateManager");
+        this.sendQuestion();
+    }
 
-    showQuestion() {
+    sendQuestion() {
+        if (Store.isGameOver(this.roomId)) {
+            this.showFinalTable();
+            return;
+        }
+
         const question = Store.getNextQuestion(this.roomId);
         if (question) {
             this.currentQuestion = question;
-            this.io.emit('newQuestion', question); // Send question to players
-    
+            const { correctAnswerIndex, ...questionWithoutAnswer } = question;
+
+            this.io.emit('newQuestion', questionWithoutAnswer);
+
             this.questionTimer = setTimeout(() => {
                 this.showResults();
-            }, 10000);  // 10 seconds to answer
+            }, 10000);
         } else {
-            this.showFinalTable();  // No more questions, show final results
+            this.showFinalTable(); 
         }
     }
-    //Shows results after 5 seconds
+
     showResults() {
         const results = Store.calculateResultsForQuestion(this.currentQuestion);
         this.io.emit('questionResults', results);
-    
+
+        // After 5 seconds, send the next question or end game
         setTimeout(() => {
-            if (Store.isGameOver(this.roomId)) {
-                this.showFinalTable();
-            } else {
-                this.showQuestion();
-            }
-        }, 5000);  // Show results for 5 seconds before next question or ending game
+            this.sendQuestion();
+        }, 5000);
     }
 
-    //TO DO: listener that checks whether store.ts signals that game is over
+    //evaluateUserResponse(roomId, userId,answerNumber){}
 
-    //Shows final table after the game is finished
+
     showFinalTable() {
         const finalScores = Store.getFinalScores(this.roomId);
         this.io.emit('gameOver', finalScores);
-        //Store.resetGame();  // Reset the game state for a new game
+        // Store.resetGame();  // Reset the game state for a new game
     }    
 }
 
 export default GameStateManager;
+
+

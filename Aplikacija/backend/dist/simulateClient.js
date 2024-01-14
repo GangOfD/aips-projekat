@@ -16,22 +16,31 @@ exports.simulateClient = void 0;
 // simulateClient.ts
 const socket_io_client_1 = __importDefault(require("socket.io-client"));
 const simulateClient = () => {
-    const socket = (0, socket_io_client_1.default)('http://localhost:3002'); // Update the URL to match your server
+    const socket = (0, socket_io_client_1.default)('http://localhost:3002');
     socket.on('connect', () => {
-        console.log('Simulated client connected');
+        console.log('\x1b[34m', 'Simulated client connected');
         // Emit events or perform actions as the client
-        socket.emit('joinGame', { roomId: '67', userId: '6593383bda44f032bf567eff' });
+        socket.emit('joinGame', { roomId: '67', userId: '657f1f0a3176e2817db8312c' });
         // Handle any events that the server sends to the client
+        socket.on('newQuestion', (data) => {
+            console.log('\x1b[34m', 'Stiglo pitanje:', data);
+        });
+        socket.on('questionResults', (data) => {
+            console.log('\x1b[34m', 'Stigli rezultati:', data);
+        });
         socket.on('gameJoined', (data) => {
-            console.log('Joined game:', data);
+            console.log('\x1b[34m', 'Joined game:', data);
+        });
+        socket.on('gameOver', (data) => {
+            console.log('\x1b[34m', 'Game is over, final results are: ', data);
         });
         socket.on('gameStarted', (data) => __awaiter(void 0, void 0, void 0, function* () {
             try {
                 //redirektujes, prikazes data, ime sobe i korisnici koji su u sobi.
-                console.log("Socket is receiving!");
+                console.log('\x1b[34m', "Socket is receiving! Game started!");
             }
             catch (error) {
-                console.error('Error in socket joinGame:', error);
+                console.error('\x1b[34m', 'Error in socket joinGame:', error);
                 socket.emit('joinError', 'Error joining game');
             }
         }));

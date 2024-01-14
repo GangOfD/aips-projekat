@@ -29,7 +29,6 @@ export const addQuestion = async (req: any, res: any) => {
   try {
     const { questionText, options, correctAnswerIndex } = req.body;
 
-    // Basic Validation
     if (!questionText || !Array.isArray(options) || (typeof correctAnswerIndex !== 'number')) {
       return res.status(400).json({ message: "Invalid request data" });
     }
@@ -57,17 +56,11 @@ export const addQuestion = async (req: any, res: any) => {
 };
 
 
-// Get a single question
 export const getQuestion = async (req:any, res:any) => {
-  // ... logic to get a single question ...
 };
 
-// Update a question
 export const updateQuestion = async (req:any, res:any) => {
-  // ... logic to update a question ...
 };
 
-// Delete a question
 export const deleteQuestion = async (req:any, res:any) => {
-  // ... logic to delete a question ...
 };

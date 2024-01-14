@@ -38,7 +38,6 @@ exports.fetchQuestionsForGame = fetchQuestionsForGame;
 const addQuestion = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { questionText, options, correctAnswerIndex } = req.body;
-        // Basic Validation
         if (!questionText || !Array.isArray(options) || (typeof correctAnswerIndex !== 'number')) {
             return res.status(400).json({ message: "Invalid request data" });
         }
@@ -61,18 +60,12 @@ const addQuestion = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.addQuestion = addQuestion;
-// Get a single question
 const getQuestion = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // ... logic to get a single question ...
 });
 exports.getQuestion = getQuestion;
-// Update a question
 const updateQuestion = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // ... logic to update a question ...
 });
 exports.updateQuestion = updateQuestion;
-// Delete a question
 const deleteQuestion = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // ... logic to delete a question ...
 });
 exports.deleteQuestion = deleteQuestion;

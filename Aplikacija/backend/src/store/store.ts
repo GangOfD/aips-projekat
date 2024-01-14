@@ -1,37 +1,28 @@
+import Game from '../models/gameModel';
 import {IQuestion} from '../models/questionModel'
-interface UserResponse {
-    answer: string;
-    timestamp: number;
-}
+import GameData from '../models/gameData';
 
-interface GameData {
-    players: string[];
-    questions: IQuestion[];
-    currentQuestionIndex: number;
-    responses: { [questionId: string]: UserResponse[] };
-    // Additional properties as needed
-}
-
-interface UserState {
+export interface UserState {
     score: number;
     currentAnswer:any;
     // Additional properties as needed
 }
 
-class Store {
+ class Store {
     private games: { [roomId: string]: GameData } = {};
     private userStates: { [userId: string]: UserState } = {};
 
-    initStore(roomId:any){}
-    setGame(roomId: string, gameData: any): void {
-        this.games[roomId] = {
-            ...gameData,
-            currentQuestionIndex: 0,
-            responses: {}
-        };
+    async initStore(roomId: any) {
+        // const game = await gameRepo.getById(roomId);
+        const game=await Game.findOne({gameId:roomId})
+        if (game != null) {
+            this.games[roomId] = await GameData.fromMongoEntity(game);
+            this.games[roomId].currentQuestionIndex=0;
+        }
+        console.log("Ready ", this.games[roomId])
     }
 
-    getNextQuestion(roomId: string): IQuestion | null {
+    public getNextQuestion(roomId: string): IQuestion | null {
         const game = this.games[roomId];
         if (!game || game.currentQuestionIndex >= game.questions.length - 1) {
             return null;
@@ -41,9 +32,7 @@ class Store {
     }
 
     calculateResultsForQuestion(roomId: string): any {
-        // Logic to calculate results based on answers stored in userStates
-        // and the current question in the game data
-        // Return calculated results
+
     }
 
     isGameOver(roomId: string): boolean {
@@ -51,7 +40,6 @@ class Store {
         if (!game) {
             return true;
         }
-        // Define game over conditions, e.g., all questions answered
         return game.currentQuestionIndex >= game.questions.length - 1;
     }
 
@@ -66,5 +54,4 @@ class Store {
 
     // ... other methods and functionalities ...
 }
-
 export default new Store();

@@ -57,6 +57,15 @@ io.on('connection', (socket) => {
       }
     });
 
+    socket.on('receiveAnswer', async (data) => {
+      try {
+         //evaluateUserResponse(roomId, userId,answerNumber);
+      } catch (error) {
+        console.error('Error in socket receiveAnswer:', error);
+        socket.emit('receiveAnswerError', 'Error while answering');
+      }
+    });
+
   });
 
 const PORT = process.env.PORT || 3000;

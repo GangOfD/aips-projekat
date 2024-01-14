@@ -85,11 +85,11 @@ export const joinGame = async (data: { roomId: string, userId: string }, socket:
     };
 
     if (updatedGame?.players.length == 4) {
-      Store.setGame(roomId, updatedGame);  
-      console.log("Socket is emitting");
+      console.log("Socket is emitting, hi there");
       socket.emit('gameStarted', DTO); 
       socket.broadcast.emit('gameStarted', updatedGame);   
-      GameStateManager.startGameCycle(roomId);
+      const gameStateManager = new GameStateManager(io, roomId);
+      await gameStateManager.startGameCycle(roomId);
 
     } else {
       socket.emit('gameJoined', { DTO });

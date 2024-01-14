@@ -17,7 +17,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const questionController_1 = require("./questionController");
 const gameModel_1 = __importDefault(require("../models/gameModel"));
 const gameRepository_1 = require("../repository/gameRepository");
-const store_1 = __importDefault(require("../store/store"));
+const app_1 = require("../app");
 const gameStateManager_1 = __importDefault(require("../store/gameStateManager"));
 const playerModel_1 = __importDefault(require("../models/playerModel"));
 const gameRepo = new gameRepository_1.GameRepo(gameModel_1.default);
@@ -79,11 +79,11 @@ const joinGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* (
             createdBy: (_b = (_a = (yield playerModel_1.default.findById(game.createdBy))) === null || _a === void 0 ? void 0 : _a.username) !== null && _b !== void 0 ? _b : "Unknown"
         };
         if ((updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.players.length) == 4) {
-            store_1.default.setGame(roomId, updatedGame);
-            console.log("Socket is emitting");
+            console.log("Socket is emitting, hi there");
             socket.emit('gameStarted', DTO);
             socket.broadcast.emit('gameStarted', updatedGame);
-            gameStateManager_1.default.startGameCycle(roomId);
+            const gameStateManager = new gameStateManager_1.default(app_1.io, roomId);
+            yield gameStateManager.startGameCycle(roomId);
         }
         else {
             socket.emit('gameJoined', { DTO });
