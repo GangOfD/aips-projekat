@@ -12,15 +12,15 @@ import {
     IconButton,
     Modal,
   } from "@mui/material";
-  import {
+import {
     Casino,
     PlaylistPlay,
     Cancel
   } from "@mui/icons-material";
-  import { Formik } from "formik";
-  import * as yup from "yup";
-  import CustomModal from "./CustomModal";
-  import socket from "Socket/socketInstance";
+import { Formik } from "formik";
+import * as yup from "yup";
+import CustomModal from "./CustomModal";
+import socket from "Socket/socketInstance";
 
 const JoinGame=({freeRooms})=>{
 
@@ -32,78 +32,79 @@ const JoinGame=({freeRooms})=>{
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const [message,setMessage]=useState("");
     const [roomModal, setRoomModal]=useState(false);
+
+    useEffect(()=>{
+        socket.on('joinError',(res)=>{
+            setMessage(res);
+        });
+        socket.on('gameJoined',(data)=>{
+            navigate(`/game/${data.DTO.gameId}`);
+        });
+
+        return () => {
+            socket.off('joinError');
+            socket.off('gameJoined');
+          };
+    },[])
     
-
-    socket.on('joinError',({res})=>{
-        setMessage(res);
-    })
-
-    socket.on('gameJoined', ({ roomId }) => {
-        console.log(`Pridruzili ste se sobi ${roomId} `);
-        //navigate(`/game/${roomId}`);
-       
-    });
 
     const joinGameSchema = yup.object().shape({
         roomId: yup.string().required("required"),
        });
-
 
     const joinGameValues = {
             roomId:""
     };    
 
     const handleFormSubmit = async (values, action) => {
-        // if(action==="join" && values.roomId)  await joinGame(values);
-        console.log(values.roomId, user.username);
-        if(action==="join" && values.roomId)  socket.emit('joinGame', {roomId:values.roomId,username:user.username});
+        if(action==="join" && values.roomId)  socket.emit('joinGame', {roomId:values.roomId, userId:'657f1f0a3176e2817db8312c'});
     };
 
-    const  joinGame= async (values) =>{
-        console.log(values);
-        try{
-            const joinGameResponse= await fetch(
-                `http://localhost:3002/games/join`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                  },
-                  body: JSON.stringify(values),
-                }
-              );
+    // const  joinGame= async (values) =>{
+    //     console.log(values);
+    //     try{
+    //         const joinGameResponse= await fetch(
+    //             `http://localhost:3002/games/join`,
+    //             {
+    //               method: "POST",
+    //               headers: {
+    //                 "Content-Type": "application/json",
+    //                 "Authorization": `Bearer ${token}`,
+    //               },
+    //               body: JSON.stringify(values),
+    //             }
+    //           );
 
-              const joinedGame = await joinGameResponse.json();
-              if (!joinGameResponse.ok) {
+    //           const joinedGame = await joinGameResponse.json();
+    //           if (!joinGameResponse.ok) {
                 
-                if(joinGameResponse.status==404){
+    //             if(joinGameResponse.status==404){
         
-                    setMessage(joinedGame.message);
-                }
-                else if (joinGameResponse.status==400){
-                    if(joinedGame.message='You have already joined this game'){
-                        navigate(`/game/${values.roomId}`);
-                    }
-                }
-                else{
-                    throw new Error('Mistake during create game fetching');
-                }
+    //                 setMessage(joinedGame.message);
+    //             }
+    //             else if (joinGameResponse.status==400){
+    //                 if(joinedGame.message='You have already joined this game'){
+    //                     navigate(`/game/${values.roomId}`);
+    //                 }
+    //             }
+    //             else{
+    //                 throw new Error('Mistake during create game fetching');
+    //             }
                 
-              }
+    //           }
 
-              else{
-                navigate(`/game/${values.roomId}`);
-              }
+    //           else{
+    //             navigate(`/game/${values.roomId}`);
+    //           }
             
               
               
 
-        }
-        catch(error){
-            console.error("Mistake during joining game",error);
-        }
-    };
+    //     }
+    //     catch(error){
+    //         console.error("Mistake during joining game",error);
+    //     }
+    // };
 
     
 

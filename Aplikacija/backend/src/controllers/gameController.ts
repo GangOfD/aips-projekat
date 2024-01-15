@@ -72,7 +72,7 @@ export const joinGame = async (data: { roomId: string, userId: string }, socket:
     const updatedGame = await gameRepo.update(game._id, { 
       players: [...game.players, userIdObj]
     });
-
+    //msm da prvo trebas da sejvujes bazu pa onda da mi vratis igrace
     const playerIds = game.players;
     const players = await Player.find({ _id: { $in: playerIds } });
     const playerNames = players.map(player => player.username);

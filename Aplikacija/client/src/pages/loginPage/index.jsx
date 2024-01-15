@@ -3,11 +3,14 @@ import Form from "./Form";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { changeMode } from "state";
 let backgroundImage =require('../../assets/background.jpg');
 
 const LoginPage = () => {
   const theme = useTheme();
   const navigate= useNavigate();
+  const dispatch=useDispatch();
   const token= useSelector((state)=>state.token);
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const primaryLight = theme.palette.primary.light;
@@ -15,6 +18,9 @@ const LoginPage = () => {
   useEffect(()=>{
     if(token){
       navigate("/home");
+    }
+    else{
+      dispatch(changeMode("dark"));
     }
   },[]);
 

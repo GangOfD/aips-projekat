@@ -9,7 +9,7 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { joinGame } from './controllers/gameController';
-import { simulateClient } from './simulateClient';
+//import { simulateClient } from './simulateClient';
 
 dotenv.config();
 
@@ -50,6 +50,8 @@ io.on('connection', (socket) => {
   
     socket.on('joinGame', async (data) => {
       try {
+        console.log(data);
+        
         await joinGame(data, socket);
       } catch (error) {
         console.error('Error in socket joinGame:', error);
@@ -73,12 +75,7 @@ const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-setTimeout(() => {
-    const fakeClientData = { roomId: '67', userId: '657f1f0a3176e2817db8312c' };
-  
-    io.emit('joinGame', fakeClientData);
-  }, 5000);
+
 export { io };
-simulateClient();
 
 export default app;
