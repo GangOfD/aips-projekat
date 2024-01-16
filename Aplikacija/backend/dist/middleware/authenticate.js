@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authenticateUser = void 0;
+exports.verifyToken = exports.authenticateUser = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const playerModel_1 = __importDefault(require("../models/playerModel"));
 const authenticateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -59,3 +59,26 @@ const authenticateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.authenticateUser = authenticateUser;
+const verifyToken = (token) => {
+    try {
+        if (!process.env.JWT_SECRET) {
+            console.error('JWT_SECRET is not defined in the environment');
+            return null;
+        }
+        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        return decoded ? decoded._id : null;
+    }
+    catch (error) {
+        if (error instanceof jsonwebtoken_1.default.TokenExpiredError) {
+            console.error("Token is expired");
+        }
+        else if (error instanceof jsonwebtoken_1.default.JsonWebTokenError) {
+            console.error("Invalid token");
+        }
+        else {
+            console.error("Unknown error during token verification:", error instanceof Error ? error.message : "Unknown");
+        }
+        return null;
+    }
+};
+exports.verifyToken = verifyToken;

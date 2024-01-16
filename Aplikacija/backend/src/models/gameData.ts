@@ -1,37 +1,65 @@
+import mongoose from "mongoose";
 import Question, { IQuestion } from "../models/questionModel";
+import { GameRepo } from "../repository/gameRepository";
+import { UserState } from "../store/store";
+import Game from "./gameModel";
 
-interface UserResponse {
-    answer: string;
-    timestamp: number;
+export interface UserResponse {
+    userId: string;
+    answer: number;
+    timeTaken: number;
 }
 
-export default class GameData {
-    players: string[];
+export class GameData {
+    players: Map<string, UserState>;
     questions: IQuestion[];
     currentQuestionIndex: number;
-    responses: { [questionId: string]: UserResponse[] };
+    responses: Map<string, UserResponse[]>; 
 
-    constructor(players: string[], questionIds: string[], currentQuestionIndex: number, responses: { [questionId: string]: UserResponse[] }) {
-        this.players = players;
-        this.questions = [];
-        this.currentQuestionIndex = currentQuestionIndex;
-        this.responses = responses;
-    }
-
-    private async populateQuestions(questionIds: string[]) {
-        const questions = await Question.find({ '_id': { $in: questionIds } });
+    constructor(questions: IQuestion[], playersData: Map<string, UserState>) {
+        this.players = playersData;
         this.questions = questions;
+        this.currentQuestionIndex = 0;
+        this.responses = new Map();
     }
 
-    static async fromMongoEntity(entity: any): Promise<GameData> {
-        const gameData = new GameData(
-            entity.players,
-            entity.questions, 
-            entity.currentQuestionIndex,
-            entity.responses
-        );
+    recordResponse(questionId: string, response: UserResponse) {
+        if (!this.responses.has(questionId)) {
+            this.responses.set(questionId, []);
+        }
+        this.responses.get(questionId)?.push(response);
+    }
+    
+}
 
-        await gameData.populateQuestions(entity.questions);
-        return gameData;
+export async function prepareGameData(roomId: string): Promise<GameData | null> {
+    try {
+
+        const gameDataFromDB = await Game.findOne({gameId:roomId}).populate('questions');
+
+        if (!gameDataFromDB) return null;
+
+        if (!gameDataFromDB.questions || !Array.isArray(gameDataFromDB.questions)) {
+            throw new Error('Questions could not be populated');
+        }
+
+        const questions: IQuestion[] = gameDataFromDB.questions as unknown as IQuestion[];
+        const playersData = new Map<string, UserState>();
+
+        gameDataFromDB.players.forEach(playerId => {
+            const userState: UserState = {
+                score: 0,
+                currentAnswer: null,
+                answerTime: null,
+                hasAnswered: false,
+                isCorrect: false
+            };
+            playersData.set(playerId.toString(), userState);
+        });
+
+        return new GameData(questions, playersData);
+    } catch (error) {
+        console.error('Error preparing game data:', error);
+        return null;
     }
 }

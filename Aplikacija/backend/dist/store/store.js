@@ -1,60 +1,92 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const gameModel_1 = __importDefault(require("../models/gameModel"));
-const gameData_1 = __importDefault(require("../models/gameData"));
 class Store {
     constructor() {
-        this.games = {};
-        this.userStates = {};
-        // ... other methods and functionalities ...
+        this.userStates = new Map();
+        this.games = new Map();
     }
-    initStore(roomId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // const game = await gameRepo.getById(roomId);
-            const game = yield gameModel_1.default.findOne({ gameId: roomId });
-            if (game != null) {
-                this.games[roomId] = yield gameData_1.default.fromMongoEntity(game);
-                this.games[roomId].currentQuestionIndex = 0;
-            }
-            console.log("Ready ", this.games[roomId]);
-        });
+    addGameData(roomId, gameData) {
+        if (this.games.get(roomId))
+            throw new Error(`Game with an ID ${roomId} already exists`);
+        this.games.set(roomId, gameData);
+    }
+    getGameData(gameId) {
+        return this.games.get(gameId);
+    }
+    updateUserState(userId, updates) {
+        const userState = this.userStates.get(userId);
+        if (userState) {
+            this.userStates.set(userId, Object.assign(Object.assign({}, userState), updates));
+        }
+        else {
+            console.error(`UserState not found for userId: ${userId}`);
+        }
+    }
+    getUserState(userId) {
+        return this.userStates.get(userId);
     }
     getNextQuestion(roomId) {
-        const game = this.games[roomId];
-        if (!game || game.currentQuestionIndex >= game.questions.length - 1) {
+        const gameData = this.games.get(roomId);
+        if (!gameData) {
+            console.error('Game not found for roomId:', roomId);
             return null;
         }
-        game.currentQuestionIndex++;
-        return game.questions[game.currentQuestionIndex];
+        if (gameData.currentQuestionIndex < gameData.questions.length) {
+            const nextQuestion = gameData.questions[gameData.currentQuestionIndex];
+            gameData.currentQuestionIndex++;
+            return nextQuestion;
+        }
+        else {
+            return null;
+        }
+    }
+    recordUserAnswer(roomId, userId, currentAnswer) {
+        const game = this.getGame(roomId);
+        if (!game) {
+            return;
+        }
+        const userState = game.players.get(userId);
+        if (!userState) {
+            console.log(`User ${userId} not found in game ${roomId}.`);
+            return;
+        }
+        userState.currentAnswer = currentAnswer;
     }
     calculateResultsForQuestion(roomId) {
     }
     isGameOver(roomId) {
-        const game = this.games[roomId];
-        if (!game) {
+        const gameData = this.games.get(roomId);
+        if (!gameData) {
+            console.error('Game not found for roomId:', roomId);
             return true;
         }
-        return game.currentQuestionIndex >= game.questions.length - 1;
+        return gameData.currentQuestionIndex >= gameData.questions.length;
     }
     getFinalScores(roomId) {
-        // Calculate and return final scores for the game
-        const game = this.games[roomId];
-        if (!game) {
+        const gameData = this.games.get(roomId);
+        if (!gameData) {
+            console.error('Game not found for roomId:', roomId);
             return {};
         }
-        // Logic to compile final scores
+        // Initialize an object to hold final scores
+        const finalScores = {};
+        // Assuming each response in gameData.responses has a userId and a score
+        gameData.responses.forEach((responses, questionId) => {
+            responses.forEach((response) => {
+                if (!finalScores[response.userId]) {
+                    finalScores[response.userId] = 0;
+                }
+                // Add the score for this response to the user's total score
+                finalScores[response.userId] += this.calculateScoreForResponse(response);
+            });
+        });
+        return finalScores;
+    }
+    calculateScoreForResponse(response) {
+        return 10;
+    }
+    getGame(roomId) {
+        return this.games.get(roomId) || null;
     }
 }
 exports.default = new Store();

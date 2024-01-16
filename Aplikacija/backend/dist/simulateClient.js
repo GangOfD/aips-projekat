@@ -19,9 +19,8 @@ const simulateClient = () => {
     const socket = (0, socket_io_client_1.default)('http://localhost:3002');
     socket.on('connect', () => {
         console.log('\x1b[34m', 'Simulated client connected');
-        // Emit events or perform actions as the client
         socket.emit('joinGame', { roomId: '67', userId: '657f1f0a3176e2817db8312c' });
-        // Handle any events that the server sends to the client
+        socket.emit('receiveAnswer', { roomId: '67', userId: '657f1f0a3176e2817db8312c' });
         socket.on('newQuestion', (data) => {
             console.log('\x1b[34m', 'Stiglo pitanje:', data);
         });

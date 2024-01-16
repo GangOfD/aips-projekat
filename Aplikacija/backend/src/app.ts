@@ -9,12 +9,17 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { joinGame } from './controllers/gameController';
-//import { simulateClient } from './simulateClient';
+import { simulateClient } from './simulateClient';
+import { verify } from 'crypto';
+import { verifyToken } from './middleware/authenticate';
+import AnswerCommand from '../src/commands/AnswerCommand';
+
 
 dotenv.config();
+const PORT = process.env.PORT || 3000;
+
 
 const app: Application = express();
-console.log('MongoDB Preparing...');
 app.use(cors());
 
 connectDB();
@@ -23,9 +28,6 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/home', (req: Request, res: Response) => {
-  res.send('Hello World from HigherLower!');
-});
 
 app.get('/config', (req, res) => {
   res.json({ port: process.env.PORT });
@@ -50,8 +52,6 @@ io.on('connection', (socket) => {
   
     socket.on('joinGame', async (data) => {
       try {
-        console.log(data);
-        
         await joinGame(data, socket);
       } catch (error) {
         console.error('Error in socket joinGame:', error);
@@ -61,21 +61,35 @@ io.on('connection', (socket) => {
 
     socket.on('receiveAnswer', async (data) => {
       try {
-         //evaluateUserResponse(roomId, userId,answerNumber);
-      } catch (error) {
-        console.error('Error in socket receiveAnswer:', error);
-        socket.emit('receiveAnswerError', 'Error while answering');
-      }
-    });
+          const token = data.token;
 
+          const userId = verifyToken(token); //Kad se testira, ovde treba poslati ID
+
+          if (!userId) {
+              throw new Error('Invalid or expired token');
+          }
+
+          const { answerValue,gameId } = data;
+
+          const command = new AnswerCommand(userId, answerValue,gameId);
+
+          command.execute();
+
+          socket.emit('answerReceived', { userId: userId, status: 'success' });
+
+      } catch (error) {
+          console.error('Error in socket receiveAnswer:', error);
+          socket.emit('receiveAnswerError', { error: 'Error while answering' });
+      }
   });
 
-const PORT = process.env.PORT || 3000;
+  });
 
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+simulateClient();
 export { io };
 
 export default app;

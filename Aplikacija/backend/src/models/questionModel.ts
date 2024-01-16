@@ -6,7 +6,13 @@ interface IOption {
   hint:string;
 }
 
-export interface IQuestion extends Document {
+export interface questionDto {
+  questionText: string;
+  options: string[];
+  img:string|undefined;
+}
+
+export interface IQuestion {
   questionText: string;
   options: IOption[];
   correctAnswerIndex: number;

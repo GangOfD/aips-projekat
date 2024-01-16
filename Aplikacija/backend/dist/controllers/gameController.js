@@ -68,6 +68,7 @@ const joinGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* (
         const updatedGame = yield gameRepo.update(game._id, {
             players: [...game.players, userIdObj]
         });
+        yield (updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.save());
         const playerIds = game.players;
         const players = yield playerModel_1.default.find({ _id: { $in: playerIds } });
         const playerNames = players.map(player => player.username);
@@ -122,7 +123,6 @@ const createGame = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const { roomId } = req.body;
         const userId = req.userId;
-        console.log(roomId, typeof roomId);
         const existingGame = yield gameRepo.getById(roomId);
         if (existingGame) {
             return res.status(403).json({ message: 'Game with this ID already exists' });
@@ -136,7 +136,7 @@ const createGame = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             gameId: roomId,
             createdBy: new mongoose_1.default.Types.ObjectId(userId),
             players: [],
-            questions: questions.map(q => q._id),
+            //questions: questions.map(q => q._id),
             status: 'waiting',
             createdAt: new Date()
         };

@@ -24,18 +24,16 @@ const cors_1 = __importDefault(require("cors"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const gameController_1 = require("./controllers/gameController");
-const simulateClient_1 = require("./simulateClient");
+const authenticate_1 = require("./middleware/authenticate");
+const AnswerCommand_1 = __importDefault(require("../src/commands/AnswerCommand"));
 dotenv_1.default.config();
+const PORT = process.env.PORT || 3000;
 const app = (0, express_1.default)();
-console.log('MongoDB Preparing...');
 app.use((0, cors_1.default)());
 (0, mongodb_1.default)();
 // Middleware
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-app.get('/home', (req, res) => {
-    res.send('Hello World from HigherLower!');
-});
 app.get('/config', (req, res) => {
     res.json({ port: process.env.PORT });
 });
@@ -62,8 +60,24 @@ io.on('connection', (socket) => {
             socket.emit('joinError', 'Error joining game');
         }
     }));
+    socket.on('receiveAnswer', (data) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const token = data.token;
+            const userId = (0, authenticate_1.verifyToken)(token);
+            if (!userId) {
+                throw new Error('Invalid or expired token');
+            }
+            const { answerValue, gameId } = data;
+            const command = new AnswerCommand_1.default(userId, answerValue, gameId);
+            command.execute();
+            socket.emit('answerReceived', { userId: userId, status: 'success' });
+        }
+        catch (error) {
+            console.error('Error in socket receiveAnswer:', error);
+            socket.emit('receiveAnswerError', { error: 'Error while answering' });
+        }
+    }));
 });
-const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
@@ -71,5 +85,4 @@ setTimeout(() => {
     const fakeClientData = { roomId: '67', userId: '657f1f0a3176e2817db8312c' };
     io.emit('joinGame', fakeClientData);
 }, 5000);
-(0, simulateClient_1.simulateClient)();
 exports.default = app;

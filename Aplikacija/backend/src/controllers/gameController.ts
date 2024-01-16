@@ -10,6 +10,7 @@ import Store from '../store/store'
 import GameStateManager from '../store/gameStateManager'
 import {gameDto} from '../models/gameDto'
 import Player from '../models/playerModel';
+import {GameData} from '../models/gameData';
 
 
 
@@ -72,7 +73,9 @@ export const joinGame = async (data: { roomId: string, userId: string }, socket:
     const updatedGame = await gameRepo.update(game._id, { 
       players: [...game.players, userIdObj]
     });
-    //msm da prvo trebas da sejvujes bazu pa onda da mi vratis igrace
+
+    await updatedGame?.save(); 
+
     const playerIds = game.players;
     const players = await Player.find({ _id: { $in: playerIds } });
     const playerNames = players.map(player => player.username);
@@ -90,7 +93,6 @@ export const joinGame = async (data: { roomId: string, userId: string }, socket:
       socket.broadcast.emit('gameStarted', updatedGame);   
       const gameStateManager = new GameStateManager(io, roomId);
       await gameStateManager.startGameCycle(roomId);
-
     } else {
       socket.emit('gameJoined', { DTO });
       socket.broadcast.emit('playerJoined', { DTO });
@@ -134,7 +136,6 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
     const { roomId } = req.body;
     const userId = req.userId;
 
-    console.log(roomId, typeof roomId)
     const existingGame = await gameRepo.getById(roomId);
     if (existingGame) {
       return res.status(403).json({ message: 'Game with this ID already exists' });
@@ -151,7 +152,7 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
       gameId: roomId,
       createdBy: new mongoose.Types.ObjectId(userId),
       players: [],
-      questions: questions.map(q => q._id),
+      //questions: questions.map(q => q._id),
       status: 'waiting',
       createdAt: new Date() 
     };

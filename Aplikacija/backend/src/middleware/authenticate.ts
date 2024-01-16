@@ -52,3 +52,24 @@ export const authenticateUser = async (req: AuthRequest, res: Response, next: Ne
     res.status(401).json({ message: 'Invalid token' });
 }
 };
+
+export const verifyToken = (token: string): string | null => {
+  try {
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not defined in the environment');
+      return null;
+    }
+
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded ? decoded._id : null;
+  } catch (error: unknown) {
+    if (error instanceof jwt.TokenExpiredError) {
+      console.error("Token is expired");
+    } else if (error instanceof jwt.JsonWebTokenError) {
+      console.error("Invalid token");
+    } else {
+      console.error("Unknown error during token verification:", error instanceof Error ? error.message : "Unknown");
+    }
+    return null;
+  }
+};

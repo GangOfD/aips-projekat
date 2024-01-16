@@ -28,9 +28,7 @@ class GameRepo {
     getById(roomId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("Querying for roomId:", roomId);
                 const game = yield this.gameModel.findOne({ gameId: roomId });
-                console.log("Found game:", game);
                 return game;
             }
             catch (error) {

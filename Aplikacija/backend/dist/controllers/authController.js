@@ -51,7 +51,6 @@ const loginPlayer = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         user = new userDto_1.default(player.email, player.username, player.age);
         const token = jsonwebtoken_1.default.sign({ _id: player._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.header('auth-token', token).json({ message: 'Logged in successfully', token, user });
-        console.log(req.headers);
     }
     catch (error) {
         res.status(500).json({ message: error.message });

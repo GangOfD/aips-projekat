@@ -6,6 +6,6 @@ export default class UndoAnswerCommand implements ICommand {
     constructor(private userId: string) {}
 
     execute(): void {
-        Store.updateUserState(this.userId, { currentAnswer: null });
+        // Store.updateUserState(this.userId, { currentAnswer: null });
     }
 }

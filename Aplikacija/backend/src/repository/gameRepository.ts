@@ -19,9 +19,7 @@ export class GameRepo {
 
     async getById(roomId: string): Promise<IGame | null> {
     try {
-      console.log("Querying for roomId:", roomId);
       const game = await this.gameModel.findOne({ gameId: roomId });
-      console.log("Found game:", game);
       return game;
     } catch (error:any) {
       throw new Error(`Error while fetching game by room ID: ${error.message}`);
