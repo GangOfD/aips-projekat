@@ -20,9 +20,10 @@ const simulateClient = () => {
     socket.on('connect', () => {
         console.log('\x1b[34m', 'Simulated client connected');
         socket.emit('joinGame', { roomId: '67', userId: '657f1f0a3176e2817db8312c' });
-        socket.emit('receiveAnswer', { roomId: '67', userId: '657f1f0a3176e2817db8312c' });
+        //  socket.emit('receiveAnswer', { roomId: '67', userId: '657f1f0a3176e2817db8312c', answer:1 });
         socket.on('newQuestion', (data) => {
             console.log('\x1b[34m', 'Stiglo pitanje:', data);
+            socket.emit('receiveAnswer', { gameId: '67', userId: '657f1f0a3176e2817db8312c', answerValue: 1 });
         });
         socket.on('questionResults', (data) => {
             console.log('\x1b[34m', 'Stigli rezultati:', data);

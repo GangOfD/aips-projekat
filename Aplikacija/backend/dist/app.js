@@ -24,7 +24,7 @@ const cors_1 = __importDefault(require("cors"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const gameController_1 = require("./controllers/gameController");
-const authenticate_1 = require("./middleware/authenticate");
+const simulateClient_1 = require("./simulateClient");
 const AnswerCommand_1 = __importDefault(require("../src/commands/AnswerCommand"));
 dotenv_1.default.config();
 const PORT = process.env.PORT || 3000;
@@ -62,8 +62,9 @@ io.on('connection', (socket) => {
     }));
     socket.on('receiveAnswer', (data) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const token = data.token;
-            const userId = (0, authenticate_1.verifyToken)(token);
+            //const token = data.token;
+            //const userId = verifyToken(token); //Kad se testira, ovde treba poslati ID
+            const userId = "657f1f0a3176e2817db8312c";
             if (!userId) {
                 throw new Error('Invalid or expired token');
             }
@@ -81,8 +82,5 @@ io.on('connection', (socket) => {
 httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-setTimeout(() => {
-    const fakeClientData = { roomId: '67', userId: '657f1f0a3176e2817db8312c' };
-    io.emit('joinGame', fakeClientData);
-}, 5000);
+(0, simulateClient_1.simulateClient)();
 exports.default = app;

@@ -21,10 +21,4 @@ export default class AnswerCommand implements ICommand {
        Store.recordUserAnswer(this.gameId,this.userId,this.answerValue)
 
     }
-
-    private checkAnswerCorrectness(questionId: string, answerValue: string | number): boolean {
-        // Implement the logic to check if the answer is correct
-        // This might involve fetching the question details and comparing the answer
-        return true; // Placeholder return value
-    }
 }

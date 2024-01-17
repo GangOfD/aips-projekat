@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prepareGameData = exports.GameData = void 0;
 const gameModel_1 = __importDefault(require("./gameModel"));
+const playerModel_1 = __importDefault(require("./playerModel"));
 class GameData {
     constructor(questions, playersData) {
         this.players = playersData;
@@ -41,16 +42,19 @@ function prepareGameData(roomId) {
             }
             const questions = gameDataFromDB.questions;
             const playersData = new Map();
-            gameDataFromDB.players.forEach(playerId => {
+            for (const playerId of gameDataFromDB.players) {
+                const playerDoc = yield playerModel_1.default.findById(playerId);
+                const username = playerDoc ? playerDoc.username : "Unknown";
                 const userState = {
                     score: 0,
                     currentAnswer: null,
                     answerTime: null,
                     hasAnswered: false,
-                    isCorrect: false
+                    isCorrect: false,
+                    username: username
                 };
                 playersData.set(playerId.toString(), userState);
-            });
+            }
             return new GameData(questions, playersData);
         }
         catch (error) {

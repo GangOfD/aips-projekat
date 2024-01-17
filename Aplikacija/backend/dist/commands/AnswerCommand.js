@@ -4,14 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const store_1 = __importDefault(require("../store/store"));
-const authenticate_1 = require("../middleware/authenticate");
 class AnswerCommand {
     constructor(token, answerValue, gameId) {
-        this.userId = (0, authenticate_1.verifyToken)(token);
+        // this.userId = verifyToken(token); 
+        this.userId = "657f1f0a3176e2817db8312c";
         this.answerValue = answerValue;
         this.gameId = gameId;
     }
     execute() {
+        this.userId = "657f1f0a3176e2817db8312c";
         if (this.userId === null) {
             throw new Error('Invalid token');
         }

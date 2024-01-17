@@ -3,6 +3,7 @@ import Question, { IQuestion } from "../models/questionModel";
 import { GameRepo } from "../repository/gameRepository";
 import { UserState } from "../store/store";
 import Game from "./gameModel";
+import Player from "./playerModel";
 
 export interface UserResponse {
     userId: string;
@@ -34,8 +35,7 @@ export class GameData {
 
 export async function prepareGameData(roomId: string): Promise<GameData | null> {
     try {
-
-        const gameDataFromDB = await Game.findOne({gameId:roomId}).populate('questions');
+        const gameDataFromDB = await Game.findOne({ gameId: roomId }).populate('questions');
 
         if (!gameDataFromDB) return null;
 
@@ -46,16 +46,21 @@ export async function prepareGameData(roomId: string): Promise<GameData | null> 
         const questions: IQuestion[] = gameDataFromDB.questions as unknown as IQuestion[];
         const playersData = new Map<string, UserState>();
 
-        gameDataFromDB.players.forEach(playerId => {
+        for (const playerId of gameDataFromDB.players) {
+            const playerDoc = await Player.findById(playerId);
+            const username = playerDoc ? playerDoc.username : "Unknown";
+
             const userState: UserState = {
                 score: 0,
                 currentAnswer: null,
                 answerTime: null,
                 hasAnswered: false,
-                isCorrect: false
+                isCorrect: false,
+                username: username
             };
+
             playersData.set(playerId.toString(), userState);
-        });
+        }
 
         return new GameData(questions, playersData);
     } catch (error) {

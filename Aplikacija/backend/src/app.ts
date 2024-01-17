@@ -64,6 +64,7 @@ io.on('connection', (socket) => {
           const token = data.token;
 
           const userId = verifyToken(token); //Kad se testira, ovde treba poslati ID
+          //const userId="657f1f0a3176e2817db8312c";
 
           if (!userId) {
               throw new Error('Invalid or expired token');

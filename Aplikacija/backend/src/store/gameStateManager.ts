@@ -31,7 +31,7 @@ class GameStateManager {
 
     sendQuestion(roomId: string) {
         if (Store.isGameOver(roomId)) {
-            this.showFinalTable(roomId);
+            this.showResults(roomId);
             return;
         }
 
@@ -42,31 +42,24 @@ class GameStateManager {
             this.io.emit('newQuestion', questionDto);
 
             this.questionTimer = setTimeout(() => {
+                Store.updateScoresAfterQuestion(roomId)
                 this.showResults(roomId);
             }, 10000);
         } else {
-            this.showFinalTable(roomId);
+            // this.showFinalTable(roomId);
         }
     }
 
     showResults(roomId:string) {
-        //const results = Store.calculateResultsForQuestion(this.currentQuestion);
-       // this.io.emit('questionResults', results);
+       const results = Store.getScoreboardTable(roomId);
+       this.io.emit('questionResults', results);
 
-        // After 5 seconds, send the next question or end game
         setTimeout(() => {
             this.sendQuestion(roomId);
         }, 5000);
     }
 
-    //evaluateUserResponse(roomId, userId,answerNumber){}
 
-
-    showFinalTable(roomId:string) {
-        const finalScores = Store.getFinalScores(roomId);
-        this.io.emit('gameOver', finalScores);
-        // Store.resetGame();  // Reset the game state for a new game
-    }
 }
 
 export default GameStateManager;

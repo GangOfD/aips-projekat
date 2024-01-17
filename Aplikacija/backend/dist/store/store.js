@@ -43,16 +43,36 @@ class Store {
     recordUserAnswer(roomId, userId, currentAnswer) {
         const game = this.getGame(roomId);
         if (!game) {
-            return;
+            throw new Error('Game not found -recordUserAnswer');
+            // return;
         }
         const userState = game.players.get(userId);
         if (!userState) {
             console.log(`User ${userId} not found in game ${roomId}.`);
-            return;
+            throw new Error('userState not found -recordUserAnswer');
+            // return; 
         }
         userState.currentAnswer = currentAnswer;
+        userState.answerTime = Date.now();
+        console.log("Korisnikov odgovor je upravo zabelezen.", userState.answerTime, " i ", userState.currentAnswer);
     }
-    calculateResultsForQuestion(roomId) {
+    getScoreboardTable(roomId) {
+        const gameData = this.games.get(roomId);
+        if (!gameData) {
+            throw new Error('Game not found');
+        }
+        const results = {
+            gameId: roomId,
+            questionsAsked: gameData.currentQuestionIndex,
+            scoreBoard: []
+        };
+        gameData.players.forEach((userState, userId) => {
+            const username = userState.username;
+            const points = userState.score;
+            results.scoreBoard.push({ username, points });
+        });
+        results.scoreBoard.sort((a, b) => b.points - a.points);
+        return results;
     }
     isGameOver(roomId) {
         const gameData = this.games.get(roomId);
@@ -62,28 +82,46 @@ class Store {
         }
         return gameData.currentQuestionIndex >= gameData.questions.length;
     }
-    getFinalScores(roomId) {
+    getCorrectAnswerIndex(gameData) {
+        let qNumber = gameData.currentQuestionIndex;
+        if (qNumber <= 0 || qNumber > gameData.questions.length) {
+            console.error(`Invalid question number: ${qNumber}`);
+            return -1;
+        }
+        return gameData.questions[qNumber - 1].correctAnswerIndex;
+    }
+    updateScoresAfterQuestion(roomId) {
         const gameData = this.games.get(roomId);
         if (!gameData) {
             console.error('Game not found for roomId:', roomId);
-            return {};
+            return;
         }
-        // Initialize an object to hold final scores
-        const finalScores = {};
-        // Assuming each response in gameData.responses has a userId and a score
-        gameData.responses.forEach((responses, questionId) => {
-            responses.forEach((response) => {
-                if (!finalScores[response.userId]) {
-                    finalScores[response.userId] = 0;
-                }
-                // Add the score for this response to the user's total score
-                finalScores[response.userId] += this.calculateScoreForResponse(response);
-            });
-        });
-        return finalScores;
+        const correctAnswerIndex = this.getCorrectAnswerIndex(gameData);
+        this.assignPointsToPlayers(gameData, correctAnswerIndex);
     }
-    calculateScoreForResponse(response) {
-        return 10;
+    assignPointsToPlayers(gameData, correctAnswerIndex) {
+        const correctResponses = this.getCorrectResponses(gameData, correctAnswerIndex);
+        this.assignPointsForCorrectAnswers(correctResponses);
+        this.assignPointsForIncorrectAndNoAnswers(gameData, correctAnswerIndex);
+    }
+    getCorrectResponses(gameData, correctAnswerIndex) {
+        return Array.from(gameData.players)
+            .filter(([_, userState]) => userState.currentAnswer === correctAnswerIndex)
+            .sort((a, b) => { var _a, _b; return ((_a = a[1].answerTime) !== null && _a !== void 0 ? _a : Number.MAX_VALUE) - ((_b = b[1].answerTime) !== null && _b !== void 0 ? _b : Number.MAX_VALUE); });
+    }
+    assignPointsForCorrectAnswers(correctResponses) {
+        const pointsForCorrect = [4, 3, 2, 1];
+        correctResponses.forEach(([userId, userState], index) => {
+            var _a;
+            userState.score += (_a = pointsForCorrect[index]) !== null && _a !== void 0 ? _a : 1;
+        });
+    }
+    assignPointsForIncorrectAndNoAnswers(gameData, correctAnswerIndex) {
+        gameData.players.forEach((userState) => {
+            if (userState.currentAnswer !== correctAnswerIndex && userState.currentAnswer !== null) {
+                userState.score -= 1;
+            }
+        });
     }
     getGame(roomId) {
         return this.games.get(roomId) || null;
