@@ -11,10 +11,13 @@ import GameStateManager from '../store/gameStateManager'
 import {gameDto} from '../models/gameDto'
 import Player from '../models/playerModel';
 import {GameData} from '../models/gameData';
+import { PlayerRepository } from '../repository/playerRepository';
+import { verifyToken } from '../middleware/authenticate';
 
 
 
 const gameRepo = new GameRepository(Game);
+const playerRepo = new PlayerRepository(Player)
 
 interface RequestWithUserId extends Request {
   userId?: string;
@@ -49,9 +52,56 @@ interface RequestWithUserId extends Request {
 //     res.status(500).json({ message: 'Internal server error' });
 //   }
 // };
-export const joinGame = async (data: { roomId: string, userId: string }, socket: Socket) => {
+
+export const startGame = async (data: { roomId: string, userId: string }, socket: Socket) => {
+  try{
+    const game = await gameRepo.getById(data.roomId);
+    const player = await playerRepo.getById(data.userId);
+    
+    if(!(game && player))
+    return;
+
+    if(game.players?.length!==4)
+    return;
+
+    if(game.status!="waiting")
+    return;
+
+    game.status="inProgress"
+    await game.save();
+    
+    const playerIds = game.players;
+    const players = await Player.find({ _id: { $in: playerIds } });
+    const playerNames = players.map(player => player.username);
+    let DTO: gameDto = {
+      createdAt: game.createdAt,
+      players:playerNames,
+      status:game.status,
+      gameId:game.gameId,
+      createdBy: (await Player.findById(game.createdBy))?.username ?? "Unknown"
+    };
+
+    socket.emit('gameStarted', DTO); 
+    socket.broadcast.emit('gameStarted', DTO);   
+    const gameStateManager = new GameStateManager(io, data.roomId);
+    await gameStateManager.startGameCycle(data.roomId);
+
+  }
+  catch(error){
+    console.error('Error in startGame:', error);
+    socket.emit('startError', 'Error starting the game');
+  }
+}
+export const joinGame = async (data: { roomId: string, token: string }, socket: Socket) => {
   try {
-    const { roomId, userId } = data;
+    const { roomId, token } = data;
+
+    const userId = verifyToken(token);
+    if (!userId) {
+      socket.emit('joinError', 'Invalid or expired token');
+      return;
+    }
+
 
     const game = await gameRepo.getById(roomId);
     if (!game) {
@@ -74,29 +124,23 @@ export const joinGame = async (data: { roomId: string, userId: string }, socket:
       players: [...game.players, userIdObj]
     });
 
+    
     await updatedGame?.save(); 
 
-    const playerIds = game.players;
+    const playerIds = updatedGame?.players;
     const players = await Player.find({ _id: { $in: playerIds } });
     const playerNames = players.map(player => player.username);
     let DTO: gameDto = {
-      createdAt: game.createdAt,
+      createdAt: updatedGame?.createdAt ? updatedGame?.createdAt : null,
       players:playerNames,
-      status:game.status,
-      gameId:game.gameId,
-      createdBy: (await Player.findById(game.createdBy))?.username ?? "Unknown"
+      status:updatedGame?.status ? updatedGame?.status : "waiting",
+      gameId:updatedGame?.gameId ? updatedGame?.gameId : "Error",
+      createdBy: (await Player.findById(updatedGame?.createdBy))?.username ?? "Unknown"
     };
 
-    if (updatedGame?.players.length == 4) {
-      console.log("Socket is emitting, hi there");
-      socket.emit('gameStarted', DTO); 
-      socket.broadcast.emit('gameStarted', updatedGame);   
-      const gameStateManager = new GameStateManager(io, roomId);
-      await gameStateManager.startGameCycle(roomId);
-    } else {
       socket.emit('gameJoined', { DTO });
       socket.broadcast.emit('playerJoined', { DTO });
-    }
+    
   } catch (error) {
     console.error('Error in joinGame:', error);
     socket.emit('joinError', 'Error joining game');
@@ -196,4 +240,6 @@ export const getAllAvailableGames = async (req: RequestWithUserId, res: Response
       res.status(500).json({ message: 'Internal server error' });
     }
   };
+  
+  
 

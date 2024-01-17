@@ -6,8 +6,10 @@ import io from 'socket.io-client';
 
      socket.on('connect', () => {
          console.log('\x1b[34m', 'Simulated client connected');
+         const token = "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTg3NmRkMWQ1MTE1Y2QyMmY3ZDk4NWYiLCJpYXQiOjE3MDU1MzI4NDcsImV4cCI6MTcwNTUzNjQ0N30.iw0-kLfD0mwDo_J5TsGvEp7sFV4CoYxbUzLYEIPV5NM\"";
+         const tokenJSON = JSON.parse(token);
 
-        socket.emit('joinGame', { roomId: '67', userId: '657f1f0a3176e2817db8312c' });
+        socket.emit('joinGame', { roomId: '67', token: token });
 
       //  socket.emit('receiveAnswer', { roomId: '67', userId: '657f1f0a3176e2817db8312c', answer:1 });
 

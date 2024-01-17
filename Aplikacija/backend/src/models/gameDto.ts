@@ -3,5 +3,5 @@ export interface gameDto {
     createdBy: string;
     players: string[];
     status: 'waiting' | 'inProgress' | 'completed';
-    createdAt: Date;
+    createdAt: Date | null;
 }
