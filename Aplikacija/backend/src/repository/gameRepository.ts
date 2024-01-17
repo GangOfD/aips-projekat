@@ -26,6 +26,14 @@ export class GameRepo {
     }
   }
   
+  async getGamesByStatus(status:string) {
+    try {
+      return await this.gameModel.find({ status: status }).select('roomId createdAt');
+    } catch (error) {
+        console.error('Error fetching games by status:', error);
+        throw error; 
+    }
+}
 
   async create(game: Partial<IGame>): Promise<IGame> {
     try {

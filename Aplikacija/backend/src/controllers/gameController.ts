@@ -225,21 +225,14 @@ export const getAllGames = async (req: RequestWithUserId, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-export const getAllAvailableGames = async (req: RequestWithUserId, res: Response) => {
-    try {
-      //const userId = req.userId;
-  
-      const availableGames = await Game.find({
-        status: 'waiting',
-      //  players: { $not: { $in: [new mongoose.Types.ObjectId(userId)] } },
-      });
-  
-      res.json({ availableGames });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
-  
   
 
+  export const getAllAvailableGames = async (req: RequestWithUserId, res: Response) => {
+    try {
+        const waitingGames = await gameRepo.getGamesByStatus('Waiting');
+        res.json(waitingGames); 
+    } catch (error) {
+        console.error('Error in getWaitingGames:', error);
+        res.status(500).send('Error fetching waiting games');
+    }
+}
