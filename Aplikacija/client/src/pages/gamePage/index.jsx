@@ -1,32 +1,36 @@
 import { Box } from "@mui/material";
 import Navbar from "components/Navbar";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
+import { setGame } from "state/authSlice";
 import socket from "Socket/socketInstance";
 import GameStatus from "components/GameStatus";
 
 const GamePage=()=>{
 
     const token=useSelector((state)=>state.token);
+    const game= useSelector((state)=>state.game);
+    const dispatch= useDispatch();
     const navigate=useNavigate();
-    const [game,setGame]=useState({status:'waiting'});
 
     useEffect(()=>{
         if(token==null)
             navigate("/");
-    },[]);
 
-    useEffect(()=>{
-        socket.on('gameJoined', (data)=>{
-            console.log(data.DTO);
-            setGame(data.DTO);
+        socket.on('newQuestion', (data)=>{
+            console.log(data);
+             
         })
-
+    
         return ()=>{
-            socket.off('gameJoined');
+            //socket.off('newQuestion');
         }
+        //msm da ovde treba socket.on('gameStarted');
+        // pitanja osluskujem na newQuestion(question:string, optins:string[]) a saljem receiveAnsver(token, roomId, answeredIndex)
+        //console.log(game);
     },[]);
+
     return(
         <Box>
             <Navbar/>

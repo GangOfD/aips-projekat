@@ -25,7 +25,7 @@ const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const gameController_1 = require("./controllers/gameController");
 const simulateClient_1 = require("./simulateClient");
-const AnswerCommand_1 = __importDefault(require("../src/commands/AnswerCommand"));
+const AnswerCommand_1 = __importDefault(require("../dist/commands/AnswerCommand"));
 dotenv_1.default.config();
 const PORT = process.env.PORT || 3000;
 const app = (0, express_1.default)();

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setLogout, setUser } from "state";
+import {  setGame } from "state/authSlice";
 import {
     Box,
     Button,
@@ -38,7 +38,15 @@ const JoinGame=({freeRooms})=>{
             setMessage(res);
         });
         socket.on('gameJoined',(data)=>{
+            //console.log(data.DTO);
+            dispatch(setGame({game:data.DTO}));
             navigate(`/game/${data.DTO.gameId}`);
+        });
+
+        socket.on('gameStarted',(data)=>{
+            console.log(data);
+            dispatch(setGame({game:data}));
+            navigate(`/game/${data.gameId}`);
         });
 
         return () => {
@@ -57,6 +65,7 @@ const JoinGame=({freeRooms})=>{
     };    
 
     const handleFormSubmit = async (values, action) => {
+        //OVDE OBAVEZNO MENJAJ HARDKODIRAN USERID  65876dd1d5115cd22f7d985f-Marina
         if(action==="join" && values.roomId)  socket.emit('joinGame', {roomId:values.roomId, userId:'657f1f0a3176e2817db8312c'});
     };
 

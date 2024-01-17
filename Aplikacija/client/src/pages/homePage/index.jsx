@@ -2,7 +2,7 @@ import Navbar from "components/Navbar";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setLogout, setUser } from "state";
+
 import {
     Box,
     useMediaQuery,

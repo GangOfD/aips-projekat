@@ -68,36 +68,46 @@ const Navbar = () => {
               <LightMode sx={{ color: dark, fontSize: "25px" }} />
             )}
           </IconButton>
-          {token  && (<FormControl variant="standard" value={user.username}>
-            <Select
-              value={user.username}
-              sx={{
-                backgroundColor: primaryLight,
-                width: "150px",
-                borderRadius: "0.25rem",
-                p: "0.25rem 1rem",
-                "& .MuiSvgIcon-root": {
-                  pr: "0.25rem",
-                  width: "3rem",
-                },
-                "& .MuiSelect-select:focus": {
+          {token  && (
+          <Box>
+            {game && (<IconButton onClick={()=>{
+              dispatch(setGame({game:null}));
+              navigate("/home");
+              // mislim da ovde treba i socket.emit('gameLeaved');
+              }} 
+              sx={{ marginRight:"30px" }}>
+              <RunCircle sx={{ fontSize:"25px" }} />
+            </IconButton>)}
+            <FormControl variant="standard" value={user.username}>
+              <Select
+                value={user.username}
+                sx={{
                   backgroundColor: primaryLight,
-                },
-               
-              }}
-              input={<InputBase />}
-            >
-              <MenuItem onClick={()=>navigate(`/profile/${user.username}`)}value={user.username}>
-                <Typography>{user.username}</Typography>
-              </MenuItem>
-              <MenuItem onClick={() => {
-                dispatch(setLogout());
-                navigate("/");
+                  width: "150px",
+                  borderRadius: "0.25rem",
+                  p: "0.25rem 1rem",
+                  "& .MuiSvgIcon-root": {
+                    pr: "0.25rem",
+                    width: "3rem",
+                  },
+                  "& .MuiSelect-select:focus": {
+                    backgroundColor: primaryLight,
+                  },
+                
                 }}
+                input={<InputBase />}
               >
-                Log Out
-              </MenuItem>
-            </Select>
+                <MenuItem onClick={()=>navigate(`/profile/${user.username}`)}value={user.username}>
+                  <Typography>{user.username}</Typography>
+                </MenuItem>
+                <MenuItem onClick={() => {
+                  dispatch(setLogout());
+                  navigate("/");
+                  }}
+                >
+                  Log Out
+                </MenuItem>
+              </Select>
           </FormControl>)}
         </FlexBetween>
       ) : (
