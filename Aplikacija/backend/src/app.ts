@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import { joinGame, startGame } from './controllers/gameController';
+import { joinGame, leaveGame, startGame } from './controllers/gameController';
 import { simulateClient } from './simulateClient';
 import { verify } from 'crypto';
 import { verifyToken } from './middleware/authenticate';
@@ -50,7 +50,7 @@ const io = new SocketIOServer(httpServer);
 io.on('connection', (socket) => {
     console.log('A user connected');
 
-    
+
     socket.on('joinGame', async (data) => {
       try {
         await joinGame(data, socket);
@@ -70,12 +70,21 @@ io.on('connection', (socket) => {
       }
     });
 
+
+    socket.on('leaveGame', async (data) => {
+      try {
+        await leaveGame(data, socket);
+      } catch (error) {
+        console.error('Error in socket leaveGame:', error);
+        socket.emit('leaveGameError', 'Error leaving game');
+      }
+    });
+
     socket.on('receiveAnswer', async (data) => {
       try {
           const token = data.token;
 
           const userId = verifyToken(token); 
-          //const userId="657f1f0a3176e2817db8312c";
 
           if (!userId) {
               throw new Error('Invalid or expired token');

@@ -92,6 +92,38 @@ export const startGame = async (data: { roomId: string, userId: string }, socket
     socket.emit('startError', 'Error starting the game');
   }
 }
+
+export const leaveGame = async (data: { roomId: string, token: string }, socket: Socket) => {
+  try {
+      const gameId = data.roomId; 
+      const userId = verifyToken(data.token);
+
+      if (!userId) {
+          socket.emit('leaveGameError', 'Invalid or expired token');
+          return;
+      }
+
+      const game = await gameRepo.getById(gameId);
+
+      if (!game) {
+          socket.emit('leaveGameError', 'Game not found');
+          return;
+      }
+
+      if (!game.players.includes(new mongoose.Types.ObjectId(userId))) {
+          socket.emit('leaveGameError', 'Cannot exit game, user is not in that game');
+          return;
+      }
+      
+      const updatedGame = await gameRepo.removePlayerFromGame(gameId, userId);
+      socket.emit("gameLeft", { roomId: gameId, userId: userId });
+  } catch (error) {
+      console.error('Error in leaveGame:', error);
+      socket.emit('leaveGameError', 'Error occurred in leaveGame');
+  }
+};
+
+
 export const joinGame = async (data: { roomId: string, token: string }, socket: Socket) => {
   try {
     const { roomId, token } = data;
@@ -139,7 +171,7 @@ export const joinGame = async (data: { roomId: string, token: string }, socket: 
     };
 
       socket.emit('gameJoined', { DTO });
-      socket.broadcast.emit('playerJoined', { DTO });
+      socket.broadcast.emit('gameJoined', { DTO });
     
   } catch (error) {
     console.error('Error in joinGame:', error);
