@@ -87,8 +87,6 @@ class Store {
         }
         userState.currentAnswer = currentAnswer;
         userState.answerTime=Date.now()
-        console.log("Korisnikov odgovor je upravo zabelezen." , userState.answerTime, " i ", userState.currentAnswer)
-
     }
 
     getScoreboardTable(roomId: string): resultState {
@@ -122,9 +120,10 @@ class Store {
             console.error('Game not found for roomId:', roomId);
             return true;
         }
-
         return gameData.currentQuestionIndex >= gameData.questions.length;
     }
+
+    
     public getCorrectAnswerIndex(gameData: GameData): number {
         let qNumber = gameData.currentQuestionIndex;
         
