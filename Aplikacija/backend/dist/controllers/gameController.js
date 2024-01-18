@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllAvailableGames = exports.getAllGames = exports.createGame = exports.deleteGame = exports.joinGame = exports.startGame = void 0;
+exports.getAllAvailableGames = exports.getAllGames = exports.createGame = exports.deleteGame = exports.joinGame = exports.leaveGame = exports.startGame = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const questionController_1 = require("./questionController");
 const gameModel_1 = __importDefault(require("../models/gameModel"));
@@ -24,32 +24,6 @@ const playerRepository_1 = require("../repository/playerRepository");
 const authenticate_1 = require("../middleware/authenticate");
 const gameRepo = new gameRepository_1.GameRepo(gameModel_1.default);
 const playerRepo = new playerRepository_1.PlayerRepository(playerModel_1.default);
-// export const joinGame = async (req: RequestWithUserId, res: Response) => {
-//   try {
-//     const { roomId } = req.body;
-//     const userId = req.userId;
-//     const game = await gameRepo.getById(roomId);
-//     if (!game) {
-//       return res.status(404).json({ message: 'Game not found' });
-//     }
-//     const userIdObj = new mongoose.Types.ObjectId(userId);
-//     if (game.players.length >= 3 || game.players.includes(userIdObj)) {
-//       return res.status(400).json({ message: 'You have already joined this game' });
-//     }
-//     if (userId) {
-//       const updatedGame = await gameRepo.update(game._id, { 
-//         players: [...game.players, userIdObj] 
-//       });
-//       console.log("Joined")
-//       res.json({ message: 'Joined the game successfully', game: updatedGame });
-//     } else {
-//       res.status(400).json({ message: 'User ID is required' });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// };
 const startGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {
@@ -73,8 +47,7 @@ const startGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* 
             gameId: game.gameId,
             createdBy: (_c = (_b = (yield playerModel_1.default.findById(game.createdBy))) === null || _b === void 0 ? void 0 : _b.username) !== null && _c !== void 0 ? _c : "Unknown"
         };
-        socket.emit('gameStarted', DTO);
-        socket.broadcast.emit('gameStarted', DTO);
+        app_1.io.to(data.roomId).emit('gameStarted', DTO);
         const gameStateManager = new gameStateManager_1.default(app_1.io, data.roomId);
         yield gameStateManager.startGameCycle(data.roomId);
     }
@@ -84,6 +57,32 @@ const startGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.startGame = startGame;
+const leaveGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const gameId = data.roomId;
+        const userId = (0, authenticate_1.verifyToken)(data.token);
+        if (!userId) {
+            socket.emit('leaveGameError', 'Invalid or expired token');
+            return;
+        }
+        const game = yield gameRepo.getById(gameId);
+        if (!game) {
+            socket.emit('leaveGameError', 'Game not found');
+            return;
+        }
+        if (!game.players.includes(new mongoose_1.default.Types.ObjectId(userId))) {
+            socket.emit('leaveGameError', 'Cannot exit game, user is not in that game');
+            return;
+        }
+        const updatedGame = yield gameRepo.removePlayerFromGame(gameId, userId);
+        app_1.io.to(data.roomId).emit('gameLeft', { roomId: gameId, userId: userId });
+    }
+    catch (error) {
+        console.error('Error in leaveGame:', error);
+        socket.emit('leaveGameError', 'Error occurred in leaveGame');
+    }
+});
+exports.leaveGame = leaveGame;
 const joinGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* () {
     var _d, _e;
     try {
@@ -121,8 +120,10 @@ const joinGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* (
             gameId: (updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.gameId) ? updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.gameId : "Error",
             createdBy: (_e = (_d = (yield playerModel_1.default.findById(updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.createdBy))) === null || _d === void 0 ? void 0 : _d.username) !== null && _e !== void 0 ? _e : "Unknown"
         };
-        socket.emit('gameJoined', { DTO });
-        socket.broadcast.emit('playerJoined', { DTO });
+        socket.join(roomId);
+        // socket.emit('gameJoined', { DTO });
+        // socket.broadcast.emit('gameJoined', { DTO });
+        app_1.io.to(roomId).emit('gameJoined', { DTO });
     }
     catch (error) {
         console.error('Error in joinGame:', error);
@@ -134,7 +135,6 @@ const deleteGame = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const { roomId } = req.body;
         const userId = req.userId;
-        // const game = await Game.findOne({gameId:roomId});
         const game = yield gameRepo.getById(roomId);
         if (!game) {
             return res.status(404).json({ message: 'Game not found' });
@@ -142,7 +142,6 @@ const deleteGame = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (game.createdBy.toString() !== userId) {
             return res.status(403).json({ message: 'You are not authorized to delete this game' });
         }
-        // await Game.findByIdAndDelete(game._id);
         yield gameRepo.delete(game._id);
         res.json({ message: 'Game deleted successfully' });
     }
@@ -196,16 +195,12 @@ const getAllGames = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.getAllGames = getAllGames;
 const getAllAvailableGames = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        //const userId = req.userId;
-        const availableGames = yield gameModel_1.default.find({
-            status: 'waiting',
-            //  players: { $not: { $in: [new mongoose.Types.ObjectId(userId)] } },
-        });
-        res.json({ availableGames });
+        const waitingGames = yield gameRepo.getGamesByStatus('Waiting');
+        res.json(waitingGames);
     }
     catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        console.error('Error in getWaitingGames:', error);
+        res.status(500).send('Error fetching waiting games');
     }
 });
 exports.getAllAvailableGames = getAllAvailableGames;

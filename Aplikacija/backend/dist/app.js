@@ -24,7 +24,6 @@ const cors_1 = __importDefault(require("cors"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const gameController_1 = require("./controllers/gameController");
-const simulateClient_1 = require("./simulateClient");
 const authenticate_1 = require("./middleware/authenticate");
 const AnswerCommand_1 = __importDefault(require("../src/commands/AnswerCommand"));
 dotenv_1.default.config();
@@ -32,6 +31,7 @@ const PORT = process.env.PORT || 3000;
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 (0, mongodb_1.default)();
+initializeQuestions();
 // Middleware
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -63,18 +63,32 @@ io.on('connection', (socket) => {
     }));
     socket.on('startGame', (data) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            yield (0, gameController_1.startGame)(data, socket);
+            const userId = (0, authenticate_1.verifyToken)(data.token);
+            if (!userId) {
+                socket.emit('startError', 'Invalid or expired token');
+                return;
+            }
+            const modifiedData = Object.assign(Object.assign({}, data), { userId });
+            yield (0, gameController_1.startGame)(modifiedData, socket);
         }
         catch (error) {
-            console.error('Error in socket joinGame:', error);
-            socket.emit('joinError', 'Error joining game');
+            console.error('Error in socket startGame:', error);
+            socket.emit('startError', 'Error starting the game');
+        }
+    }));
+    socket.on('leaveGame', (data) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield (0, gameController_1.leaveGame)(data, socket);
+        }
+        catch (error) {
+            console.error('Error in socket leaveGame:', error);
+            socket.emit('leaveGameError', 'Error leaving game');
         }
     }));
     socket.on('receiveAnswer', (data) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const token = data.token;
-            const userId = (0, authenticate_1.verifyToken)(token); //Kad se testira, ovde treba poslati ID
-            //const userId="657f1f0a3176e2817db8312c";
+            const userId = (0, authenticate_1.verifyToken)(token);
             if (!userId) {
                 throw new Error('Invalid or expired token');
             }
@@ -92,5 +106,7 @@ io.on('connection', (socket) => {
 httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-(0, simulateClient_1.simulateClient)();
 exports.default = app;
+function initializeQuestions() {
+    throw new Error('Function not implemented.');
+}

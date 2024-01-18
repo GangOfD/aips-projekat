@@ -18,16 +18,24 @@ class GameStateManager {
 
     async startGameCycle(roomId: string) {
         const gameData = await prepareGameData(roomId);
-
+    
         if (!gameData) {
             console.error("Failed to start game cycle: game data could not be prepared.");
             return;
         }
         Store.addGameData(roomId, gameData);
-        this.sendQuestion(roomId);
+    
+        setTimeout(() => {
+            this.sendQuestion(roomId);
+        }, 5000); 
     }
-
+    
     sendQuestion(roomId: string) {
+        if (this.questionTimer) {
+            clearTimeout(this.questionTimer);
+            this.questionTimer = null;
+        }
+
         if (Store.isGameOver(roomId)) {
             this.showResults(roomId);
             return;
@@ -35,26 +43,25 @@ class GameStateManager {
 
         const question = Store.getNextQuestion(roomId);
         if (question) {
-            const questionDto=IQuestionToQuestionDto(question);
-
+            const questionDto = IQuestionToQuestionDto(question);
             this.io.to(roomId).emit('newQuestion', questionDto);
 
             this.questionTimer = setTimeout(() => {
-                Store.updateScoresAfterQuestion(roomId)
+                Store.updateScoresAfterQuestion(roomId);
                 this.showResults(roomId);
-            }, 10000);
+            }, 10000); 
         } else {
-            // this.showFinalTable(roomId);
+            // this.showFinalTable(roomId); 
         }
     }
 
-    showResults(roomId:string) {
-       const results = Store.getScoreboardTable(roomId);
-       this.io.to(roomId).emit('questionResults', results);
+    showResults(roomId: string) {
+        const results = Store.getScoreboardTable(roomId);
+        this.io.to(roomId).emit('questionResults', results);
 
         setTimeout(() => {
             this.sendQuestion(roomId);
-        }, 5000);
+        }, 5000); 
     }
 
 

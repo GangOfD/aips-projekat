@@ -29,10 +29,16 @@ class GameStateManager {
                 return;
             }
             store_1.default.addGameData(roomId, gameData);
-            this.sendQuestion(roomId);
+            setTimeout(() => {
+                this.sendQuestion(roomId);
+            }, 5000);
         });
     }
     sendQuestion(roomId) {
+        if (this.questionTimer) {
+            clearTimeout(this.questionTimer);
+            this.questionTimer = null;
+        }
         if (store_1.default.isGameOver(roomId)) {
             this.showResults(roomId);
             return;
@@ -40,19 +46,19 @@ class GameStateManager {
         const question = store_1.default.getNextQuestion(roomId);
         if (question) {
             const questionDto = (0, convertor_1.default)(question);
-            this.io.emit('newQuestion', questionDto);
+            this.io.to(roomId).emit('newQuestion', questionDto);
             this.questionTimer = setTimeout(() => {
                 store_1.default.updateScoresAfterQuestion(roomId);
                 this.showResults(roomId);
             }, 10000);
         }
         else {
-            // this.showFinalTable(roomId);
+            // this.showFinalTable(roomId); 
         }
     }
     showResults(roomId) {
         const results = store_1.default.getScoreboardTable(roomId);
-        this.io.emit('questionResults', results);
+        this.io.to(roomId).emit('questionResults', results);
         setTimeout(() => {
             this.sendQuestion(roomId);
         }, 5000);

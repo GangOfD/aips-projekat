@@ -36,6 +36,17 @@ class GameRepo {
             }
         });
     }
+    getGamesByStatus(status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.gameModel.find({ status: status }).select('roomId createdAt');
+            }
+            catch (error) {
+                console.error('Error fetching games by status:', error);
+                throw error;
+            }
+        });
+    }
     create(game) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -59,6 +70,23 @@ class GameRepo {
             }
             catch (error) {
                 throw new Error(`Error while deleting game: ${error.message}`);
+            }
+        });
+    }
+    removePlayerFromGame(gameId, playerId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const game = yield this.gameModel.findById(gameId);
+                if (!game) {
+                    throw new Error('Game not found');
+                }
+                game.players = game.players.filter(p => p.toString() !== playerId);
+                yield game.save();
+                return game;
+            }
+            catch (error) {
+                console.error('Error removing player from game:', error);
+                throw error;
             }
         });
     }

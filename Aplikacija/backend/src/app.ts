@@ -13,6 +13,7 @@ import { simulateClient } from './simulateClient';
 import { verify } from 'crypto';
 import { verifyToken } from './middleware/authenticate';
 import AnswerCommand from '../src/commands/AnswerCommand';
+import {initializeQuestions} from './calculationService/initQuestions'
 
 
 dotenv.config();
@@ -23,6 +24,7 @@ const app: Application = express();
 app.use(cors());
 
 connectDB();
+initializeQuestions();
 
 // Middleware
 app.use(express.json());
@@ -121,3 +123,4 @@ httpServer.listen(PORT, () => {
 export { io };
 
 export default app;
+

@@ -9,7 +9,7 @@ const authenticate_1 = require("../middleware/authenticate");
 const router = express_1.default.Router();
 router.post('/', authenticate_1.authenticateUser, gameController_1.createGame);
 router.get('/All', gameController_1.getAllGames);
-router.get('/Active', gameController_1.getAllAvailableGames);
+router.get('/Active', authenticate_1.authenticateUser, gameController_1.getAllAvailableGames);
 router.delete('/', authenticate_1.authenticateUser, gameController_1.deleteGame);
 // router.post('/join',authenticateUser,joinGame);
 exports.default = router;
