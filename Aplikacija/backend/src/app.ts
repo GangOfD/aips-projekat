@@ -63,12 +63,20 @@ io.on('connection', (socket) => {
 
     socket.on('startGame', async (data) => {
       try {
-        await startGame(data, socket);
+        const userId = verifyToken(data.token);
+        if (!userId) {
+          socket.emit('startError', 'Invalid or expired token');
+          return;
+        }
+        
+        const modifiedData = { ...data, userId };
+        await startGame(modifiedData, socket);
       } catch (error) {
-        console.error('Error in socket joinGame:', error);
-        socket.emit('joinError', 'Error joining game');
+        console.error('Error in socket startGame:', error);
+        socket.emit('startError', 'Error starting the game');
       }
     });
+    
 
 
     socket.on('leaveGame', async (data) => {

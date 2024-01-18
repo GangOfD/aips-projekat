@@ -23,39 +23,10 @@ interface RequestWithUserId extends Request {
   userId?: string;
 }
 
-// export const joinGame = async (req: RequestWithUserId, res: Response) => {
-//   try {
-//     const { roomId } = req.body;
-//     const userId = req.userId;
-
-//     const game = await gameRepo.getById(roomId);
-//     if (!game) {
-//       return res.status(404).json({ message: 'Game not found' });
-//     }
-
-//     const userIdObj = new mongoose.Types.ObjectId(userId);
-//     if (game.players.length >= 3 || game.players.includes(userIdObj)) {
-//       return res.status(400).json({ message: 'You have already joined this game' });
-//     }
-
-//     if (userId) {
-//       const updatedGame = await gameRepo.update(game._id, { 
-//         players: [...game.players, userIdObj] 
-//       });
-//       console.log("Joined")
-//       res.json({ message: 'Joined the game successfully', game: updatedGame });
-//     } else {
-//       res.status(400).json({ message: 'User ID is required' });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// };
-
 export const startGame = async (data: { roomId: string, userId: string }, socket: Socket) => {
   try{
     const game = await gameRepo.getById(data.roomId);
+
     const player = await playerRepo.getById(data.userId);
     
     if(!(game && player))
