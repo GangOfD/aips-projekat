@@ -81,8 +81,8 @@ export const startGame = async (data: { roomId: string, userId: string }, socket
       createdBy: (await Player.findById(game.createdBy))?.username ?? "Unknown"
     };
 
-    socket.emit('gameStarted', DTO); 
-    socket.broadcast.emit('gameStarted', DTO);   
+    io.to(data.roomId).emit('gameStarted', DTO);
+
     const gameStateManager = new GameStateManager(io, data.roomId);
     await gameStateManager.startGameCycle(data.roomId);
 
@@ -116,7 +116,7 @@ export const leaveGame = async (data: { roomId: string, token: string }, socket:
       }
       
       const updatedGame = await gameRepo.removePlayerFromGame(gameId, userId);
-      socket.emit("gameLeft", { roomId: gameId, userId: userId });
+      io.to(data.roomId).emit('gameLeft',{ roomId: gameId, userId: userId } );
   } catch (error) {
       console.error('Error in leaveGame:', error);
       socket.emit('leaveGameError', 'Error occurred in leaveGame');
@@ -127,8 +127,8 @@ export const leaveGame = async (data: { roomId: string, token: string }, socket:
 export const joinGame = async (data: { roomId: string, token: string }, socket: Socket) => {
   try {
     const { roomId, token } = data;
-
     const userId = verifyToken(token);
+    
     if (!userId) {
       socket.emit('joinError', 'Invalid or expired token');
       return;
@@ -170,8 +170,12 @@ export const joinGame = async (data: { roomId: string, token: string }, socket: 
       createdBy: (await Player.findById(updatedGame?.createdBy))?.username ?? "Unknown"
     };
 
-      socket.emit('gameJoined', { DTO });
-      socket.broadcast.emit('gameJoined', { DTO });
+      socket.join(roomId);
+
+      // socket.emit('gameJoined', { DTO });
+      // socket.broadcast.emit('gameJoined', { DTO });
+      io.to(roomId).emit('gameJoined', { DTO }); 
+
     
   } catch (error) {
     console.error('Error in joinGame:', error);
@@ -186,7 +190,6 @@ export const deleteGame = async (req: RequestWithUserId, res: Response) => {
     const { roomId } = req.body;
     const userId = req.userId;
 
-    // const game = await Game.findOne({gameId:roomId});
     const game = await gameRepo.getById(roomId);
 
     if (!game) {
@@ -197,7 +200,6 @@ export const deleteGame = async (req: RequestWithUserId, res: Response) => {
       return res.status(403).json({ message: 'You are not authorized to delete this game' });
     }
 
-    // await Game.findByIdAndDelete(game._id);
     await gameRepo.delete(game._id);
 
     res.json({ message: 'Game deleted successfully' });

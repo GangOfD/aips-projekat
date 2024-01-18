@@ -37,7 +37,7 @@ class GameStateManager {
         if (question) {
             const questionDto=IQuestionToQuestionDto(question);
 
-            this.io.emit('newQuestion', questionDto);
+            this.io.to(roomId).emit('newQuestion', questionDto);
 
             this.questionTimer = setTimeout(() => {
                 Store.updateScoresAfterQuestion(roomId)
@@ -50,7 +50,7 @@ class GameStateManager {
 
     showResults(roomId:string) {
        const results = Store.getScoreboardTable(roomId);
-       this.io.emit('questionResults', results);
+       this.io.to(roomId).emit('questionResults', results);
 
         setTimeout(() => {
             this.sendQuestion(roomId);

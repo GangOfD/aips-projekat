@@ -83,7 +83,6 @@ io.on('connection', (socket) => {
     socket.on('receiveAnswer', async (data) => {
       try {
           const token = data.token;
-
           const userId = verifyToken(token); 
 
           if (!userId) {
