@@ -8,8 +8,8 @@ export default class AnswerCommand implements ICommand {
     private gameId: string;
 
 
-    constructor(token: string, answerValue: null | number,gameId:string) {
-        this.userId = verifyToken(token); 
+    constructor(userId: string, answerValue: null | number,gameId:string) {
+        this.userId=userId;
         this.answerValue = answerValue;
         this.gameId = gameId;
     }

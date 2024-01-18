@@ -13,7 +13,7 @@ import { simulateClient } from './simulateClient';
 import { verify } from 'crypto';
 import { verifyToken } from './middleware/authenticate';
 import AnswerCommand from '../src/commands/AnswerCommand';
-import {initializeQuestions} from './calculationService/initQuestions'
+import {initializeQuestions, removeDuplicateQuestions} from './calculationService/initQuestions'
 
 
 dotenv.config();
@@ -24,7 +24,7 @@ const app: Application = express();
 app.use(cors());
 
 connectDB();
-initializeQuestions();
+// removeDuplicateQuestions()
 
 // Middleware
 app.use(express.json());
@@ -83,7 +83,15 @@ io.on('connection', (socket) => {
 
     socket.on('leaveGame', async (data) => {
       try {
-        await leaveGame(data, socket);
+        const userId = verifyToken(data.token);
+        if (!userId) {
+          socket.emit('leaveError', 'Invalid or expired token');
+          return;
+        }
+
+        const modifiedData = { ...data, userId };
+
+        await leaveGame(modifiedData, socket);
       } catch (error) {
         console.error('Error in socket leaveGame:', error);
         socket.emit('leaveGameError', 'Error leaving game');

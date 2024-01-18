@@ -23,6 +23,7 @@ interface RequestWithUserId extends Request {
   userId?: string;
 }
 
+
 export const startGame = async (data: { roomId: string, userId: string }, socket: Socket) => {
   try{
     const game = await gameRepo.getById(data.roomId);
@@ -64,15 +65,10 @@ export const startGame = async (data: { roomId: string, userId: string }, socket
   }
 }
 
-export const leaveGame = async (data: { roomId: string, token: string }, socket: Socket) => {
+export const leaveGame = async (data: { roomId: string, userId: string }, socket: Socket) => {
   try {
       const gameId = data.roomId; 
-      const userId = verifyToken(data.token);
-
-      if (!userId) {
-          socket.emit('leaveGameError', 'Invalid or expired token');
-          return;
-      }
+      const userId = data.userId
 
       const game = await gameRepo.getById(gameId);
 
