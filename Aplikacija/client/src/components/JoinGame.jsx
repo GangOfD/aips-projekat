@@ -38,22 +38,17 @@ const JoinGame=({freeRooms})=>{
             setMessage(res);
         });
         socket.on('gameJoined',(data)=>{
-            console.log(data.DTO);
+            console.log("Helo from gameJoined",data.DTO);
             dispatch(setGame({game:data.DTO}));
             navigate(`/game/${data.DTO.gameId}`);
         });
 
-        socket.on('gameStarted',(data)=>{
-            console.log(data);
-            dispatch(setGame({game:data}));
-            navigate(`/game/${data.gameId}`);
-        });
 
         return () => {
             socket.off('joinError');
             socket.off('gameJoined');
           };
-    },[])
+    },[socket])
     
 
     const joinGameSchema = yup.object().shape({
@@ -66,7 +61,7 @@ const JoinGame=({freeRooms})=>{
 
     const handleFormSubmit = async (values, action) => {
         //OVDE OBAVEZNO MENJAJ HARDKODIRAN USERID  65876dd1d5115cd22f7d985f-Marina
-        if(action==="join" && values.roomId)  socket.emit('joinGame', {roomId:values.roomId, userId:'657f1f0a3176e2817db8312c'});
+        if(action==="join" && values.roomId)  socket.emit('joinGame', {roomId:values.roomId, token:token});
     };
 
     // const  joinGame= async (values) =>{

@@ -27,7 +27,7 @@ const HomePage=()=>{
     const [freeRooms, setFreeRooms]=useState([]);
 
     useEffect(()=>{
-      getFreeRooms();
+      //getFreeRooms();
     },[])
 
     const  getFreeRooms= async () =>{
@@ -37,7 +37,10 @@ const HomePage=()=>{
               `http://localhost:3002/games/Active`,
               {
                 method: "GET",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json"
+                },
                 
               }
             );
@@ -47,7 +50,8 @@ const HomePage=()=>{
           
             else{
               const freeGames = await freeGamesResponse.json();
-              setFreeRooms(freeGames.availableGames);
+              //console.log(freeGames);
+              //setFreeRooms(freeGames.availableGames);
             }
             
             

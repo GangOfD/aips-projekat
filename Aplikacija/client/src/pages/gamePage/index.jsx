@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { setGame } from "state/authSlice";
 import socket from "Socket/socketInstance";
 import GameStatus from "components/GameStatus";
+import GameQuestion from "components/GameQuestion";
 
 const GamePage=()=>{
 
@@ -14,6 +15,9 @@ const GamePage=()=>{
     const dispatch= useDispatch();
     const navigate=useNavigate();
 
+    
+    game.status="inProgres";
+    console.log(game);
     useEffect(()=>{
         if(token==null)
             navigate("/");
@@ -22,6 +26,16 @@ const GamePage=()=>{
             console.log(data);
              
         })
+
+        socket.on('gameJoined',(data)=>{
+            console.log(data.DTO);
+            dispatch(setGame({game:data.DTO}));
+        });
+
+        socket.on('gameStarted',(data)=>{
+            console.log("Hello form Started",data);
+            dispatch(setGame({game:data}));
+        });
     
         return ()=>{
             //socket.off('newQuestion');
@@ -29,12 +43,13 @@ const GamePage=()=>{
         //msm da ovde treba socket.on('gameStarted');
         // pitanja osluskujem na newQuestion(question:string, optins:string[]) a saljem receiveAnsver(token, roomId, answeredIndex)
         //console.log(game);
-    },[]);
+    },[socket]);
 
     return(
         <Box>
             <Navbar/>
             {game.status=='waiting' && (<GameStatus game={game}/>)}
+            {game.status=="inProgres" && (<GameQuestion/>)}
         </Box>
     ) 
 }

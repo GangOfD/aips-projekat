@@ -31,6 +31,7 @@ export const authSlice=createSlice({
         setGame:(state,action)=>{
             state.game= action.payload.game;
         },
+   
         
     },
 });
