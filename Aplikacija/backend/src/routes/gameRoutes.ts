@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post('/',authenticateUser, createGame);  
 router.get('/All', getAllGames); 
-router.get('/Active', getAllAvailableGames); 
+router.get('/Active', authenticateUser,getAllAvailableGames); 
 router.delete('/',authenticateUser, deleteGame);
 // router.post('/join',authenticateUser,joinGame);
 

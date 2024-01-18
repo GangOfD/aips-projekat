@@ -25,7 +25,8 @@ const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const gameController_1 = require("./controllers/gameController");
 const simulateClient_1 = require("./simulateClient");
-const AnswerCommand_1 = __importDefault(require("../dist/commands/AnswerCommand"));
+const authenticate_1 = require("./middleware/authenticate");
+const AnswerCommand_1 = __importDefault(require("../src/commands/AnswerCommand"));
 dotenv_1.default.config();
 const PORT = process.env.PORT || 3000;
 const app = (0, express_1.default)();
@@ -60,11 +61,20 @@ io.on('connection', (socket) => {
             socket.emit('joinError', 'Error joining game');
         }
     }));
+    socket.on('startGame', (data) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield (0, gameController_1.startGame)(data, socket);
+        }
+        catch (error) {
+            console.error('Error in socket joinGame:', error);
+            socket.emit('joinError', 'Error joining game');
+        }
+    }));
     socket.on('receiveAnswer', (data) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            //const token = data.token;
-            //const userId = verifyToken(token); //Kad se testira, ovde treba poslati ID
-            const userId = "657f1f0a3176e2817db8312c";
+            const token = data.token;
+            const userId = (0, authenticate_1.verifyToken)(token); //Kad se testira, ovde treba poslati ID
+            //const userId="657f1f0a3176e2817db8312c";
             if (!userId) {
                 throw new Error('Invalid or expired token');
             }

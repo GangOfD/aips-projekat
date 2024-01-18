@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllAvailableGames = exports.getAllGames = exports.createGame = exports.deleteGame = exports.joinGame = void 0;
+exports.getAllAvailableGames = exports.getAllGames = exports.createGame = exports.deleteGame = exports.joinGame = exports.startGame = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const questionController_1 = require("./questionController");
 const gameModel_1 = __importDefault(require("../models/gameModel"));
@@ -20,7 +20,10 @@ const gameRepository_1 = require("../repository/gameRepository");
 const app_1 = require("../app");
 const gameStateManager_1 = __importDefault(require("../store/gameStateManager"));
 const playerModel_1 = __importDefault(require("../models/playerModel"));
+const playerRepository_1 = require("../repository/playerRepository");
+const authenticate_1 = require("../middleware/authenticate");
 const gameRepo = new gameRepository_1.GameRepo(gameModel_1.default);
+const playerRepo = new playerRepository_1.PlayerRepository(playerModel_1.default);
 // export const joinGame = async (req: RequestWithUserId, res: Response) => {
 //   try {
 //     const { roomId } = req.body;
@@ -47,10 +50,49 @@ const gameRepo = new gameRepository_1.GameRepo(gameModel_1.default);
 //     res.status(500).json({ message: 'Internal server error' });
 //   }
 // };
-const joinGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+const startGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
     try {
-        const { roomId, userId } = data;
+        const game = yield gameRepo.getById(data.roomId);
+        const player = yield playerRepo.getById(data.userId);
+        if (!(game && player))
+            return;
+        if (((_a = game.players) === null || _a === void 0 ? void 0 : _a.length) !== 4)
+            return;
+        if (game.status != "waiting")
+            return;
+        game.status = "inProgress";
+        yield game.save();
+        const playerIds = game.players;
+        const players = yield playerModel_1.default.find({ _id: { $in: playerIds } });
+        const playerNames = players.map(player => player.username);
+        let DTO = {
+            createdAt: game.createdAt,
+            players: playerNames,
+            status: game.status,
+            gameId: game.gameId,
+            createdBy: (_c = (_b = (yield playerModel_1.default.findById(game.createdBy))) === null || _b === void 0 ? void 0 : _b.username) !== null && _c !== void 0 ? _c : "Unknown"
+        };
+        socket.emit('gameStarted', DTO);
+        socket.broadcast.emit('gameStarted', DTO);
+        const gameStateManager = new gameStateManager_1.default(app_1.io, data.roomId);
+        yield gameStateManager.startGameCycle(data.roomId);
+    }
+    catch (error) {
+        console.error('Error in startGame:', error);
+        socket.emit('startError', 'Error starting the game');
+    }
+});
+exports.startGame = startGame;
+const joinGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d, _e;
+    try {
+        const { roomId, token } = data;
+        const userId = (0, authenticate_1.verifyToken)(token);
+        if (!userId) {
+            socket.emit('joinError', 'Invalid or expired token');
+            return;
+        }
         const game = yield gameRepo.getById(roomId);
         if (!game) {
             socket.emit('joinError', 'Game not found');
@@ -69,27 +111,18 @@ const joinGame = (data, socket) => __awaiter(void 0, void 0, void 0, function* (
             players: [...game.players, userIdObj]
         });
         yield (updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.save());
-        const playerIds = game.players;
+        const playerIds = updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.players;
         const players = yield playerModel_1.default.find({ _id: { $in: playerIds } });
         const playerNames = players.map(player => player.username);
         let DTO = {
-            createdAt: game.createdAt,
+            createdAt: (updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.createdAt) ? updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.createdAt : null,
             players: playerNames,
-            status: game.status,
-            gameId: game.gameId,
-            createdBy: (_b = (_a = (yield playerModel_1.default.findById(game.createdBy))) === null || _a === void 0 ? void 0 : _a.username) !== null && _b !== void 0 ? _b : "Unknown"
+            status: (updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.status) ? updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.status : "waiting",
+            gameId: (updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.gameId) ? updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.gameId : "Error",
+            createdBy: (_e = (_d = (yield playerModel_1.default.findById(updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.createdBy))) === null || _d === void 0 ? void 0 : _d.username) !== null && _e !== void 0 ? _e : "Unknown"
         };
-        if ((updatedGame === null || updatedGame === void 0 ? void 0 : updatedGame.players.length) == 4) {
-            console.log("Socket is emitting, hi there");
-            socket.emit('gameStarted', DTO);
-            socket.broadcast.emit('gameStarted', updatedGame);
-            const gameStateManager = new gameStateManager_1.default(app_1.io, roomId);
-            yield gameStateManager.startGameCycle(roomId);
-        }
-        else {
-            socket.emit('gameJoined', { DTO });
-            socket.broadcast.emit('playerJoined', { DTO });
-        }
+        socket.emit('gameJoined', { DTO });
+        socket.broadcast.emit('playerJoined', { DTO });
     }
     catch (error) {
         console.error('Error in joinGame:', error);

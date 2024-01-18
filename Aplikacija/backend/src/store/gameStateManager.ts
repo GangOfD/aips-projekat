@@ -10,12 +10,10 @@ import IQuestionToQuestionDto from "../utils/convertor"
 class GameStateManager {
     private io: SocketIOServer;
     private questionTimer: NodeJS.Timeout | null = null;
-    // private roomId: string;
     private counter: number = 0;
 
     constructor(io: SocketIOServer, roomId: string) {
         this.io = io;
-        // this.roomId = roomId;
     }
 
     async startGameCycle(roomId: string) {

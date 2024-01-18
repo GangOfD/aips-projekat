@@ -18,10 +18,8 @@ const convertor_1 = __importDefault(require("../utils/convertor"));
 class GameStateManager {
     constructor(io, roomId) {
         this.questionTimer = null;
-        // private roomId: string;
         this.counter = 0;
         this.io = io;
-        // this.roomId = roomId;
     }
     startGameCycle(roomId) {
         return __awaiter(this, void 0, void 0, function* () {

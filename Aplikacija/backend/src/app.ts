@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import { joinGame } from './controllers/gameController';
+import { joinGame, startGame } from './controllers/gameController';
 import { simulateClient } from './simulateClient';
 import { verify } from 'crypto';
 import { verifyToken } from './middleware/authenticate';
@@ -49,10 +49,21 @@ const io = new SocketIOServer(httpServer);
 
 io.on('connection', (socket) => {
     console.log('A user connected');
-  
+
+    
     socket.on('joinGame', async (data) => {
       try {
         await joinGame(data, socket);
+      } catch (error) {
+        console.error('Error in socket joinGame:', error);
+        socket.emit('joinError', 'Error joining game');
+      }
+    });
+
+
+    socket.on('startGame', async (data) => {
+      try {
+        await startGame(data, socket);
       } catch (error) {
         console.error('Error in socket joinGame:', error);
         socket.emit('joinError', 'Error joining game');
@@ -63,7 +74,7 @@ io.on('connection', (socket) => {
       try {
           const token = data.token;
 
-          const userId = verifyToken(token); //Kad se testira, ovde treba poslati ID
+          const userId = verifyToken(token); 
           //const userId="657f1f0a3176e2817db8312c";
 
           if (!userId) {
@@ -90,7 +101,7 @@ httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-simulateClient();
+//simulateClient();
 export { io };
 
 export default app;

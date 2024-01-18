@@ -17,7 +17,7 @@ export class PlayerRepository {
     }
   }
 
-  async getById(id: string): Promise<IPlayer | null> {
+  public async getById(id: string): Promise<IPlayer | null> {
     try {
       const player = await this.playerModel.findById(id);
       return player;
