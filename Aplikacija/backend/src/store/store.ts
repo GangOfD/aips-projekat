@@ -36,6 +36,7 @@ class Store {
         throw new Error(`Game with an ID ${roomId} already exists`);
       
         this.games.set(roomId,gameData);
+        console.log(this.games.get(roomId)?.questions)
       }
 
     public getGameData(gameId: string): GameData | undefined {
@@ -123,7 +124,7 @@ class Store {
         return gameData.currentQuestionIndex >= gameData.questions.length;
     }
 
-    
+
     public getCorrectAnswerIndex(gameData: GameData): number {
         let qNumber = gameData.currentQuestionIndex;
         
