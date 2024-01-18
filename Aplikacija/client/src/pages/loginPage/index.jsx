@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { changeMode } from "state";
+import { changeMode } from "state/authSlice";
 let backgroundImage =require('../../assets/background.jpg');
 
 const LoginPage = () => {

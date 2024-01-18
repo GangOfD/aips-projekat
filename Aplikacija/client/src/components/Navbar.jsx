@@ -15,9 +15,10 @@ import {
   LightMode,
   Menu,
   Close,
+  RunCircle
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { setMode, setLogout } from "state";
+import { setLogout, setMode , setGame} from "state/authSlice";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
 
@@ -27,6 +28,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const token= useSelector((state)=>state.token);
+  const game= useSelector((state)=>state.game);
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
 
   const theme = useTheme();
@@ -68,37 +70,48 @@ const Navbar = () => {
               <LightMode sx={{ color: dark, fontSize: "25px" }} />
             )}
           </IconButton>
-          {token  && (<FormControl variant="standard" value={user.username}>
-            <Select
-              value={user.username}
-              sx={{
-                backgroundColor: primaryLight,
-                width: "150px",
-                borderRadius: "0.25rem",
-                p: "0.25rem 1rem",
-                "& .MuiSvgIcon-root": {
-                  pr: "0.25rem",
-                  width: "3rem",
-                },
-                "& .MuiSelect-select:focus": {
+          {token  && (
+          <Box>
+            {game && (<IconButton onClick={()=>{
+              dispatch(setGame({game:null}));
+              navigate("/home");
+              // mislim da ovde treba i socket.emit('gameLeaved');
+              }} 
+              sx={{ marginRight:"30px" }}>
+              <RunCircle sx={{ fontSize:"25px" }} />
+            </IconButton>)}
+            <FormControl variant="standard" value={user.username}>
+              <Select
+                value={user.username}
+                sx={{
                   backgroundColor: primaryLight,
-                },
-               
-              }}
-              input={<InputBase />}
-            >
-              <MenuItem onClick={()=>navigate(`/profile/${user.username}`)}value={user.username}>
-                <Typography>{user.username}</Typography>
-              </MenuItem>
-              <MenuItem onClick={() => {
-                dispatch(setLogout());
-                navigate("/");
+                  width: "150px",
+                  borderRadius: "0.25rem",
+                  p: "0.25rem 1rem",
+                  "& .MuiSvgIcon-root": {
+                    pr: "0.25rem",
+                    width: "3rem",
+                  },
+                  "& .MuiSelect-select:focus": {
+                    backgroundColor: primaryLight,
+                  },
+                
                 }}
+                input={<InputBase />}
               >
-                Log Out
-              </MenuItem>
-            </Select>
-          </FormControl>)}
+                <MenuItem onClick={()=>navigate(`/profile/${user.username}`)}value={user.username}>
+                  <Typography>{user.username}</Typography>
+                </MenuItem>
+                <MenuItem onClick={() => {
+                  dispatch(setLogout());
+                  navigate("/");
+                  }}
+                >
+                  Log Out
+                </MenuItem>
+              </Select>
+          </FormControl>
+          </Box>)}
         </FlexBetween>
       ) : (
         <IconButton

@@ -5,37 +5,47 @@ import {Box} from "@mui/material";
 
 const GameStatus=({game})=>{
 
+    const date=new Date(game.createdAt);
+    const dateDisplay=date.toISOString().split('T')[0];
     const theme=useTheme();
 
     return (
         <Box
-            p="0.7rem"
-            width="30%"
-            m="0.7rem auto"
-            borderRadius="2.5rem"
-            boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
+            p="1.5rem"
+            width="40%"
+            m="1rem auto"
+            borderRadius="20px"
             backgroundColor={theme.palette.neutral.light}
             textAlign="center"
-        >
-            <Typography>
+            >
+            <Typography variant="h4" color={theme.palette.primary.main} mb={2}>
                 Hello mortal
             </Typography>
-            <Typography>
-                {/* Game created {game.createdAt} */}
+            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
+                Game created {dateDisplay}
             </Typography>
-            <Typography>
-                {/* Nisu to igrači {game.players.forEach(player => {
-                    <Typography> {player}</Typography> 
-                })} */}
+            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
+                Nisu to igrači
             </Typography>
-            <Typography>
-               {/* Game status {game.status} */}
+            <Box mb={2}>
+                {game.players.map((player, index) => (
+                <Typography
+                    key={index}
+                    variant="body2"
+                    color={theme.palette.text.secondary}
+                >
+                    {player}
+                </Typography>
+                ))}
+            </Box>
+            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
+                Game status {game.status}
             </Typography>
-            <Typography>
-                {/* Room id {game.gameId} */}
+            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
+                Room id {game.gameId}
             </Typography>
-            <Typography>
-                {/* Created by{game.createdBy} */}
+            <Typography variant="body1" color={theme.palette.text.secondary}>
+                Created by {game.createdBy}
             </Typography>
         </Box>
     );

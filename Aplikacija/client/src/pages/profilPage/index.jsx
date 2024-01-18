@@ -17,7 +17,7 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setLogout, setUser } from "state";
+import { setLogout, setUser } from "state/authSlice";
 import { useEffect } from "react";
 
 const ProfilPage=()=>{
