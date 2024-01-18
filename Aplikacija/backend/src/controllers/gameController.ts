@@ -139,7 +139,7 @@ export const joinGame = async (data: { roomId: string, token: string }, socket: 
     };
 
       socket.emit('gameJoined', { DTO });
-      socket.broadcast.emit('playerJoined', { DTO });
+      socket.broadcast.emit('gameJoined', { DTO });
     
   } catch (error) {
     console.error('Error in joinGame:', error);

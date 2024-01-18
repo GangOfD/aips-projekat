@@ -38,7 +38,7 @@ const JoinGame=({freeRooms})=>{
             setMessage(res);
         });
         socket.on('gameJoined',(data)=>{
-            //console.log(data.DTO);
+            console.log(data.DTO);
             dispatch(setGame({game:data.DTO}));
             navigate(`/game/${data.DTO.gameId}`);
         });

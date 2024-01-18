@@ -75,7 +75,7 @@ const Navbar = () => {
             {game && (<IconButton onClick={()=>{
               dispatch(setGame({game:null}));
               navigate("/home");
-              // mislim da ovde treba i socket.emit('gameLeaved');
+              // mislim da ovde treba i socket.emit('leaveGame'roomId i token);
               }} 
               sx={{ marginRight:"30px" }}>
               <RunCircle sx={{ fontSize:"25px" }} />
