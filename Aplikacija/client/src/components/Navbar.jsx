@@ -15,9 +15,10 @@ import {
   LightMode,
   Menu,
   Close,
+  RunCircle
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { setMode, setLogout } from "state";
+import { setLogout, setMode , setGame} from "state/authSlice";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
 
@@ -27,6 +28,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const token= useSelector((state)=>state.token);
+  const game= useSelector((state)=>state.game);
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
 
   const theme = useTheme();
@@ -108,7 +110,8 @@ const Navbar = () => {
                   Log Out
                 </MenuItem>
               </Select>
-          </FormControl>)}
+          </FormControl>
+          </Box>)}
         </FlexBetween>
       ) : (
         <IconButton
