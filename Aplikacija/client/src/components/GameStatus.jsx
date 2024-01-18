@@ -1,6 +1,11 @@
 import { useTheme } from "@emotion/react";
-import { Typography } from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
+import {
+    PlayCircleOutline
+  } from "@mui/icons-material";
 import {Box} from "@mui/material";
+import socket from "Socket/socketInstance";
+import { useSelector } from "react-redux";
 
 
 const GameStatus=({game})=>{
@@ -8,6 +13,7 @@ const GameStatus=({game})=>{
     const date=new Date(game.createdAt);
     const dateDisplay=date.toISOString().split('T')[0];
     const theme=useTheme();
+    const token=useSelector((state)=>state.token);
 
     return (
         <Box
@@ -47,6 +53,9 @@ const GameStatus=({game})=>{
             <Typography variant="body1" color={theme.palette.text.secondary}>
                 Created by {game.createdBy}
             </Typography>
+            <IconButton onClick={()=>socket.emit('startGame',{roomId:game.gameId, token:token})}>
+                <PlayCircleOutline sx={{ fontSize: "55px" }} />
+            </IconButton>
         </Box>
     );
 }

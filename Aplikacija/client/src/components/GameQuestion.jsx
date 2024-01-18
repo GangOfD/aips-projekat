@@ -5,11 +5,14 @@ import {
     ArrowCircleRight,
     ArrowCircleLeft
   } from "@mui/icons-material";
+import socket from "Socket/socketInstance";
+import { useSelector } from "react-redux";
 
 
-const GameQuestion=()=>{
+const GameQuestion=({question})=>{
 
-   
+    const token= useSelector((state)=>state.token);
+    const game= useSelector((state)=>state.game);
     const theme=useTheme();
 
     return (
@@ -29,25 +32,25 @@ const GameQuestion=()=>{
             <Box
                 
             >
-                <Typography fontSize="3.5rem"> Beograd </Typography>
+                <Typography fontSize="3.5rem"> {question.options[0]} </Typography>
             </Box>
             <Box
                 width="30%"
                 backgroundColor={theme.palette.neutral.light}
                 border= "3px solid green"
             >
-                <Typography fontSize="3.5rem"> Koji je glavni grad Srbije? </Typography>
+                <Typography fontSize="3.5rem"> {question.questionText} </Typography>
                 <Box
                     width="100%"
                     display="flex"
                     flexDirection="row"
                     justifyContent="space-around"
                 >
-                    <IconButton >
+                    <IconButton onClick={()=>socket.emit('receiveAnswer',{token:token, answerValue:0, gameId:game.gameId})}>
                         <ArrowCircleLeft sx={{ fontSize: "55px" }} />
                     </IconButton>
 
-                    <IconButton >
+                    <IconButton onClick={()=>socket.emit('receiveAnswer',{token:token, answerValue:1, gameId:game.gameId})}>
                         <ArrowCircleRight sx={{ fontSize: "55px" }} />
                     </IconButton>
                 </Box>
@@ -56,7 +59,7 @@ const GameQuestion=()=>{
             <Box
             
             >
-                <Typography fontSize="3.5rem"> Novi Sad </Typography>
+                <Typography fontSize="3.5rem"> {question.options[1]} </Typography>
             </Box>
 
            

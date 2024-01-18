@@ -14,18 +14,12 @@ const GamePage=()=>{
     const game= useSelector((state)=>state.game);
     const dispatch= useDispatch();
     const navigate=useNavigate();
+    const [question, setQuestion]= useState(null);
 
     
-    game.status="inProgres";
-    console.log(game);
     useEffect(()=>{
         if(token==null)
             navigate("/");
-
-        socket.on('newQuestion', (data)=>{
-            console.log(data);
-             
-        })
 
         socket.on('gameJoined',(data)=>{
             console.log(data.DTO);
@@ -36,20 +30,29 @@ const GamePage=()=>{
             console.log("Hello form Started",data);
             dispatch(setGame({game:data}));
         });
+
+        socket.on('newQuestion', (data)=>{
+            console.log(data);
+            setQuestion(data);
+             
+        });
+
+        socket.on('questionResults', (data)=>{
+            console.log(data);
+             
+        });
     
         return ()=>{
             //socket.off('newQuestion');
         }
-        //msm da ovde treba socket.on('gameStarted');
-        // pitanja osluskujem na newQuestion(question:string, optins:string[]) a saljem receiveAnsver(token, roomId, answeredIndex)
-        //console.log(game);
+        
     },[socket]);
 
     return(
         <Box>
             <Navbar/>
             {game.status=='waiting' && (<GameStatus game={game}/>)}
-            {game.status=="inProgres" && (<GameQuestion/>)}
+            {game.status=="inProgress" && question && (<GameQuestion question={question}/>)}
         </Box>
     ) 
 }

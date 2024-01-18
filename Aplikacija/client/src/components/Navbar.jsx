@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setLogout, setMode , setGame} from "state/authSlice";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
+import socket from "Socket/socketInstance";
 
 const Navbar = () => {
   const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
@@ -72,10 +73,10 @@ const Navbar = () => {
           </IconButton>
           {token  && (
           <Box>
-            {game && (<IconButton onClick={()=>{
+            {game?.status=='waiting' && (<IconButton onClick={()=>{
               dispatch(setGame({game:null}));
               navigate("/home");
-              // mislim da ovde treba i socket.emit('leaveGame'roomId i token);
+              socket.emit('leaveGame', {roomId:game.gameId, token:token});
               }} 
               sx={{ marginRight:"30px" }}>
               <RunCircle sx={{ fontSize:"25px" }} />
