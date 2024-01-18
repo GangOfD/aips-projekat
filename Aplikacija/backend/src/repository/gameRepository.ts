@@ -56,4 +56,21 @@ export class GameRepo {
       throw new Error(`Error while deleting game: ${error.message}`);
     }
   }
+
+  async removePlayerFromGame(gameId:string, playerId:string) {
+    try {
+        const game = await this.gameModel.findById(gameId);
+        if (!game) {
+            throw new Error('Game not found');
+        }
+
+        game.players = game.players.filter(p => p.toString() !== playerId);
+        await game.save();
+
+        return game; 
+    } catch (error) {
+        console.error('Error removing player from game:', error);
+        throw error;
+    }
+}
 }
