@@ -27,7 +27,7 @@ const HomePage=()=>{
     const [freeRooms, setFreeRooms]=useState([]);
 
     useEffect(()=>{
-      //getFreeRooms();
+      getFreeRooms();
     },[])
 
     const  getFreeRooms= async () =>{
@@ -50,8 +50,7 @@ const HomePage=()=>{
           
             else{
               const freeGames = await freeGamesResponse.json();
-              //console.log(freeGames);
-              //setFreeRooms(freeGames.availableGames);
+              setFreeRooms(freeGames);
             }
             
             

@@ -45,49 +45,47 @@ import {
     };    
 
     const handleFormSubmit = async (values, action) => {
-        //if(action==="host" && values.roomId)  await createGame(values);
-        console.log(values);
-        if(action==="host" && values.roomId)  socket.emit('createGame',{user:user.username, roomId:values.roomId})
+        if(action==="host" && values.roomId)  await createGame(values);
         if(action==="delete" && values.roomId)  await deleteGame(values);
         
     };
 
     const  createGame= async (values) =>{
         console.log(values, " A token je : " , token);
-        // try{
-        //     const createGameResponse= await fetch(
-        //         `http://localhost:3002/games/`,
-        //         {
-        //           method: "POST",
-        //           headers: {
-        //             "Content-Type": "application/json",
-        //             "Authorization": `Bearer ${token}`,
-        //           },
-        //           body: JSON.stringify(values),
-        //         }
-        //       );
+        try{
+            const createGameResponse= await fetch(
+                `http://localhost:3002/games/`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                  },
+                  body: JSON.stringify(values),
+                }
+              );
 
-        //       const createdGame = await createGameResponse.json();
-        //       if (!createGameResponse.ok) {
-        //         if(createGameResponse.status==403){
-        //           setMessage(createdGame.message);
-        //         }
-        //         else{
-        //           throw new Error('Mistake during create game fetching');
-        //         }
+              const createdGame = await createGameResponse.json();
+              if (!createGameResponse.ok) {
+                if(createGameResponse.status==403){
+                  setMessage(createdGame.message);
+                }
+                else{
+                  throw new Error('Mistake during create game fetching');
+                }
                 
-        //       }
-        //       else{
-        //         navigate(`/game/${values.roomId}`);
-        //       }
+              }
+              else{
+                navigate(`/game/${values.roomId}`);
+              }
              
               
               
 
-        // }
-        // catch(error){
-        //     console.error("Mistake during creating game",error);
-        // }
+        }
+        catch(error){
+            console.error("Mistake during creating game",error);
+        }
     };
 
     const  deleteGame= async (values) =>{

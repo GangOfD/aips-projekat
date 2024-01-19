@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Navbar from "components/Navbar";
 import { useNavigate } from "react-router-dom";
 import { useSelector,useDispatch } from "react-redux";
@@ -7,6 +7,7 @@ import { setGame } from "state/authSlice";
 import socket from "Socket/socketInstance";
 import GameStatus from "components/GameStatus";
 import GameQuestion from "components/GameQuestion";
+import QuestionResult from "components/QuestionResult";
 
 const GamePage=()=>{
 
@@ -15,7 +16,7 @@ const GamePage=()=>{
     const dispatch= useDispatch();
     const navigate=useNavigate();
     const [question, setQuestion]= useState(null);
-
+    const [result, setResult]= useState(null);
     
     useEffect(()=>{
         if(token==null)
@@ -32,14 +33,14 @@ const GamePage=()=>{
         });
 
         socket.on('newQuestion', (data)=>{
-            console.log(data);
+            console.log("NEW QUESTION",data);
             setQuestion(data);
              
         });
 
         socket.on('questionResults', (data)=>{
-            console.log(data);
-             
+            console.log("QUESTION RESULT",data);
+            setResult(data);
         });
     
         return ()=>{
@@ -48,12 +49,15 @@ const GamePage=()=>{
         
     },[socket]);
 
+    
+
     return(
-        <Box>
+        <>
             <Navbar/>
             {game.status=='waiting' && (<GameStatus game={game}/>)}
             {game.status=="inProgress" && question && (<GameQuestion question={question}/>)}
-        </Box>
+            {result && (<QuestionResult results={result}/>)}
+        </>
     ) 
 }
 
