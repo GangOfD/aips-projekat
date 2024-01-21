@@ -14,6 +14,9 @@ import { verify } from 'crypto';
 import { verifyToken } from './middleware/authenticate';
 import AnswerCommand from '../src/commands/AnswerCommand';
 import {initializeQuestions, removeDuplicateQuestions} from './calculationService/initQuestions'
+import wrapEvent from './eventWrapper'
+import { Socket } from 'socket.io';
+import {receiveAnswer} from './controllers/answerController'
 
 
 dotenv.config();
@@ -49,79 +52,19 @@ app.use((err: any, req: Request, res: Response, next: Function) => {
 const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer);
 
-io.on('connection', (socket) => {
-    console.log('A user connected');
+const setupSocketEvents = (io: SocketIOServer) => {
+  io.on('connection', (socket) => {
+      console.log('A user connected');
 
-
-    socket.on('joinGame', async (data) => {
-      try {
-        await joinGame(data, socket);
-      } catch (error) {
-        console.error('Error in socket joinGame:', error);
-        socket.emit('joinError', 'Error joining game');
-      }
-    });
-
-
-    socket.on('startGame', async (data) => {
-      try {
-        const userId = verifyToken(data.token);
-        if (!userId) {
-          socket.emit('startError', 'Invalid or expired token');
-          return;
-        }
-        
-        const modifiedData = { ...data, userId };
-        await startGame(modifiedData, socket);
-      } catch (error) {
-        console.error('Error in socket startGame:', error);
-        socket.emit('startError', 'Error starting the game');
-      }
-    });
-    
-
-
-    socket.on('leaveGame', async (data) => {
-      try {
-        const userId = verifyToken(data.token);
-        if (!userId) {
-          socket.emit('leaveError', 'Invalid or expired token');
-          return;
-        }
-
-        const modifiedData = { ...data, userId };
-
-        await leaveGame(modifiedData, socket);
-      } catch (error) {
-        console.error('Error in socket leaveGame:', error);
-        socket.emit('leaveGameError', 'Error leaving game');
-      }
-    });
-
-    socket.on('receiveAnswer', async (data) => {
-      try {
-          const token = data.token;
-          const userId = verifyToken(token); 
-
-          if (!userId) {
-              throw new Error('Invalid or expired token');
-          }
-
-          const { answerValue,gameId } = data;
-
-          const command = new AnswerCommand(userId, answerValue,gameId);
-
-          command.execute();
-
-          socket.emit('answerReceived', { userId: userId, status: 'success' });
-
-      } catch (error) {
-          console.error('Error in socket receiveAnswer:', error);
-          socket.emit('receiveAnswerError', { error: 'Error while answering' });
-      }
-  });
+      wrapEvent(socket, 'joinGame', joinGame);
+      wrapEvent(socket, 'startGame', startGame);
+      wrapEvent(socket, 'leaveGame', leaveGame);
+      wrapEvent(socket, 'receiveAnswer', receiveAnswer);
 
   });
+};
+
+setupSocketEvents(io);
 
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

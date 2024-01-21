@@ -32,7 +32,7 @@ export class GameData {
     }
     
 }
-
+//CHECK THIS !! 
 export async function prepareGameData(roomId: string): Promise<GameData | null> {
     try {
         const gameDataFromDB = await Game.findOne({ gameId: roomId }).populate('questions');

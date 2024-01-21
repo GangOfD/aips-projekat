@@ -231,10 +231,10 @@ export const getAllGames = async (req: RequestWithUserId, res: Response) => {
   export const getAllAvailableGames = async (req: Request, res: Response) => {
     try {
         const waitingGames = await gameRepo.getGamesByStatus('waiting');
-        console.log(waitingGames)
         res.json(waitingGames); 
     } catch (error) {
         console.error('Error in getWaitingGames:', error);
         res.status(500).send('Error fetching waiting games');
     }
 }
+ 

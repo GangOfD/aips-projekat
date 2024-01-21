@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import Player from '../models/playerModel';
+import { Socket } from 'socket.io';
 
 interface AuthRequest extends Request {
   userId?: string; 
@@ -73,3 +74,20 @@ export const verifyToken = (token: string): string | null => {
     return null;
   }
 };
+
+export const verifySocketToken = async (socket: Socket, data: any, callback: any) => {
+  try {
+      const userId = verifyToken(data.token);
+      if (!userId) {
+          socket.emit('tokenError', 'Invalid or expired token');
+          return;
+      }
+
+      const modifiedData = { ...data, userId };
+      await callback(modifiedData, socket);
+  } catch (error) {
+      console.error('Error in token verification:', error);
+      socket.emit('tokenError', 'Error verifying token');
+  }
+};
+
