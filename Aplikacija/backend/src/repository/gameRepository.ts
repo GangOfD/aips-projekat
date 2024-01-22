@@ -1,5 +1,5 @@
 import mongoose, { Model } from 'mongoose';
-import { IGame } from '../models/gameModel';
+import { IGame } from '../models/gameModel/gameModel';
 
 export class GameRepo {
   private gameModel: Model<IGame>; 

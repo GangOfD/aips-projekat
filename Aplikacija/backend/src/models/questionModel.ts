@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-
+import { PredefinedTags } from './tags/enumTags';
 interface IOption {
   text: string;
   picture: string;
@@ -13,16 +13,37 @@ export interface questionDto {
 }
 
 export interface IQuestion {
+  id: mongoose.Types.ObjectId;
   questionText: string;
   options: IOption[];
   correctAnswerIndex: number;
-  tags:string[];
-  difficulty:{ //procenat koliko ljudi pogadja odgovor 
+  hint:{
+    type:string[],
+    required:false,
+    min:0,
+    max:100
+  },
+  proof:{
+    type:string[],
+    required:false,
+    min:0,
+    max:100
+  }
+  difficulty:{ 
     type:number,
     default:undefined,
     min:0,
     max:100
   }
+  tags:{
+   type:PredefinedTags[];
+   min:0,
+   max:5
+  }
+}
+//TODO
+interface ITagValidationProps {
+  value: string[]; // Adjust this type according to the actual structure of your tags
 }
 
 const questionSchema: Schema = new Schema({
@@ -30,6 +51,17 @@ const questionSchema: Schema = new Schema({
     type: String,
     required: true,
   },
+ tags: {
+  type: [String],
+  required: false,
+  max: 5,
+  validate: {
+    validator: function(v: string[]) {
+     // return v.every(tag => Object.values(PredefinedTags).includes(tag));
+    },
+    message: (props: ITagValidationProps) => `${props.value} is not a valid tag`
+  }
+},
   options: {
     type: [{
       text: { type: String, required: true },

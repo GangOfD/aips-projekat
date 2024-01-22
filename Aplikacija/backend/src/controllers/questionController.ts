@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Query } from 'express-serve-static-core'; 
 import { QuestionRepository } from '../repository/questionRepository';
-
+import {generateRandomTags}  from '../utils/tagsGenerator'
 import Question from '../models/questionModel';
 import { IQuestion } from '../models/questionModel';
 
@@ -27,7 +27,7 @@ export const fetchQuestionsForGame = async (numberOfQuestions: number) => {
 
 export const addQuestion = async (req: any, res: any) => {
   try {
-    const { questionText, options, correctAnswerIndex } = req.body;
+    const { questionText, options, correctAnswerIndex,tags } = req.body;
 
     if (!questionText || !Array.isArray(options) || (typeof correctAnswerIndex !== 'number')) {
       return res.status(400).json({ message: "Invalid request data" });
@@ -44,7 +44,8 @@ export const addQuestion = async (req: any, res: any) => {
     const newQuestion = new Question({
       questionText,
       options,
-      correctAnswerIndex
+      correctAnswerIndex,
+      tags
     });
 
     await newQuestion.save();

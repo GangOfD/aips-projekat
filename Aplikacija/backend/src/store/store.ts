@@ -1,6 +1,6 @@
-import Game from '../models/gameModel';
+import Game from '../models/gameModel/gameModel';
 import { IQuestion } from '../models/questionModel'
-import  {GameData, UserResponse } from '../models/gameData';
+import  {GameData, UserResponse } from '../models/gameModel/gameData';
 
 export interface UserState {
     score: number;

@@ -1,18 +1,19 @@
 import { Request, Response } from 'express';
 import mongoose, { isValidObjectId, Types } from 'mongoose'; 
 import { fetchQuestionsForGame, getQuestions } from './questionController';
-import Game, { IGame } from '../models/gameModel';
+import Game, { IGame } from '../models/gameModel/gameModel';
 import { GameRepo as GameRepository} from '../repository/gameRepository';
 import { SocketEvent } from '../socket-decorators';
 import { io } from '../app';
 import { Socket } from 'socket.io';
 import Store from '../store/store'
 import GameStateManager from '../store/gameStateManager'
-import {gameDto} from '../models/gameDto'
+import {gameDto} from '../models/gameModel/gameDto'
 import Player from '../models/playerModel';
-import {GameData} from '../models/gameData';
+import {GameData} from '../models/gameModel/gameData';
 import { PlayerRepository } from '../repository/playerRepository';
 import { verifyToken } from '../middleware/authenticate';
+import { generateRandomTags } from '../utils/tagsGenerator';
 
 
 
@@ -180,6 +181,7 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
   try {
     const { roomId } = req.body;
     const userId = req.userId;
+    let tags = req.body.tags;
 
     const existingGame = await gameRepo.getById(roomId);
     if (existingGame) {
@@ -191,15 +193,19 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
       return res.status(400).json({ message: 'Invalid number of questions' });
     }
 
+    if(!tags)
+    tags=generateRandomTags();
+
     const questions = await fetchQuestionsForGame(numberOfQuestions);
 
     const newGame: Partial<IGame> = {
       gameId: roomId,
       createdBy: new mongoose.Types.ObjectId(userId),
       players: [],
-      //questions: questions.map(q => q._id),
+      questions: questions.map(q => q.id),
       status: 'waiting',
-      createdAt: new Date() 
+      createdAt: new Date() ,
+      tags: tags,
     };
 
     const createdGame = await gameRepo.create(newGame);

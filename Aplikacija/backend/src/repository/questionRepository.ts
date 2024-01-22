@@ -19,6 +19,7 @@ export class QuestionRepository {
   async getQuestions(limit: number): Promise<IQuestion[]> {
     try {
       const questions = await this.questionModel.find().limit(limit);
+      console.log("Pitanja iz baze su", questions)
       return questions;
     } catch (error: any) {
       throw new Error(`Error while fetching questions: ${error.message}`);

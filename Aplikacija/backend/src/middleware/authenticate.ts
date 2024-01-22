@@ -25,11 +25,10 @@ export const authenticateUser = async (req: AuthRequest, res: Response, next: Ne
     const userId: string | undefined = decoded ? decoded._id : undefined;
     
     if (userId) {
-      console.log('User ID:', userId);
+     // 
     } else {
       console.error('User ID not found in the token');
     }
-        console.log("Dosli smo do asda");
 
     req.userId = decoded._id;
 

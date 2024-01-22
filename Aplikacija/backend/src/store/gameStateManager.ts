@@ -4,7 +4,7 @@ import ICommand from '../commands/ICommand';
 import Store from '../store/store';
 import Question, { IQuestion } from '../models/questionModel';
 import { resourceLimits } from 'worker_threads';
-import { GameData, prepareGameData } from '../models/gameData';
+import { GameData, prepareGameData } from '../models/gameModel/gameData';
 import IQuestionToQuestionDto from "../utils/convertor"
 
 class GameStateManager {

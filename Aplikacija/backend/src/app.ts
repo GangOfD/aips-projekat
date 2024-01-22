@@ -17,7 +17,7 @@ import {initializeQuestions, removeDuplicateQuestions} from './calculationServic
 import wrapEvent from './eventWrapper'
 import { Socket } from 'socket.io';
 import {receiveAnswer} from './controllers/answerController'
-
+import { generateAIResponse } from './host/host'
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -27,7 +27,8 @@ const app: Application = express();
 app.use(cors());
 
 connectDB();
-// removeDuplicateQuestions()
+
+generateAIResponse("Hello buddy. What's up? Do you think that Michael Jordan is the GOAT of basketball? Don't give me too long answer");
 
 // Middleware
 app.use(express.json());
