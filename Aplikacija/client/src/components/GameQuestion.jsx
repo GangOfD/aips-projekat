@@ -7,89 +7,99 @@ import {
   } from "@mui/icons-material";
 import socket from "Socket/socketInstance";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 
-const GameQuestion=({question})=>{
+const GameQuestion=()=>{
 
     const token= useSelector((state)=>state.token);
     const game= useSelector((state)=>state.game);
     const theme=useTheme();
     const mode=useSelector((state)=>state.mode);
+    const [question, setQuestion]=useState(null);
+
+    useEffect(()=>{
+
+      socket.on('newQuestion', (data)=>{
+        console.log("NEW QUESTION",data);
+        setQuestion(data);
+      });
+    },[socket])
 
     return (
         <Box
-      width="100%"
-      height="50vh"
-      borderRadius="20px"
-      textAlign="center"
-      display="flex"
-      flexDirection="row"
-      justifyContent="space-evenly"
-      alignItems="center"
-    >
-      <Box
-        width="30%"
-        backgroundColor={mode=="dark" ? theme.palette.primary.light: theme.palette.neutral.light}
-        borderRadius="10px"
-        padding="20px"
-        boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
-        
-      >
-        <Typography fontSize="5.5vw">{question.options[0]}</Typography>
-      </Box>
-      <Box
-        width="30%"
-        backgroundColor={theme.palette.neutral.light}
-        border="3px solid green"
-        borderRadius="10px"
-        padding="20px"
-        boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
-      >
-        <Typography variant="h4" marginBottom="20px">
-          {question.questionText}
-        </Typography>
-        <Box
           width="100%"
+          height="50vh"
+          borderRadius="20px"
+          textAlign="center"
           display="flex"
           flexDirection="row"
-          justifyContent="space-around"
+          justifyContent="space-evenly"
           alignItems="center"
         >
-          <IconButton
-            onClick={() =>
-              socket.emit("receiveAnswer", {
-                token: token,
-                answerValue: 0,
-                gameId: game.gameId,
-              })
-            }
+          <Box
+            width="30%"
+            backgroundColor={mode=="dark" ? theme.palette.primary.light: theme.palette.neutral.light}
+            borderRadius="10px"
+            padding="20px"
+            boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
+            
           >
-            <ArrowCircleLeft sx={{ fontSize:"5.5vw" }} />
-          </IconButton>
+            <Typography fontSize="5.5vw">{question?.options[0]}</Typography>
+          </Box>
+          <Box
+            width="30%"
+            backgroundColor={theme.palette.neutral.light}
+            border="3px solid green"
+            borderRadius="10px"
+            padding="20px"
+            boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
+          >
+            <Typography variant="h4" marginBottom="20px">
+              {question?.questionText}
+            </Typography>
+            <Box
+              width="100%"
+              display="flex"
+              flexDirection="row"
+              justifyContent="space-around"
+              alignItems="center"
+            >
+              <IconButton
+                onClick={() =>
+                  socket.emit("receiveAnswer", {
+                    token: token,
+                    answerValue: 0,
+                    gameId: game.gameId,
+                  })
+                }
+              >
+                <ArrowCircleLeft sx={{ fontSize:"5.5vw" }} />
+              </IconButton>
 
-          <IconButton
-            onClick={() =>
-              socket.emit("receiveAnswer", {
-                token: token,
-                answerValue: 1,
-                gameId: game.gameId,
-              })
-            }
+              <IconButton
+                onClick={() =>
+                  socket.emit("receiveAnswer", {
+                    token: token,
+                    answerValue: 1,
+                    gameId: game.gameId,
+                  })
+                }
+              >
+                <ArrowCircleRight sx={{ fontSize:"5.5vw" }} />
+              </IconButton>
+            </Box>
+          </Box>
+          <Box
+            width="30%"
+            backgroundColor={mode=="dark" ? theme.palette.primary.light: theme.palette.neutral.light}
+            borderRadius="10px"
+            padding="20px"
+            boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
           >
-            <ArrowCircleRight sx={{ fontSize:"5.5vw" }} />
-          </IconButton>
+            <Typography fontSize="5.5vw">{question?.options[1]}</Typography>
+          </Box>
         </Box>
-      </Box>
-      <Box
-        width="30%"
-        backgroundColor={mode=="dark" ? theme.palette.primary.light: theme.palette.neutral.light}
-        borderRadius="10px"
-        padding="20px"
-        boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
-      >
-        <Typography fontSize="5.5vw">{question.options[1]}</Typography>
-      </Box>
-    </Box>
     );
 }
 

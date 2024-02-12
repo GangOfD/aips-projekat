@@ -5,9 +5,10 @@ import { useSelector,useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { setGame } from "state/authSlice";
 import socket from "Socket/socketInstance";
-import GameStatus from "components/GameStatus";
+import GameWaiting from "components/GameWaiting";
 import GameQuestion from "components/GameQuestion";
 import QuestionResult from "components/QuestionResult";
+import GameStatus from "components/GameStatus";
 
 const GamePage=()=>{
 
@@ -32,11 +33,10 @@ const GamePage=()=>{
             dispatch(setGame({game:data}));
         });
 
-        socket.on('newQuestion', (data)=>{
-            console.log("NEW QUESTION",data);
-            setQuestion(data);
-             
-        });
+        socket.on('gameCompleted',(data)=>{
+            console.log("Hello from completed game", data);
+            dispatch(setGame({game:data}));
+        })
 
         socket.on('questionResults', (data)=>{
             console.log("QUESTION RESULT",data);
@@ -54,8 +54,10 @@ const GamePage=()=>{
     return(
         <>
             <Navbar/>
-            {game.status=='waiting' && (<GameStatus game={game}/>)}
+            <GameStatus status={game.status}/>
+            {/* {game.status=="waiting" && (<GameWaiting game={game}/>)}
             {game.status=="inProgress" && question && (<GameQuestion question={question}/>)}
+            {game.status=="completed" && (<GameCompleted game={game}/>)} */}
             {result && (<QuestionResult results={result}/>)}
         </>
     ) 

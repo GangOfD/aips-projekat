@@ -17,38 +17,38 @@ const QuestionResult=({results})=>{
     
     return (
         <Box
-      width="100%"
-      borderRadius="20px"
-      textAlign="center"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-      backgroundColor={theme.palette.primary.light}
-      padding="15px"
-      gap="5px"
-    >
-      <Typography variant="h3" color="#fff" fontWeight="bold">
-        Question asked: {results.questionsAsked}
-      </Typography>
-
-      <Box
-        width="98%"
-        borderRadius="10px"
-        backgroundColor={theme.palette.background.default}
-        boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
-      >
-        <Typography variant="h3" marginBottom="20px" color={theme.palette.primary.main}>
-          Scoreboard:
-        </Typography>
-
-        {results.scoreBoard.map((score, index) => (
-          <Typography key={index} fontSize="1.2rem" color={theme.palette.text.primary}>
-            User: {score.username} | Points: {score.points}
+          width="100%"
+          borderRadius="20px"
+          textAlign="center"
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          backgroundColor={theme.palette.primary.light}
+          padding="15px"
+          gap="5px"
+        >
+          <Typography variant="h3" color="#fff" fontWeight="bold">
+            Question asked: {results.questionsAsked}
           </Typography>
-        ))}
-      </Box>
-    </Box>
+
+          <Box
+            width="98%"
+            borderRadius="10px"
+            backgroundColor={theme.palette.background.default}
+            boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
+          >
+            <Typography variant="h3" marginBottom="20px" color={theme.palette.primary.main}>
+              Scoreboard:
+            </Typography>
+
+            {results.scoreBoard.map((score, index) => (
+              <Typography key={index} fontSize="1.2rem" color={theme.palette.text.primary}>
+                User: {score.username} | Points: {score.points}
+              </Typography>
+            ))}
+          </Box>
+        </Box>
     );
 }
 
