@@ -10,21 +10,15 @@ import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
 
-const GameQuestion=()=>{
+const GameQuestion=({action})=>{
 
     const token= useSelector((state)=>state.token);
     const game= useSelector((state)=>state.game);
     const theme=useTheme();
     const mode=useSelector((state)=>state.mode);
-    const [question, setQuestion]=useState(null);
+    //const [question, setQuestion]=useState(null);
 
-    useEffect(()=>{
-
-      socket.on('newQuestion', (data)=>{
-        console.log("NEW QUESTION",data);
-        setQuestion(data);
-      });
-    },[socket])
+    
 
     return (
         <Box
@@ -45,7 +39,7 @@ const GameQuestion=()=>{
             boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
             
           >
-            <Typography fontSize="5.5vw">{question?.options[0]}</Typography>
+            <Typography fontSize="5.5vw">{action?.options[0]}</Typography>
           </Box>
           <Box
             width="30%"
@@ -56,7 +50,7 @@ const GameQuestion=()=>{
             boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
           >
             <Typography variant="h4" marginBottom="20px">
-              {question?.questionText}
+              {action?.questionText}
             </Typography>
             <Box
               width="100%"
@@ -97,7 +91,7 @@ const GameQuestion=()=>{
             padding="20px"
             boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
           >
-            <Typography fontSize="5.5vw">{question?.options[1]}</Typography>
+            <Typography fontSize="5.5vw">{action?.options[1]}</Typography>
           </Box>
         </Box>
     );

@@ -2,13 +2,14 @@ import GameWaiting from "components/GameWaiting";
 import GameQuestion from "components/GameQuestion";
 import QuestionResult from "components/QuestionResult";
 import GameCompleted from "./GameCompleted";
+import GameFlow from "./GameFlow";
 import { Box } from "@mui/material";
 
 const GameStatus = ({ status }) => {
     
     const statusComponents = {
       waiting: GameWaiting,
-      inProgress: GameQuestion,
+      inProgress: GameFlow,//Ovde je bilo GameQuestion
       completed: GameCompleted,
     };
   
