@@ -1,6 +1,7 @@
 import Game from '../models/gameModel/gameModel';
 import { IQuestion } from '../models/questionModel'
-import  {GameData, UserResponse } from '../models/gameModel/gameData';
+import { GameData, UserResponse } from '../models/gameModel/gameData';
+import { HostMessageParams } from '../models/hostModel';
 
 export interface UserState {
     score: number;
@@ -8,21 +9,20 @@ export interface UserState {
     answerTime: number | null;
     hasAnswered: boolean;
     isCorrect: boolean;
-    username:string;
+    username: string;
 }
 
 
-export interface resultState{ 
-    gameId:string;
-    questionsAsked:number;
-    scoreBoard: { 
-        username:string,
-        points:number
+export interface resultState {
+    gameId: string;
+    questionsAsked: number;
+    scoreBoard: {
+        username: string,
+        points: number
     }[]
 }
 
 class Store {
-
     private userStates: Map<string, UserState>;
     private games: Map<string, GameData>;
 
@@ -32,12 +32,12 @@ class Store {
     }
 
     public addGameData(roomId: string, gameData: GameData) {
-        if(this.games.get(roomId))
-        throw new Error(`Game with an ID ${roomId} already exists`);
-      
-        this.games.set(roomId,gameData);
+        if (this.games.get(roomId))
+            throw new Error(`Game with an ID ${roomId} already exists`);
+
+        this.games.set(roomId, gameData);
         console.log(this.games.get(roomId)?.questions)
-      }
+    }
 
     public getGameData(gameId: string): GameData | undefined {
         return this.games.get(gameId);
@@ -56,7 +56,41 @@ class Store {
         return this.userStates.get(userId);
     }
 
+    public setHostParams = (gameId: string): HostMessageParams => {
+        const gameData = this.getGameData(gameId);
+        if (!gameData) {
+            throw new Error('Game data not found');
+        }
+    
+        const correctAnswers: boolean[] = [];
+        const wrongAnswers: boolean[] = [];
+        const playerPositions: number[] = [];
+        const playerNames:string[]=[];
+    
+        gameData.players.forEach((userState:any, playerId:any) => {
+            const isCorrect = userState.isCorrect || false;
+            correctAnswers.push(isCorrect);
+            wrongAnswers.push(!isCorrect);
+    
+            // Determine the player position based on score
+            let position = 1;
+            gameData.players.forEach((otherUserState, otherPlayerId) => {
+                if (otherPlayerId !== playerId && otherUserState.score > userState.score) {
+                    position++;
+                }
+            });
+            playerPositions.push(position);
+        });
+    
+        return {
+            correctAnswers,
+            wrongAnswers,
+            playerPositions,
+            playerNames
 
+        };
+    };
+    
     public getNextQuestion(roomId: string): IQuestion | null {
         const gameData = this.games.get(roomId);
         if (!gameData) {
@@ -73,12 +107,17 @@ class Store {
         }
     }
 
-    public recordUserAnswer(roomId:string,userId:string,currentAnswer:number| null){
-        const game=this.getGame(roomId);
-        if(!game){
+    public recordUserAnswer(roomId: string, userId: string, currentAnswer: number | null) {
+        const game = this.getGame(roomId);
+        if (!game) {
             throw new Error('Game not found -recordUserAnswer')
             // return;
         }
+
+        // if(game.gamePhase!==ShowingQuestion)
+        //   {
+        //     console.log("You can not answer now since question time is over")
+        //   }
 
         const userState = game.players.get(userId);
         if (!userState) {
@@ -87,7 +126,7 @@ class Store {
             // return; 
         }
         userState.currentAnswer = currentAnswer;
-        userState.answerTime=Date.now()
+        userState.answerTime = Date.now()
     }
 
     getScoreboardTable(roomId: string): resultState {
@@ -127,15 +166,15 @@ class Store {
 
     public getCorrectAnswerIndex(gameData: GameData): number {
         let qNumber = gameData.currentQuestionIndex;
-        
+
         if (qNumber <= 0 || qNumber > gameData.questions.length) {
             console.error(`Invalid question number: ${qNumber}`);
-            return -1; 
+            return -1;
         }
-    
+
         return gameData.questions[qNumber - 1].correctAnswerIndex;
     }
-    
+
     public updateScoresAfterQuestion(roomId: string): void {
         const gameData = this.games.get(roomId);
         if (!gameData) {
@@ -174,7 +213,7 @@ class Store {
             }
         });
     }
-    
+
 
 
     public getGame(roomId: string): GameData | null {

@@ -18,6 +18,12 @@ import wrapEvent from './eventWrapper'
 import { Socket } from 'socket.io';
 import {receiveAnswer} from './controllers/answerController'
 import { generateAIResponse } from './host/host'
+import axios from 'axios';
+import { getHostMessage } from './controllers/hostController';
+import { HostMessageParams } from './models/hostModel';
+
+
+
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -39,6 +45,30 @@ app.get('/config', (req, res) => {
   res.json({ port: process.env.PORT });
 });
 
+app.post('/chat-gpt', async (req, res) => {
+  try {
+      const { prompt, game_state } = req.body;
+      console.log("About to perform")
+      const response = await axios.post('http://localhost:5000/chat-gpt', { });
+      console.log(response)
+      res.json(response.data);
+  } catch (error) {
+      console.error(error); 
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+async function callChatGptRoute() {
+  try {
+    
+      const response = await axios.post('http://localhost:5000/chat-gpt', { });
+      console.log('Response from /chat-gpt route:', response.data);
+  } catch (error) { 
+      console.error('Error calling /chat-gpt route:', error);
+  }
+}
+
+//callChatGptRoute()
 // Routes
 app.use('/auth', authRoutes);
 app.use('/question', questionRoutes);
@@ -71,7 +101,7 @@ httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-//simulateClient();
+
 export { io };
 
 export default app;

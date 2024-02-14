@@ -3,9 +3,10 @@ import { Server as SocketIOServer } from 'socket.io';
 import ICommand from '../commands/ICommand';
 import Store from '../store/store';
 import Question, { IQuestion } from '../models/questionModel';
-import { resourceLimits } from 'worker_threads';
 import { GameData, prepareGameData } from '../models/gameModel/gameData';
 import IQuestionToQuestionDto from "../utils/convertor"
+import {getHostMessage} from '../controllers/hostController'
+import { HostMessageParams } from '../models/hostModel';
 
 class GameStateManager {
     private io: SocketIOServer;
@@ -24,6 +25,7 @@ class GameStateManager {
             return;
         }
         Store.addGameData(roomId, gameData);
+        //const initialGameState=Store.getInitialState(roomId);
     
         setTimeout(() => {
             this.sendQuestion(roomId);
@@ -60,10 +62,50 @@ class GameStateManager {
         this.io.to(roomId).emit('questionResults', results);
 
         setTimeout(() => {
+            this.showHostMessage(roomId);
+        }, 5000); 
+    }
+
+    async showHostMessage(roomId:string){
+        const params=this.gameParamsFiller(roomId)
+
+        if(!params)
+        return;
+
+        const message=await getHostMessage(params);
+
+        this.io.to(roomId).emit('hostMessage', message);
+        setTimeout(() => {
             this.sendQuestion(roomId);
         }, 5000); 
     }
 
+    gameParamsFiller(roomId: string): HostMessageParams | undefined {
+        const game = Store.getGame(roomId);
+    
+        if (!game) {
+            console.error('Game not found');
+            return undefined;
+        }
+    
+        const playerStates = Array.from(game.players.values());
+    
+        const correctAnswers = playerStates.map(state => state.isCorrect);
+        const wrongAnswers = playerStates.map(state => !state.isCorrect);
+        const playerNames = playerStates.map(state => state.username);
+    
+        const playerPositions = playerStates
+            .map((state, index) => ({ index: index + 1, score: state.score }))
+            .sort((a, b) => b.score - a.score)
+            .map(player => player.index);
+    
+        return {
+            correctAnswers,
+            wrongAnswers,
+            playerPositions,
+            playerNames
+        };
+    }
 
 }
 
