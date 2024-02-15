@@ -1,5 +1,5 @@
 import ICommand from './ICommand';
-import Store from '../store/store';
+import Store from '../managers/store';
 import { verifyToken } from '../middleware/authenticate';
 
 export default class AnswerCommand implements ICommand {
@@ -18,7 +18,7 @@ export default class AnswerCommand implements ICommand {
         if (this.userId === null) {
             throw new Error('Invalid token');
         }
-       Store.recordUserAnswer(this.gameId,this.userId,this.answerValue)
+       Store.gameLogic.recordUserAnswer(this.gameId,this.userId,this.answerValue)
 
     }
 }

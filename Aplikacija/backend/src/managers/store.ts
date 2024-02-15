@@ -1,0 +1,99 @@
+import Game from '../models/gameModel/gameModel';
+import { IQuestion } from '../models/questionModel'
+import { GameData, UserResponse } from '../models/gameModel/gameData';
+import { HostMessageParams } from '../models/hostModel';
+import {UserState} from '../models/IUserState'
+import {resultState} from '../models/IResultState'
+import { GameDataManagement } from './gameDataManagment'
+import {UserStateManagement} from './userStateManagment'
+import {GameLogic} from './gameLogic'
+import { ScoreboardManager } from './ScoreboardManager'; 
+
+
+
+export class Store {
+    private static instance: Store;
+    public userStates: Map<string, UserState>;
+    private games: Map<string, GameData>;
+    public userStateManagement: UserStateManagement;
+    public gameLogic: GameLogic;
+    public scoreboardManager: ScoreboardManager;
+    public gameDataManagment: GameDataManagement;
+
+
+    constructor() {
+        this.userStates = new Map();
+        this.games = new Map();
+        this.userStateManagement = new UserStateManagement(this);
+        this.gameLogic = new GameLogic(this);
+        this.scoreboardManager = new ScoreboardManager(this);
+        this.gameDataManagment = new GameDataManagement(this);
+
+
+    }
+
+    public getGame(roomId: string): GameData | null {
+        return this.games.get(roomId) || null;
+    }
+
+    public addGame(roomId: string, gameData: GameData): void {
+        if (this.games.has(roomId)) {
+            throw new Error(`Game with ID ${roomId} already exists.`);
+        }
+        this.games.set(roomId, gameData);
+    }
+
+    public getUserState(userId: string): UserState | undefined {
+        return this.userStates.get(userId);
+    }
+
+    public setUserState(userId: string, userState: UserState): void {
+        this.userStates.set(userId, userState);
+    }
+
+
+    // public setHostParams = (gameId: string): HostMessageParams => {
+    //     const gameData = GameDataManagement.getGameData(gameId);
+    //     if (!gameData) {
+    //         throw new Error('Game data not found');
+    //     }
+    
+    //     const correctAnswers: boolean[] = [];
+    //     const wrongAnswers: boolean[] = [];
+    //     const playerPositions: number[] = [];
+    //     const playerNames:string[]=[];
+    
+    //     gameData.players.forEach((userState:any, playerId:any) => {
+    //         const isCorrect = userState.isCorrect || false;
+    //         correctAnswers.push(isCorrect);
+    //         wrongAnswers.push(!isCorrect);
+    
+    //         // Determine the player position based on score
+    //         let position = 1;
+    //         gameData.players.forEach((otherUserState, otherPlayerId) => {
+    //             if (otherPlayerId !== playerId && otherUserState.score > userState.score) {
+    //                 position++;
+    //             }
+    //         });
+    //         playerPositions.push(position);
+    //     });
+    
+    //     return {
+    //         correctAnswers,
+    //         wrongAnswers,
+    //         playerPositions,
+    //         playerNames
+
+    //     };
+    // };
+    public static getInstance(): Store {
+        if (!Store.instance) {
+            Store.instance = new Store();
+        }
+        return Store.instance;
+    }
+
+}
+// export default new Store();
+export default Store.getInstance();
+

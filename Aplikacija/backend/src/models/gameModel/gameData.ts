@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Question, { IQuestion } from "../questionModel";
 import { GameRepo } from "../../repository/gameRepository";
-import { UserState } from "../../store/store";
+import { UserState } from "../IUserState"
 import Game from "./gameModel";
 import Player from "../playerModel";
 

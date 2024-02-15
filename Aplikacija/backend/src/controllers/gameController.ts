@@ -6,14 +6,14 @@ import { GameRepo as GameRepository} from '../repository/gameRepository';
 import { SocketEvent } from '../socket-decorators';
 import { io } from '../app';
 import { Socket } from 'socket.io';
-import Store from '../store/store'
-import GameStateManager from '../store/gameStateManager'
+import GameStateManager from '../managers/gameStateManager'
 import {gameDto} from '../models/gameModel/gameDto'
 import Player from '../models/playerModel';
 import {GameData} from '../models/gameModel/gameData';
 import { PlayerRepository } from '../repository/playerRepository';
 import { verifyToken } from '../middleware/authenticate';
 import { generateRandomTags } from '../utils/tagsGenerator';
+import  Store  from '../managers/store';
 
 
 
@@ -56,7 +56,7 @@ export const startGame = async (data: { roomId: string, userId: string }, socket
 
     io.to(data.roomId).emit('gameStarted', DTO);
 
-    const gameStateManager = new GameStateManager(io, data.roomId);
+    const gameStateManager = new GameStateManager(io, data.roomId, Store);
     await gameStateManager.startGameCycle(data.roomId);
 
   }
