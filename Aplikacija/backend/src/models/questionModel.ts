@@ -65,7 +65,7 @@ const questionSchema: Schema = new Schema({
   options: {
     type: [{
       text: { type: String, required: true },
-      picture: { type: String, required: true }
+      picture: { type: String, required: false }
     }],
     required: true,
     validate: [

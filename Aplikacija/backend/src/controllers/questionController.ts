@@ -17,13 +17,14 @@ export const getQuestions = async (req: Request, res: Response) => {
   }
 };
 
-export const fetchQuestionsForGame = async (numberOfQuestions: number) => {
+export const fetchQuestionsForGame = async (numberOfQuestions: number, tags?: string[]) => {
   try {
-    return await questionRepo.getQuestions(numberOfQuestions);
+    return await questionRepo.getQuestions(numberOfQuestions, tags);
   } catch (error) {
     throw error; 
   }
 };
+
 
 export const addQuestion = async (req: any, res: any) => {
   try {

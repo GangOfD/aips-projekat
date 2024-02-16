@@ -16,10 +16,15 @@ export class QuestionRepository {
         throw new Error(`Error while fetching questions: ${error.message}`);
     }
   }
-  async getQuestions(limit: number): Promise<IQuestion[]> {
+  
+  async getQuestions(limit: number, tags?: string[]): Promise<IQuestion[]> {
     try {
-      const questions = await this.questionModel.find().limit(limit);
-      console.log("Pitanja iz baze su", questions)
+      let query = {};
+      if (tags && tags.length > 0) {
+        query = { tags: { $in: tags } };
+      }
+  
+      const questions = await this.questionModel.find(query).limit(limit);
       return questions;
     } catch (error: any) {
       throw new Error(`Error while fetching questions: ${error.message}`);

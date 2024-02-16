@@ -1,12 +1,11 @@
+require('dotenv').config();
 import axios from 'axios';
 import { HostMessageParams } from '../models/hostModel';
 
 export const getHostMessage = async (params: HostMessageParams) => {
     try {
-        const endpointUrl = 'http://localhost:5000/chat-gpt';
 
-        const prompt = "Act as if you were a game host. Give some roasting comments";
-        console.log("Ja saljem ", params)
+        const endpointUrl = `${process.env.API_BASE_URL}${process.env.API_PATH}`;
 
         const response = await axios.post(endpointUrl, { hostMess: params });
 

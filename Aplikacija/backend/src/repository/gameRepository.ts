@@ -57,9 +57,10 @@ export class GameRepo {
     }
   }
 
-  async removePlayerFromGame(gameId:string, playerId:string) {
+  async removePlayerFromGame(Game:IGame, playerId:string) {
     try {
-        const game = await this.gameModel.findById(gameId);
+        const game:IGame=Game;
+        
         if (!game) {
             throw new Error('Game not found');
         }

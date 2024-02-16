@@ -83,8 +83,9 @@ export const leaveGame = async (data: { roomId: string, userId: string }, socket
           return;
       }
       
-      const updatedGame = await gameRepo.removePlayerFromGame(gameId, userId);
+      const updatedGame = await gameRepo.removePlayerFromGame(game, userId);
       io.to(data.roomId).emit('gameLeft',{ roomId: gameId, userId: userId } );
+      
   } catch (error) {
       console.error('Error in leaveGame:', error);
       socket.emit('leaveGameError', 'Error occurred in leaveGame');
@@ -182,6 +183,9 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
     const { roomId } = req.body;
     const userId = req.userId;
     let tags = req.body.tags;
+    
+    if(!tags || tags.length === 0)
+    tags=generateRandomTags();
 
     const existingGame = await gameRepo.getById(roomId);
     if (existingGame) {
@@ -193,10 +197,7 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
       return res.status(400).json({ message: 'Invalid number of questions' });
     }
 
-    if(!tags)
-    tags=generateRandomTags();
-
-    const questions = await fetchQuestionsForGame(numberOfQuestions);
+    const questions = await fetchQuestionsForGame(numberOfQuestions,tags);
 
     const newGame: Partial<IGame> = {
       gameId: roomId,

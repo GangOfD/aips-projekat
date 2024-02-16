@@ -9,20 +9,11 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { joinGame, leaveGame, startGame } from './controllers/gameController';
-import { simulateClient } from './simulateClient';
-import { verify } from 'crypto';
-import { verifyToken } from './middleware/authenticate';
 import AnswerCommand from '../src/commands/AnswerCommand';
-import {initializeQuestions, removeDuplicateQuestions} from './calculationService/initQuestions'
 import wrapEvent from './eventWrapper'
-import { Socket } from 'socket.io';
 import {receiveAnswer} from './controllers/answerController'
-import { generateAIResponse } from './host/host'
 import axios from 'axios';
-import { getHostMessage } from './controllers/hostController';
-import { HostMessageParams } from './models/hostModel';
-
-
+import Question from './models/questionModel';
 
 
 dotenv.config();
@@ -34,8 +25,6 @@ app.use(cors());
 
 connectDB();
 
-generateAIResponse("Hello buddy. What's up? Do you think that Michael Jordan is the GOAT of basketball? Don't give me too long answer");
-
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -45,30 +34,7 @@ app.get('/config', (req, res) => {
   res.json({ port: process.env.PORT });
 });
 
-app.post('/chat-gpt', async (req, res) => {
-  try {
-      const { prompt, game_state } = req.body;
-      console.log("About to perform")
-      const response = await axios.post('http://localhost:5000/chat-gpt', { });
-      console.log(response)
-      res.json(response.data);
-  } catch (error) {
-      console.error(error); 
-      res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
 
-async function callChatGptRoute() {
-  try {
-    
-      const response = await axios.post('http://localhost:5000/chat-gpt', { });
-      console.log('Response from /chat-gpt route:', response.data);
-  } catch (error) { 
-      console.error('Error calling /chat-gpt route:', error);
-  }
-}
-
-//callChatGptRoute()
 // Routes
 app.use('/auth', authRoutes);
 app.use('/question', questionRoutes);
@@ -100,7 +66,6 @@ setupSocketEvents(io);
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
 
 export { io };
 
