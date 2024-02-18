@@ -1,4 +1,4 @@
-import Game from '../models/gameModel/gameModel';
+import Game, { IGame } from '../models/gameModel/gameModel';
 import { IQuestion } from '../models/questionModel'
 import { GameData, UserResponse } from '../models/gameModel/gameData';
 import { HostMessageParams } from '../models/hostModel';
@@ -8,6 +8,8 @@ import { GameDataManagement } from './gameDataManagment'
 import {UserStateManagement} from './userStateManagment'
 import {GameLogic} from './gameLogic'
 import { ScoreboardManager } from './ScoreboardManager'; 
+import { GameRepo } from '../repository/gameRepository';
+import { Model } from 'mongoose';
 
 
 

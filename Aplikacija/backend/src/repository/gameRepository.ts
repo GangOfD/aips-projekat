@@ -1,5 +1,6 @@
 import mongoose, { Model } from 'mongoose';
 import { IGame } from '../models/gameModel/gameModel';
+import { ENV } from '../enviroments/constants';
 
 export class GameRepo {
   private gameModel: Model<IGame>; 
@@ -73,5 +74,24 @@ export class GameRepo {
         console.error('Error removing player from game:', error);
         throw error;
     }
+}
+
+async canStartGame(gameId: string): Promise<{ canStart: boolean, message: string }> {
+  const game = await this.getById(gameId);
+
+  if (!game) {
+      return { canStart: false, message: "Game not found" };
+  }
+
+  if (game.players?.length !== ENV.roomCapacity) {
+      let maks=process.env.numberOfPlayers
+      return { canStart: false, message: "Game must have exactly 4 players" };
+  }
+
+  if (game.status !== ENV.waitingMessage) {
+      return { canStart: false, message: "Game is not in waiting status" };
+  }
+
+  return { canStart: true, message: "" }; 
 }
 }

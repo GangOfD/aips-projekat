@@ -7,6 +7,7 @@ import { GameData, prepareGameData } from '../models/gameModel/gameData';
 import IQuestionToQuestionDto from "../utils/convertor"
 import { getHostMessage } from '../controllers/hostController'
 import { HostMessageParams } from '../models/hostModel';
+import {ENV} from '../enviroments/constants'
 
 class GameStateManager {
     private io: SocketIOServer;
@@ -30,7 +31,7 @@ class GameStateManager {
 
         setTimeout(() => {
             this.sendQuestion(roomId);
-        }, 5000);
+        }, ENV.beforeGameIntervalMs);
     }
 
     sendQuestion(roomId: string) {
@@ -52,7 +53,7 @@ class GameStateManager {
             this.questionTimer = setTimeout(() => {
                 this.store.gameLogic.updateScoresAfterQuestion(roomId);
                 this.showResults(roomId);
-            }, 10000);
+            }, ENV.questionIntervalMs);
         } else {
             // this.showFinalTable(roomId); 
         }
@@ -64,7 +65,7 @@ class GameStateManager {
 
         setTimeout(() => {
             this.showHostMessage(roomId);
-        }, 5000);
+        }, ENV.ScoreBoardIntervalMs);
     }
 
     async showHostMessage(roomId: string) {
@@ -78,7 +79,7 @@ class GameStateManager {
         this.io.to(roomId).emit('hostMessage', message);
         setTimeout(() => {
             this.sendQuestion(roomId);
-        }, 5000);
+        }, ENV.hostMessageIntervalMs);
     }
 
     private clearTimer() {
@@ -95,5 +96,3 @@ class GameStateManager {
 }
 
 export default GameStateManager;
-
-

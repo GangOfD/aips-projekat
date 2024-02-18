@@ -2,6 +2,10 @@ import { Store } from './store';
 import { GameData } from '../models/gameModel/gameData';
 import { UserState } from '../models/IUserState';
 import { HostMessageParams } from '../models/hostModel';
+import { GameRepo } from '../repository/gameRepository';
+import {ENV} from '../enviroments/constants'
+require('dotenv').config();
+
 
 export class GameLogic {
     private store: Store;
@@ -54,7 +58,7 @@ export class GameLogic {
     }
 
     public assignPointsForCorrectAnswers(correctResponses: [string, UserState][]): void {
-        const pointsForCorrect = [4, 3, 2, 1];
+        const pointsForCorrect = [ENV.pointsFirstCorrectAnswer, ENV.pointsSecondCorrectAnswer, ENV.pointsThirdCorrectAnswer, ENV.pointsForthCorrectAnswer];
         correctResponses.forEach(([userId, userState], index) => {
             userState.score += pointsForCorrect[index] ?? 1;
         });
@@ -63,7 +67,7 @@ export class GameLogic {
     public assignPointsForIncorrectAndNoAnswers(gameData: GameData, correctAnswerIndex: number): void {
         gameData.players.forEach((userState) => {
             if (userState.currentAnswer !== correctAnswerIndex && userState.currentAnswer !== null) {
-                userState.score -= 1;
+                userState.score -= ENV.pointsLostWrongAnswer;
             }
         });
     }

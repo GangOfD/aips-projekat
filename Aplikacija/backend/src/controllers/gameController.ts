@@ -14,6 +14,7 @@ import { PlayerRepository } from '../repository/playerRepository';
 import { verifyToken } from '../middleware/authenticate';
 import { generateRandomTags } from '../utils/tagsGenerator';
 import  Store  from '../managers/store';
+import { ENV } from '../enviroments/constants';
 
 
 
@@ -27,17 +28,18 @@ interface RequestWithUserId extends Request {
 
 export const startGame = async (data: { roomId: string, userId: string }, socket: Socket) => {
   try{
+    const { canStart, message } = await gameRepo.canStartGame(data.roomId);
+
+    if (!canStart) {
+      socket.emit('startError', message);
+      return;
+    }
+
     const game = await gameRepo.getById(data.roomId);
 
     const player = await playerRepo.getById(data.userId);
     
     if(!(game && player))
-    return;
-
-    if(game.players?.length!==4)
-    return;
-
-    if(game.status!="waiting")
     return;
 
     game.status="inProgress"
@@ -192,7 +194,7 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
       return res.status(403).json({ message: 'Game with this ID already exists' });
     }
 
-    const numberOfQuestions = parseInt(process.env.numberOfQuestions || '5', 10);
+    const numberOfQuestions = ENV.numOfQuestions;
     if (isNaN(numberOfQuestions) || numberOfQuestions <= 0) {
       return res.status(400).json({ message: 'Invalid number of questions' });
     }
@@ -237,7 +239,7 @@ export const getAllGames = async (req: RequestWithUserId, res: Response) => {
 
   export const getAllAvailableGames = async (req: Request, res: Response) => {
     try {
-        const waitingGames = await gameRepo.getGamesByStatus('waiting');
+        const waitingGames = await gameRepo.getGamesByStatus(ENV.waitingMessage);
         res.json(waitingGames); 
     } catch (error) {
         console.error('Error in getWaitingGames:', error);
