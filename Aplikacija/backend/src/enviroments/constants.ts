@@ -7,7 +7,7 @@ export const ENV = {
     pointsThirdCorrectAnswer: 2, 
     pointsForthCorrectAnswer:1,
     pointsCorrectAnswer: 1, 
-    waitingMessage:'message',
+    waitingMessage:'waiting',
     progressMessage:'inProgress',
     questionIntervalMs:10000,
     hostMessageIntervalMs:6000,

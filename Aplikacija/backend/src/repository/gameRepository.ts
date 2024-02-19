@@ -80,15 +80,18 @@ async canStartGame(gameId: string): Promise<{ canStart: boolean, message: string
   const game = await this.getById(gameId);
 
   if (!game) {
+    console.log("Game not found")
       return { canStart: false, message: "Game not found" };
   }
 
   if (game.players?.length !== ENV.roomCapacity) {
       let maks=process.env.numberOfPlayers
+      console.log("Game must have exactly 4 players")
       return { canStart: false, message: "Game must have exactly 4 players" };
   }
 
   if (game.status !== ENV.waitingMessage) {
+    console.log("Game is not in waiting status ", game.status, ENV.waitingMessage)
       return { canStart: false, message: "Game is not in waiting status" };
   }
 
