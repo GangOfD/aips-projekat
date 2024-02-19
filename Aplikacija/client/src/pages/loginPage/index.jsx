@@ -5,7 +5,9 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { changeMode } from "state/authSlice";
+import Lottie from "lottie-react";
 let backgroundImage =require('../../assets/background.jpg');
+let quizAnimation =require('../../assets/quiz-animation.json');
 
 const LoginPage = () => {
   const theme = useTheme();
@@ -26,10 +28,13 @@ const LoginPage = () => {
 
   return (
     <Box
-        width="100%"
-        height="100vh"  // Postavite visinu prema potrebi
+        
         backgroundColor={theme.palette.background.alt}
         p="1rem 6%"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"  
+        alignItems="center"   
         textAlign="center"
         sx={{
           backgroundImage: `url(${backgroundImage})`,
@@ -39,25 +44,41 @@ const LoginPage = () => {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
+          height: "100vh",
         }}
     >
       <Box
-        width="100%"
         p="1rem 6%"
         textAlign="center"
       >
-        <Typography fontWeight="bold" fontSize="32px" color={primaryLight}>
+        <Typography
+          fontWeight="bold"
+          fontSize={{
+            xs: "2rem",  // Ekstra mali ekrani
+            sm: "2.5rem", // Mali ekrani
+            md: "3rem",  // Srednji ekrani
+            lg: "3.5rem", // Veliki ekrani
+            xl: "4rem",  // Ekstra veliki ekrani
+          }}
+          color={primaryLight}
+        >
           Higher&Lower
         </Typography>
       </Box>
 
       <Box
-        width={isNonMobileScreens ? "50%" : "93%"}
-        p="2rem"
-        m="2rem auto"
-        borderRadius="1.5rem"
+        width={isNonMobileScreens ? "35%" : "70%"}
        
+        borderRadius="1.5rem"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"  
+        alignItems="center"      
       >
+        <Box style={{ width: '45%', height: '55%'}}>
+          <Lottie animationData={quizAnimation} />
+        </Box>
+
         <Typography 
          fontWeight="500"
          variant="h5" 
@@ -65,7 +86,7 @@ const LoginPage = () => {
          textAlign="center" 
          sx={{ mb: "1.5rem" }}
          >
-          Welcome to the most entertaining game!
+          Test your knowledge!
         </Typography>
         <Form />
       </Box>

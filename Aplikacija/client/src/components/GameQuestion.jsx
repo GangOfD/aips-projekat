@@ -8,7 +8,8 @@ import {
 import socket from "Socket/socketInstance";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-
+import Lottie from "lottie-react";
+let brainAnimation =require('../assets/brain-animation.json');
 
 const GameQuestion=({action})=>{
 
@@ -29,8 +30,6 @@ const GameQuestion=({action})=>{
     return (
         <Box
           width="100%"
-          height="50vh"
-          borderRadius="20px"
           textAlign="center"
           display="flex"
           flexDirection="row"
@@ -38,28 +37,41 @@ const GameQuestion=({action})=>{
           alignItems="center"
         >
           <Box
-            width="30%"
-            backgroundColor={mode=="dark" ? theme.palette.primary.light: theme.palette.neutral.light}
-            borderRadius="10px"
+            width="33%"
+            minHeight="100vh"
+            backgroundColor={theme.palette.primary.light}
             padding="20px"
-            boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
             
           >
-            <Typography fontSize="5.5vw">{action?.options[0]}</Typography>
+            <Typography
+              marginTop="250px"
+              fontSize="5.5vw" 
+              color="#FFFF"
+            >
+              {action?.options[0]}
+            </Typography>
           </Box>
           <Box
-            width="30%"
+            width="33%"
+            minHeight="100vh"
             backgroundColor={theme.palette.neutral.light}
             border="3px solid green"
-            borderRadius="10px"
             padding="20px"
             boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            
           >
-            <Typography variant="h4" marginBottom="20px">
+            <Box marginBottom="30px" style={{ width: '95%', height: '75%' }}>
+              <Lottie animationData={brainAnimation} />
+            </Box>
+            <Typography variant="h3" >
               {action?.questionText}
             </Typography>
             <Box
               width="100%"
+              
               display="flex"
               flexDirection="row"
               justifyContent="space-around"
@@ -102,13 +114,19 @@ const GameQuestion=({action})=>{
             </Box>
           </Box>
           <Box
-            width="30%"
-            backgroundColor={mode=="dark" ? theme.palette.primary.light: theme.palette.neutral.light}
-            borderRadius="10px"
+            width="33%"
+            minHeight="100vh"
+            backgroundColor={theme.palette.primary.light}
             padding="20px"
-            boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
+            
           >
-            <Typography fontSize="5.5vw">{action?.options[1]}</Typography>
+            <Typography
+              marginTop="250px"
+              fontSize="5.5vw" 
+              color="#FFFF"
+            >
+              {action?.options[1]}
+            </Typography>
           </Box>
         </Box>
     );
