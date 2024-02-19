@@ -73,10 +73,10 @@ const Navbar = () => {
           </IconButton>
           {token  && (
           <Box>
-            {game?.status=='waiting' && (<IconButton onClick={()=>{
+            {game &&(<IconButton onClick={()=>{
+              socket.emit('leaveGame', {roomId:game.gameId, token:token});
               dispatch(setGame({game:null}));
               navigate("/home");
-              socket.emit('leaveGame', {roomId:game.gameId, token:token});
               }} 
               sx={{ marginRight:"30px" }}>
               <RunCircle sx={{ fontSize:"25px" }} />

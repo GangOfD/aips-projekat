@@ -26,14 +26,14 @@ const GameWaiting=()=>{
             backgroundColor={theme.palette.neutral.light}
             textAlign="center"
             >
-            <Typography variant="h4" color={theme.palette.primary.main} mb={2}>
+            <Typography variant="h3" color={theme.palette.primary.main} mb={2}>
                 Hello mortal
             </Typography>
-            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
-                Game created {dateDisplay}
+            <Typography variant="h5" color={theme.palette.text.secondary} mb={1}>
+                Game created: {dateDisplay}
             </Typography>
-            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
-                Nisu to igrači
+            <Typography variant="h5" color={theme.palette.text.secondary} mb={1}>
+                Players:
             </Typography>
             <Box mb={2}>
                 {game.players.map((player, index) => (
@@ -46,18 +46,21 @@ const GameWaiting=()=>{
                 </Typography>
                 ))}
             </Box>
-            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
-                Game status {game.status}
+            <Typography variant="h5" color={theme.palette.text.secondary} mb={1}>
+                Game status: {game.status}
             </Typography>
-            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
-                Room id {game.gameId}
+            <Typography variant="h5" color={theme.palette.text.secondary} mb={1}>
+                Room id: {game.gameId}
             </Typography>
-            <Typography variant="body1" color={theme.palette.text.secondary}>
-                Created by {game.createdBy}
+            <Typography variant="h5" color={theme.palette.text.secondary}>
+                Created by: {game.createdBy}
             </Typography>
             <IconButton onClick={()=>socket.emit('startGame',{roomId:game.gameId, token:token})}>
                 <PlayCircleOutline sx={{ fontSize: "55px" }} />
             </IconButton>
+            <Typography variant="h4" color={theme.palette.primary.main} mb={2}>
+                Start game
+            </Typography>
         </Box>
     );
 }

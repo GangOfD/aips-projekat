@@ -27,6 +27,9 @@ const QuestionResult=({action})=>{
           backgroundColor={theme.palette.primary.light}
           padding="15px"
           gap="5px"
+          height="40vh"  
+          margin="auto"  
+          marginTop="15vh"
         >
           <Typography variant="h3" color="#fff" fontWeight="bold">
             Question asked: {action.questionsAsked}

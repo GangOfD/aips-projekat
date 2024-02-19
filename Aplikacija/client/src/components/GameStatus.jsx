@@ -9,7 +9,7 @@ const GameStatus = ({ status }) => {
     
     const statusComponents = {
       waiting: GameWaiting,
-      inProgress: GameFlow,//Ovde je bilo GameQuestion
+      inProgress: GameFlow,
       completed: GameCompleted,
     };
   

@@ -16,9 +16,15 @@ const GameQuestion=({action})=>{
     const game= useSelector((state)=>state.game);
     const theme=useTheme();
     const mode=useSelector((state)=>state.mode);
-    //const [question, setQuestion]=useState(null);
+    const [isAnimating, setAnimating]=useState({left:false, right:false});
 
-    
+    const startAnimation=(side)=>{
+      side=="left"? setAnimating({left:true}): setAnimating({right:true});
+      
+      setTimeout(() => {
+        setAnimating({left:false, right:false});
+      }, 1000); 
+    }    
 
     return (
         <Box
@@ -60,27 +66,38 @@ const GameQuestion=({action})=>{
               alignItems="center"
             >
               <IconButton
-                onClick={() =>
+                onClick={() =>{
+                  startAnimation("left");
                   socket.emit("receiveAnswer", {
                     token: token,
                     answerValue: 0,
                     gameId: game.gameId,
                   })
                 }
+                }
               >
-                <ArrowCircleLeft sx={{ fontSize:"5.5vw" }} />
+                <ArrowCircleLeft sx={{ 
+                  fontSize:isAnimating.left? "8.5vw" :"5.5vw" ,
+                  color: isAnimating.left? theme.palette.primary.main: theme.palette.primary.light,
+                  }}
+                />
               </IconButton>
 
               <IconButton
-                onClick={() =>
+                onClick={() =>{
+                  startAnimation("right");
                   socket.emit("receiveAnswer", {
                     token: token,
                     answerValue: 1,
                     gameId: game.gameId,
                   })
                 }
+                }
               >
-                <ArrowCircleRight sx={{ fontSize:"5.5vw" }} />
+                <ArrowCircleRight sx={{ 
+                  fontSize:isAnimating.right? "8.5vw" :"5.5vw" ,
+                  color: isAnimating.right? theme.palette.primary.main: theme.palette.primary.light,
+                  }} />
               </IconButton>
             </Box>
           </Box>

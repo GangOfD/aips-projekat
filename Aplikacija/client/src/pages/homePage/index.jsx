@@ -2,7 +2,6 @@ import Navbar from "components/Navbar";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
 import {
     Box,
     useMediaQuery,
@@ -15,7 +14,11 @@ import {
   } from "@mui/icons-material";
 import HostGame from "components/HostGame";
 import JoinGame from "components/JoinGame";
-  
+import Lottie from "lottie-react";
+
+
+
+
 const HomePage=()=>{
 
     const token=useSelector((state)=>state.token);
@@ -26,6 +29,7 @@ const HomePage=()=>{
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const [freeRooms, setFreeRooms]=useState([]);
 
+    
     useEffect(()=>{
       getFreeRooms();
     },[])
