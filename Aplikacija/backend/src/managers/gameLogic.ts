@@ -30,46 +30,7 @@ export class GameLogic {
             return;
         }
 
-        const correctAnswerIndex = this.getCorrectAnswerIndex(gameData);
-        this.assignPointsToPlayers(gameData, correctAnswerIndex);
-    }
-
-    public getCorrectAnswerIndex(gameData: GameData): number {
-        let qNumber = gameData.currentQuestionIndex;
-
-        if (qNumber <= 0 || qNumber > gameData.questions.length) {
-            console.error(`Invalid question number: ${qNumber}`);
-            return -1;
-        }
-
-        return gameData.questions[qNumber - 1].correctAnswerIndex;
-    }
-
-    public assignPointsToPlayers(gameData: GameData, correctAnswerIndex: number): void {
-        const correctResponses = this.getCorrectResponses(gameData, correctAnswerIndex);
-        this.assignPointsForCorrectAnswers(correctResponses);
-
-        this.assignPointsForIncorrectAndNoAnswers(gameData, correctAnswerIndex);
-    }
-    public getCorrectResponses(gameData: GameData, correctAnswerIndex: number): [string, UserState][] {
-        return Array.from(gameData.players)
-            .filter(([_, userState]) => userState.currentAnswer === correctAnswerIndex)
-            .sort((a, b) => (a[1].answerTime ?? Number.MAX_VALUE) - (b[1].answerTime ?? Number.MAX_VALUE));
-    }
-
-    public assignPointsForCorrectAnswers(correctResponses: [string, UserState][]): void {
-        const pointsForCorrect = [ENV.pointsFirstCorrectAnswer, ENV.pointsSecondCorrectAnswer, ENV.pointsThirdCorrectAnswer, ENV.pointsForthCorrectAnswer];
-        correctResponses.forEach(([userId, userState], index) => {
-            userState.score += pointsForCorrect[index] ?? 1;
-        });
-    }
-
-    public assignPointsForIncorrectAndNoAnswers(gameData: GameData, correctAnswerIndex: number): void {
-        gameData.players.forEach((userState) => {
-            if (userState.currentAnswer !== correctAnswerIndex && userState.currentAnswer !== null) {
-                userState.score -= ENV.pointsLostWrongAnswer;
-            }
-        });
+        this.assignPoints(roomId)
     }
 
     public recordUserAnswer(roomId: string, userId: string, currentAnswer: number | null) {
@@ -79,11 +40,6 @@ export class GameLogic {
             // return;
         }
 
-        // if(game.gamePhase!==ShowingQuestion)
-        //   {
-        //     console.log("You can not answer now since question time is over")
-        //   }
-
         const userState = game.players.get(userId);
         if (!userState) {
             console.log(`User ${userId} not found in game ${roomId}.`);
@@ -91,6 +47,7 @@ export class GameLogic {
             // return; 
         }
         userState.currentAnswer = currentAnswer;
+        userState.hasAnswered= true;
         userState.answerTime = Date.now()
     }
 
@@ -121,5 +78,42 @@ export class GameLogic {
         };
     }
 
+     public assignPoints(gameId: string) {
+        const gameData = this.store.getGame(gameId);
+        if (!gameData) {
+            console.error("Game not found");
+            return;
+        }
+
+        const currentQuestionIndex = gameData.currentQuestionIndex;
+
+        if (currentQuestionIndex < 0 || currentQuestionIndex >= gameData.questions.length) {
+            console.error("Invalid question index");
+            return;
+        }
+
+        const currentQuestion = gameData.questions[currentQuestionIndex];
+        const correctAnswerIndex = currentQuestion.correctAnswerIndex;
+
+        const sortedCorrectResponses = Array.from(gameData.players.entries())
+            .filter(([_, userState]) => userState.currentAnswer === correctAnswerIndex)
+            .sort((a, b) => (a[1].answerTime || Number.MAX_VALUE) - (b[1].answerTime || Number.MAX_VALUE));
+
+        gameData.players.forEach((userState, userId) => {
+            if (userState.currentAnswer === correctAnswerIndex) {
+                let pointsAwarded = ENV.pointsCorrectAnswer; 
+                const index = sortedCorrectResponses.findIndex(([id, _]) => id === userId);
+                if (index === 0) pointsAwarded = ENV.pointsFirstCorrectAnswer;
+                else if (index === 1) pointsAwarded = ENV.pointsSecondCorrectAnswer;
+                else if (index === 2) pointsAwarded = ENV.pointsThirdCorrectAnswer;
+                else if (index === 3) pointsAwarded = ENV.pointsForthCorrectAnswer;
+                userState.score += pointsAwarded;
+            } else if (userState.hasAnswered) {
+                userState.score += ENV.pointsLostWrongAnswer; 
+            }
+            userState.currentAnswer = -1;
+            userState.hasAnswered = false;
+        });
+    }
 
 }
