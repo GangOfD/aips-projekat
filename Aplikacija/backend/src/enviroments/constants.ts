@@ -10,7 +10,7 @@ export const ENV = {
     waitingMessage:'waiting',
     progressMessage:'inProgress',
     questionIntervalMs:10000,
-    hostMessageIntervalMs:6000,
+    hostMessageIntervalMs:12000,
     ScoreBoardIntervalMs:6000,
     beforeGameIntervalMs:5000
   };
