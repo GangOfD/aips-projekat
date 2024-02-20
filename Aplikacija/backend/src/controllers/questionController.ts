@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { Query } from 'express-serve-static-core'; 
 import { QuestionRepository } from '../repository/questionRepository';
-import {generateRandomTags}  from '../utils/tagsGenerator'
 import Question from '../models/questionModel';
 import { IQuestion } from '../models/questionModel';
 

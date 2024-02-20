@@ -1,6 +1,5 @@
 import ICommand from './ICommand';
 import Store from '../managers/store';
-import { verifyToken } from '../middleware/authenticate';
 
 export default class AnswerCommand implements ICommand {
     private userId: string | null;

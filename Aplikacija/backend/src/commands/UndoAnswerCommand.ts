@@ -1,6 +1,6 @@
 
 import ICommand from './ICommand';
-import Store from '../store/store';
+import Store from '../managers/store';
 
 export default class UndoAnswerCommand implements ICommand {
     constructor(private userId: string) {}

@@ -12,9 +12,10 @@ import Player from '../models/playerModel';
 import {GameData} from '../models/gameModel/gameData';
 import { PlayerRepository } from '../repository/playerRepository';
 import { verifyToken } from '../middleware/authenticate';
-import { generateRandomTags } from '../utils/tagsGenerator';
 import  Store  from '../managers/store';
 import { ENV } from '../enviroments/constants';
+import { PredefinedTags } from '../models/tags/enumTags';
+import {TagSelectionStrategyFactory} from '../strategies/StrategyFactory'
 
 
 
@@ -184,10 +185,10 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
   try {
     const { roomId } = req.body;
     const userId = req.userId;
-    let tags = req.body.tags;
+    let userTags: PredefinedTags[] | null = req.body.tags; 
     
-    if(!tags || tags.length === 0)
-    tags=generateRandomTags();
+    const strategy = TagSelectionStrategyFactory.createStrategy(userTags);
+    const tags = strategy.selectTags();
 
     const existingGame = await gameRepo.getById(roomId);
     if (existingGame) {
@@ -208,8 +209,8 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
       questions: questions.map(q => q.id),
       status: 'waiting',
       createdAt: new Date() ,
-      tags: tags,
-    };
+      tags: tags.map((tag:any) => tag.toString())
+      };
 
     const createdGame = await gameRepo.create(newGame);
 
