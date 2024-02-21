@@ -1,10 +1,20 @@
 import React from "react";
-import { Box, IconButton, Modal, Typography, useTheme, } from "@mui/material";
+import { Box, IconButton, Modal, Typography, useTheme, Button, useMediaQuery } from "@mui/material";
 import { Cancel } from "@mui/icons-material";
 
-const CustomModal = ({ open, onClose, title, content }) => {
+const CustomModal = ({ open, onClose, title, content, setSections }) => {
 
-    const theme=useTheme();
+  const theme=useTheme();
+  const isSmallScreen = useMediaQuery("(min-width: 600px)");
+  console.log(content);
+  const handleButtonClick = (key) => {
+    // Kopiranje trenutnog stanja
+    const newSections = { ...content };
+    // Ažuriranje stanja za određeni ključ
+    newSections[key] = !newSections[key];
+    // Postavljanje novog stanja
+    setSections(newSections);
+  };
     
   return (
     <Modal
@@ -19,7 +29,8 @@ const CustomModal = ({ open, onClose, title, content }) => {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: 400,
+          width: '80%', 
+          maxWidth: 500, 
           bgcolor: theme.palette.background.default,
           border: '2px solid #000',
           boxShadow: 20,
@@ -37,11 +48,26 @@ const CustomModal = ({ open, onClose, title, content }) => {
         <Typography id="modal-title" variant="h6" component="h2">
           {title}
         </Typography>
-        {content.map((room,index)=>(
+        {title=="Free rooms ids" && content.map((room,index)=>(
           <Typography key={index}>
-          {room.gameId}
-        </Typography>
+            {room.gameId}
+          </Typography>
         )
+        )}
+        {title=="Tags" && (
+        <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap="1rem">
+          {Object.keys(content).map((key) => (
+            <Button
+              key={key}
+              variant="contained"
+              sx={{ maxWidth: '200px', borderRadius: "2.5rem" , background:content[key] ? "#d604c8" : "primary"}}
+              onClick={() => handleButtonClick(key)}
+            >
+              {`#${key}`}
+            </Button>
+          ))}
+        </Box>
+      
         )}
       </Box>
     </Modal>

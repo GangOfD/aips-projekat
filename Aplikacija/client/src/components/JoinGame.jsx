@@ -60,7 +60,7 @@ const JoinGame=({freeRooms})=>{
     };    
 
     const handleFormSubmit = async (values, action) => {
-        //OVDE OBAVEZNO MENJAJ HARDKODIRAN USERID  65876dd1d5115cd22f7d985f-Marina
+        
         if(action==="join" && values.roomId)  socket.emit('joinGame', {roomId:values.roomId, token:token});
     };
 
@@ -153,101 +153,101 @@ const JoinGame=({freeRooms})=>{
                     </Typography>
         
                     <Box
-                    display="grid"
-                    gap="30px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                    sx={{
-                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
-                    }}
-                    >
-                    <>
-                        <TextField
-                        label="Room ID"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        value={values.roomId || ""}
-                        name="roomId"
-                        error={Boolean(touched.roomId) && Boolean(errors.roomId)}
-                        helperText={touched.roomId && errors.roomId}
-                        sx={{ gridColumn: "span 4" }}
-                        />
-
-                        <Typography
-                            color={theme.palette.primary.light}
-                            fontSize={{ xs: "1.0rem", md: "1.0rem" }}
-                            textAlign="center"
-                            fontWeight="bold"
-                            letterSpacing="1px"
-                            gridColumn= "span 4" 
+                        display="grid"
+                        gap="30px"
+                        gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                        sx={{
+                            "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                        }}
                         >
-                            {message}
-                        </Typography>
-                        
-                    </>
+                        <>
+                            <TextField
+                            label="Room ID"
+                            onBlur={handleBlur}
+                            onChange={handleChange}
+                            value={values.roomId || ""}
+                            name="roomId"
+                            error={Boolean(touched.roomId) && Boolean(errors.roomId)}
+                            helperText={touched.roomId && errors.roomId}
+                            sx={{ gridColumn: "span 4" }}
+                            />
+
+                            <Typography
+                                color={theme.palette.primary.light}
+                                fontSize={{ xs: "1.0rem", md: "1.0rem" }}
+                                textAlign="center"
+                                fontWeight="bold"
+                                letterSpacing="1px"
+                                gridColumn= "span 4" 
+                            >
+                                {message}
+                            </Typography>
+                            
+                        </>
                     </Box>
         
                     {/*Buttons*/}
                     <Box
-                    marginTop="20px"
-                    display="flex"
-                    flexDirection="row"
-                    alignItems="center"
-                    justifyContent="center"
-                    >
-                    
-                    <Box
+                        marginTop="20px"
                         display="flex"
-                        flexDirection="column"
+                        flexDirection="row"
                         alignItems="center"
-                        marginX="20px" 
-                    >
-                        <IconButton
-                        onClick={() => {
-                            handleFormSubmit(values, "join");
-                        }}
-                        sx={{ 
-                            backgroundColor: theme.palette.primary.main,
-                            color: "#fff", }}
+                        justifyContent="center"
                         >
-                        <Casino sx={{ fontSize: "25px" }} />
-                        </IconButton>
-                        <Typography
-                        color={theme.palette.primary.light}
-                        fontSize="1.2rem"
-                        textAlign="center"
-                        fontWeight="bold"
+                        
+                        <Box
+                            display="flex"
+                            flexDirection="column"
+                            alignItems="center"
+                            marginX="20px" 
                         >
-                        Join game
-                        </Typography>
-                    </Box>
+                            <IconButton
+                            onClick={() => {
+                                handleFormSubmit(values, "join");
+                            }}
+                            sx={{ 
+                                backgroundColor: theme.palette.primary.main,
+                                color: "#fff", }}
+                            >
+                            <Casino sx={{ fontSize: "25px" }} />
+                            </IconButton>
+                            <Typography
+                            color={theme.palette.primary.light}
+                            fontSize="1.2rem"
+                            textAlign="center"
+                            fontWeight="bold"
+                            >
+                            Join game
+                            </Typography>
+                        </Box>
         
                     
-                    <Box
-                        display="flex"
-                        flexDirection="column"
-                        alignItems="center"
-                        marginX="20px" 
-                    >
-                        <IconButton
-                        onClick={() => {
-                            setRoomModal(prevModal=>!prevModal)
-                            
-                        }}
-                        sx={{
-                            backgroundColor: theme.palette.neutral.medium, color: "#fff"
-                        }}
+                        <Box
+                            display="flex"
+                            flexDirection="column"
+                            alignItems="center"
+                            marginX="20px" 
                         >
-                        <PlaylistPlay sx={{ fontSize: "25px" }} />
-                        </IconButton>
-                        <Typography
-                        color={theme.palette.primary.light}
-                        fontSize="1.2rem"
-                        textAlign="center"
-                        fontWeight="bold"
-                        >
-                        Show free rooms
-                        </Typography>
-                    </Box>
+                            <IconButton
+                                onClick={() => {
+                                    setRoomModal(prevModal=>!prevModal)
+                                    
+                                }}
+                                sx={{
+                                    backgroundColor: theme.palette.neutral.medium, color: "#fff"
+                                }}
+                                >
+                                <PlaylistPlay sx={{ fontSize: "25px" }} />
+                            </IconButton>
+                            <Typography
+                                color={theme.palette.primary.light}
+                                fontSize="1.2rem"
+                                textAlign="center"
+                                fontWeight="bold"
+                            >
+                            Show free rooms
+                            </Typography>
+                        </Box>
                     </Box>
                 </Box>
         
@@ -255,12 +255,12 @@ const JoinGame=({freeRooms})=>{
             )}
             </Formik>
 
-            <CustomModal
+            {roomModal && (<CustomModal
                 open={roomModal}
                 onClose={() => setRoomModal(prevModal => !prevModal)}
                 title="Free rooms ids"
                 content={freeRooms}
-            />
+            />)}
         </>
           
       );
