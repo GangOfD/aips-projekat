@@ -183,7 +183,7 @@ export const deleteGame = async (req: RequestWithUserId, res: Response) => {
 
 export const createGame = async (req: RequestWithUserId, res: Response) => {
   try {
-    const { roomId } = req.body;
+    const roomId  = req.body.roomId;
     const userId = req.userId;
     let userTags: PredefinedTags[] | null = req.body.tags; 
     

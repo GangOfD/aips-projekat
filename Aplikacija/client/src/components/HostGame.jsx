@@ -77,9 +77,12 @@ import {
     };
 
     const  createGame= async (values) =>{
-        console.log(values, " A token je : " , token);
         const trueSections = Object.keys(sections).filter((key) => sections[key] === true);
-        console.log(trueSections);
+
+         const payload = {
+          tags: trueSections, 
+          roomId: values.roomId
+        };
 
         try{
             const createGameResponse= await fetch(
@@ -90,7 +93,7 @@ import {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`,
                   },
-                  body: JSON.stringify(values, trueSections),
+                  body: JSON.stringify(payload),
                 }
               );
 
