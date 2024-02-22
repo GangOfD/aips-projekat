@@ -26,6 +26,7 @@ const GameQuestion=({action})=>{
         setAnimating({left:false, right:false});
       }, 1000); 
     }    
+    
 
     return (
         <Box
@@ -64,7 +65,7 @@ const GameQuestion=({action})=>{
             
           >
             <Box marginBottom="30px" style={{ width: '95%', height: '75%' }}>
-              <Lottie animationData={brainAnimation} />
+              <Lottie animationData={brainAnimation} loop={false}/>
             </Box>
             <Typography variant="h3" >
               {action?.questionText}

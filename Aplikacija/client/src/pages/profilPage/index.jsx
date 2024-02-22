@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setLogout, setUser } from "state/authSlice";
 import { useEffect } from "react";
+import { deleteProfile, updateProfile } from './profileFacade.js';
 
 const ProfilPage=()=>{
 
@@ -27,14 +28,13 @@ const ProfilPage=()=>{
   const theme = useTheme();
   const dispatch = useDispatch();
   const isNonMobile = useMediaQuery("(min-width:600px)");
+
   const profileSchema = yup.object().shape({
         username: yup.string().required("required"),
         oldPassword: yup.string().required("required"),
         newPassword: yup.string(),
         age: yup.number().positive("You must enter positive number").integer("You must enter an integer").required("You must enter your age").min(3,"Babies can'play"),
   });
-
- 
 
   const initialValuesProfile = {
         username:user.username,
@@ -44,71 +44,30 @@ const ProfilPage=()=>{
   };    
 
   const handleFormSubmit = async (values, action) => {
-    if(action==="delete" && values.oldPassword)  await deleteProfile(values);
-    if(action==="update" && values.oldPassword)  await updateProfile(values);
+    if (action === "delete" && values.oldPassword) {
+      try {
+        const deletedProfile=await deleteProfile(user.username, values);
+        console.log(deletedProfile);
+        if(deletedProfile){
+          dispatch(setLogout());
+          navigate("/");
+        }
+        
+      } catch (error) {
+        console.error('Mistake during deleting profile:', error);
+      }
+    }
+
+    if (action === "update" && values.oldPassword) {
+      try {
+        const updatedProfile = await updateProfile(user.username, values);
+        dispatch(setUser({ user: updatedProfile.user }));
+      } catch (error) {
+        console.error('Mistake during updateing profile:', error);
+      }
+    }
   };
   
-  const deleteProfile= async(values)=>{
-    console.log(values);
-    console.log("HELO from DELETE");
-    console.log(user.username);
-      try{
-        const deleteProfileResponse = await fetch(
-            `http://localhost:3002/player/${user.username}`,
-            {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(values),
-            }
-          );
-          if (!deleteProfileResponse.ok) {
-            throw new Error('Mistake during delete fetching');
-          }
-        
-          const deletedProfile = await deleteProfileResponse.json();
-          console.log(deletedProfile);
-          
-      
-          if (deletedProfile) {
-            dispatch( setLogout());
-            navigate("/");
-          }
-    }
-    catch(error){
-        console.error('Mistake during registration:', error);
-    }
-  };
-
-  const updateProfile= async(values)=>{
-    console.log(values);
-    console.log("HELO from UPDATE");
-    
-      try{
-        const updateProfileResponse = await fetch(
-            `http://localhost:3002/player/${user.username}`,
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(values),
-            }
-          );
-          if (!updateProfileResponse.ok) {
-            throw new Error('Mistake during update fetching');
-          }
-        
-          const updatedProfile = await updateProfileResponse.json();
-          console.log(updatedProfile.user);
-          
-      
-          if (updatedProfile.user) {
-            dispatch( setUser({user:updatedProfile.user}));
-          }
-    }
-    catch(error){
-        console.error('Mistake during update fetching:', error);
-    }
-  };
-    
 
   return (
     <>

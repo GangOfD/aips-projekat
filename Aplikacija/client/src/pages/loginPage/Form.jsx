@@ -12,6 +12,7 @@ import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLogin } from "state/authSlice";
+import {register} from "../profilPage/profileFacade.js"
 
 
 
@@ -49,34 +50,7 @@ const Form = () => {
   const isRegister = pageType === "register";
   const [message, setMessage]= useState("");
 
-  const register = async (values, onSubmitProps) => {
-    
-    try{
-        const savedUserResponse = await fetch(
-            "http://localhost:3002/auth/register",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(values),
-            }
-          );
-          if (!savedUserResponse.ok) {
-            throw new Error('Mistake during reg fetching');
-          }
-        
-          const savedUser = await savedUserResponse.json();
-          console.log(savedUser);
-          onSubmitProps.resetForm();
-      
-          if (savedUser) {
-            setPageType("login");
-          }
-    }
-    catch(error){
-        console.error('Mistake during registration:', error);
-    }
-    
-  };
+  
 
   const login = async (values, onSubmitProps) => {
 
@@ -121,7 +95,12 @@ const Form = () => {
 
   const handleFormSubmit = async (values, onSubmitProps) => {
     if (isLogin) await login(values, onSubmitProps);
-    if (isRegister) await register(values, onSubmitProps);
+    if (isRegister){
+      const registeredUser=await register(values, onSubmitProps);
+      if(registeredUser){
+        setPageType("login");
+      }
+    } 
   };
 
   return (
