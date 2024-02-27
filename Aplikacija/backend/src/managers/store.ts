@@ -30,8 +30,6 @@ export class Store {
         this.gameLogic = new GameLogic(this);
         this.scoreboardManager = new ScoreboardManager(this);
         this.gameDataManagment = new GameDataManagement(this);
-
-
     }
 
     public getGame(roomId: string): GameData | null {
@@ -44,6 +42,14 @@ export class Store {
         }
         this.games.set(roomId, gameData);
     }
+
+    public deleteGame(roomId: string): void {
+        if (!this.games.has(roomId)) {
+            throw new Error(`Game with ID ${roomId} does not exist.`);
+        }
+        this.games.delete(roomId);
+    }
+    
 
     public getUserState(userId: string): UserState | undefined {
         return this.userStates.get(userId);

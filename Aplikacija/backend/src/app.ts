@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import { joinGame, leaveGame, startGame } from './controllers/gameController';
+import { joinGame, leaveGame, restartGame, startGame } from './controllers/gameController';
 import AnswerCommand from '../src/commands/AnswerCommand';
 import wrapEvent from './eventWrapper'
 import {receiveAnswer} from './controllers/answerController'
@@ -57,9 +57,10 @@ const setupSocketEvents = (io: SocketIOServer) => {
       wrapEvent(socket, 'startGame', startGame);
       wrapEvent(socket, 'leaveGame', leaveGame);
       wrapEvent(socket, 'receiveAnswer', receiveAnswer);
-
+      wrapEvent(socket, 'restartGame',  restartGame);
   });
 };
+
 
 setupSocketEvents(io);
 

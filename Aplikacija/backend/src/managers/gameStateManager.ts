@@ -2,21 +2,24 @@
 import { Server as SocketIOServer } from 'socket.io';
 import ICommand from '../commands/ICommand';
 import { Store } from '../managers/store';
-import Question, { IQuestion } from '../models/questionModel';
 import { GameData, prepareGameData } from '../models/gameModel/gameData';
 import IQuestionToQuestionDto from "../utils/convertor"
 import { getHostMessage } from '../controllers/hostController'
-import { HostMessageParams } from '../models/hostModel';
 import {ENV} from '../enviroments/constants'
+import Game from '../models/gameModel/gameModel'
+import { GameRepo } from '../repository/gameRepository';
+import { GameState } from '../models/gameStates';
 
 class GameStateManager {
     private io: SocketIOServer;
     private questionTimer: NodeJS.Timeout | null = null;
     private store: Store;
+    private gameRepo:GameRepo;
 
     constructor(io: SocketIOServer, roomId: string, store: Store) {
         this.io = io;
         this.store = store;
+        this.gameRepo=new GameRepo(Game)
     }
 
     async startGameCycle(roomId: string) {
@@ -26,6 +29,8 @@ class GameStateManager {
             console.error("Failed to start game cycle: game data could not be prepared.");
             return;
         }
+        gameData.state=GameState.InProgress;
+        
         this.store.gameDataManagment.addGameData(roomId, gameData);
         //const initialGameState=Store.getInitialState(roomId);
 
@@ -81,6 +86,32 @@ class GameStateManager {
             this.sendQuestion(roomId);
         }, ENV.hostMessageIntervalMs);
     }
+
+    async gameComplete(roomId: string): Promise<void> {
+        const game = this.store.getGame(roomId);
+        if (!game) {
+            console.log("Game not found:", roomId);
+            return;
+        }
+    
+        try {
+            const thisGame = await this.gameRepo.getById(roomId);
+            if (!thisGame) {
+                console.log("Game not found in database:", game);
+                return;
+            }
+    
+            thisGame.status = GameState.Finished;
+            await thisGame.save();
+    
+            const scoreboardTable = this.store.scoreboardManager.getScoreboardTable(roomId);
+    
+            this.io.to(roomId).emit('gameOver', scoreboardTable);
+        } catch (error) {
+            console.error("Error completing game:", error);
+        }
+    }
+
 
     private clearTimer() {
         if (this.questionTimer) {

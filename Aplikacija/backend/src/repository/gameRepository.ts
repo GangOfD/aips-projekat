@@ -18,7 +18,7 @@ export class GameRepo {
     }
   }
 
-    async getById(roomId: string): Promise<IGame | null> {
+    public async getById(roomId: string): Promise<IGame | null> {
     try {
       const game = await this.gameModel.findOne({ gameId: roomId });
       return game;

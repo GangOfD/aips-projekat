@@ -1,9 +1,7 @@
 import { Store } from './store';
-import { GameData } from '../models/gameModel/gameData';
-import { UserState } from '../models/IUserState';
 import { HostMessageParams } from '../models/hostModel';
-import { GameRepo } from '../repository/gameRepository';
 import {ENV} from '../enviroments/constants'
+import { GameState,GameStatus } from '../models/gameStates';
 require('dotenv').config();
 
 
@@ -40,12 +38,20 @@ export class GameLogic {
             // return;
         }
 
+        if(!this.isAnswerableMode(roomId)){
+            console.log("Cannot save an answer")
+            return;
+        }
+
         const userState = game.players.get(userId);
         if (!userState) {
             console.log(`User ${userId} not found in game ${roomId}.`);
             throw new Error('userState not found -recordUserAnswer')
             // return; 
         }
+
+        //Check whether game is in answerable mode
+
         userState.currentAnswer = currentAnswer;
         userState.hasAnswered= true;
         userState.answerTime = Date.now()
@@ -86,9 +92,10 @@ export class GameLogic {
         }
 
         const currentQuestionIndex = gameData.currentQuestionIndex;
+        console.log("Current question index is: ", currentQuestionIndex," ,while gamedata question length is: ", gameData.questions.length);
 
         if (currentQuestionIndex < 0 || currentQuestionIndex >= gameData.questions.length) {
-            console.error("Invalid question index");
+            console.error("Invalid question index. Current question index is: ", currentQuestionIndex," ,while gamedata question length is: ", gameData.questions.length);
             return;
         }
 
@@ -114,6 +121,19 @@ export class GameLogic {
             userState.currentAnswer = -1;
             userState.hasAnswered = false;
         });
+    }
+
+    public isAnswerableMode(roomId:string):boolean{
+        const game=this.store.getGame(roomId);
+
+        if(!game)
+        return false;
+
+        if(game.state!==GameState.InProgress)
+        return false;
+
+        //Check also for the substates
+        return true;
     }
 
 }

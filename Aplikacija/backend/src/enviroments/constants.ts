@@ -9,6 +9,7 @@ export const ENV = {
     pointsCorrectAnswer: 1, 
     waitingMessage:'waiting',
     progressMessage:'inProgress',
+    finishedMessage:'finished',
     questionIntervalMs:10000,
     hostMessageIntervalMs:12000,
     ScoreBoardIntervalMs:6000,

@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { PredefinedTags } from '../tags/enumTags';
-import { GamePhase } from './enumGamePhase';
+import {ENV} from '../../enviroments/constants'
+import { GameState, GameStatus } from '../gameStates';
 
 
 interface IPlayerResponse extends Document {
@@ -18,10 +19,10 @@ export interface IGame extends Document {
     createdBy: mongoose.Types.ObjectId;
     players: mongoose.Types.ObjectId[];
     questions: mongoose.Types.ObjectId[]; 
-    status: 'waiting' | 'inProgress' | 'completed';
+    status: GameState;
     createdAt: Date;
     tags: PredefinedTags[];
-    gamePhase:GamePhase;
+    gamePhase:GameState;
 }
 
 const playerResponseSchema = new Schema<IPlayerResponse>({
@@ -39,7 +40,7 @@ const gameSchema = new Schema<IGame>({
     createdBy: { type: Schema.Types.ObjectId, ref: 'Player', required: true },
     players: [{ type: Schema.Types.ObjectId, ref: 'Player' }],
     questions: [{ type: Schema.Types.ObjectId, ref: 'Question' }], 
-    status: { type: String, enum: ['waiting', 'inProgress', 'completed'], default: 'waiting' },
+    status: { type: String, enum: Object.values(GameState), default: GameState.Waiting },
     createdAt: { type: Date, default: Date.now },
     tags: {/*TO IMPLEMENT*/}
 });

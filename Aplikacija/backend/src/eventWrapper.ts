@@ -2,7 +2,7 @@
 import { Socket } from 'socket.io';
 import {verifySocketToken} from './middleware/authenticate';
 
-type EventHandler = (data: any, socket: Socket) => Promise<void>;
+export type EventHandler = (data: any, socket: Socket) => Promise<void>;
 
 const wrapEvent = (socket: Socket, eventName: string, handler: EventHandler) => {
     socket.on(eventName, async (data) => {

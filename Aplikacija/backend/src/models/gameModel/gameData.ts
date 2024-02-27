@@ -4,6 +4,7 @@ import { GameRepo } from "../../repository/gameRepository";
 import { UserState } from "../IUserState"
 import Game from "./gameModel";
 import Player from "../playerModel";
+import { GameState } from "../gameStates";
 
 export interface UserResponse {
     userId: string;
@@ -16,12 +17,14 @@ export class GameData {
     questions: IQuestion[];
     currentQuestionIndex: number;
     responses: Map<string, UserResponse[]>; 
+    state:GameState;
 
     constructor(questions: IQuestion[], playersData: Map<string, UserState>) {
         this.players = playersData;
         this.questions = questions;
         this.currentQuestionIndex = 0;
         this.responses = new Map();
+        this.state=GameState.Waiting;
     }
 
     recordResponse(questionId: string, response: UserResponse) {

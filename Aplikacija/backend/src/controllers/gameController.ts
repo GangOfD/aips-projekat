@@ -16,6 +16,9 @@ import  Store  from '../managers/store';
 import { ENV } from '../enviroments/constants';
 import { PredefinedTags } from '../models/tags/enumTags';
 import {TagSelectionStrategyFactory} from '../strategies/StrategyFactory'
+import { EventHandler } from '../eventWrapper';
+import {GameStatus,InProgressSubState,GameState} from '../models/gameStates'
+import {updateGameStatusInDB} from '../utils/databaseutils'
 
 
 
@@ -43,7 +46,7 @@ export const startGame = async (data: { roomId: string, userId: string }, socket
     if(!(game && player))
     return;
 
-    game.status="inProgress"
+    game.status = GameState.InProgress; 
     await game.save();
     
     const playerIds = game.players;
@@ -119,7 +122,7 @@ export const joinGame = async (data: { roomId: string, token: string }, socket: 
       return;
     }
 
-    if (game.players.length == 4) {
+    if (game.players.length == ENV.roomCapacity) {
       socket.emit('joinError', 'Game is already full');
       return;
     }
@@ -137,7 +140,7 @@ export const joinGame = async (data: { roomId: string, token: string }, socket: 
     let DTO: gameDto = {
       createdAt: updatedGame?.createdAt ? updatedGame?.createdAt : null,
       players:playerNames,
-      status:updatedGame?.status ? updatedGame?.status : "waiting",
+      status:updatedGame?.status ? updatedGame?.status : GameState.Waiting,
       gameId:updatedGame?.gameId ? updatedGame?.gameId : "Error",
       createdBy: (await Player.findById(updatedGame?.createdBy))?.username ?? "Unknown"
     };
@@ -207,7 +210,7 @@ export const createGame = async (req: RequestWithUserId, res: Response) => {
       createdBy: new mongoose.Types.ObjectId(userId),
       players: [],
       questions: questions.map(q => q.id),
-      status: 'waiting',
+      status: GameState.Waiting,
       createdAt: new Date() ,
       tags: tags.map((tag:any) => tag.toString())
       };
@@ -247,4 +250,46 @@ export const getAllGames = async (req: RequestWithUserId, res: Response) => {
         res.status(500).send('Error fetching waiting games');
     }
 }
- 
+
+export const restartGame: EventHandler = async (data, socket) => {
+  try {
+    const { gameId, userId } = data;
+
+    if (!gameId || !userId) {
+      socket.emit('restartGameError', { message: "Game ID and User ID are required." });
+      return;
+    }
+
+    const game = Store.getGame(gameId);
+    if (!game) {
+      socket.emit('restartGameError', { message: "Game not found." });
+      return;
+    }
+
+    if (!game.players.get(userId)) {
+      socket.emit('restartGameError', { message: "User not part of the game." });
+      return;
+    }
+
+    Store.deleteGame(gameId);
+
+    const newQuestions = await fetchQuestionsForGame(ENV.numOfQuestions); 
+    game.questions = newQuestions;
+
+    Store.addGame(gameId, game);
+
+    startGame({ roomId: gameId, userId }, socket); 
+
+    socket.emit('restartGameSuccess', { message: "Game reset successfully." });
+
+  } catch (error) {
+    console.error("Error resetting game:", error);
+    socket.emit('restartGameError', { message: "An error occurred while resetting the game." });
+  }
+};
+
+
+async function transitionToInProgress(gameId: string, subState: InProgressSubState): Promise<void> {
+    const newStatus: GameStatus = { state: GameState.InProgress, subState };
+    await updateGameStatusInDB(gameId, newStatus);
+}
