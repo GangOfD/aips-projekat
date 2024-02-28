@@ -11,7 +11,7 @@ const GamePage=()=>{
 
     const token=useSelector((state)=>state.token);
     const game= useSelector((state)=>state.game);
-    const [score, setScore]= useState({});
+    const [score, setScore]= useState(null);
     const dispatch= useDispatch();
     const navigate=useNavigate();
 

@@ -60,7 +60,7 @@ const CustomModal = ({ open, onClose, title, content, setSections }) => {
             <Button
               key={key}
               variant="contained"
-              sx={{ maxWidth: '200px', borderRadius: "2.5rem" , background:content[key] ? "#d604c8" : "primary"}}
+              sx={{ maxWidth: '200px', borderRadius: "2.5rem" , color:"#fff", background:content[key] ? theme.palette.neutral.light : "primary"}}
               onClick={() => handleButtonClick(key)}
             >
               {`#${key}`}

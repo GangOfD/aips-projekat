@@ -7,7 +7,7 @@ import {
   } from "@mui/icons-material";
 import socket from "Socket/socketInstance";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Lottie from "lottie-react";
 let brainAnimation =require('../assets/brain-animation.json');
 
@@ -18,6 +18,8 @@ const GameQuestion=({action})=>{
     const theme=useTheme();
     const mode=useSelector((state)=>state.mode);
     const [isAnimating, setAnimating]=useState({left:false, right:false});
+    const containerRef = useRef(null);
+    const [timer, setTimer] = useState(10);
 
     const startAnimation=(side)=>{
       side=="left"? setAnimating({left:true}): setAnimating({right:true});
@@ -27,9 +29,30 @@ const GameQuestion=({action})=>{
       }, 1000); 
     }    
     
+    useEffect(() => {
+      const handleKeyPress = (event) => {
+        
+        console.log("KeyPressed:", event.key);
+        socket.emit("receiveKeyPressAnswer", {token:token, keyPressed:event.key, gameId:game.gameId});
+  
+      };
+      
+      window.addEventListener("keydown", handleKeyPress);
+      containerRef.current && containerRef.current.focus();
+
+      const timerInterval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+  
+      return () => {
+        window.removeEventListener("keydown", handleKeyPress);
+        clearInterval(timerInterval);
+      };
+    }, [timer]);
 
     return (
         <Box
+          tabIndex={0}
           width="100%"
           textAlign="center"
           display="flex"
@@ -40,7 +63,7 @@ const GameQuestion=({action})=>{
           <Box
             width="33%"
             minHeight="100vh"
-            backgroundColor={theme.palette.primary.light}
+            backgroundColor={isAnimating.left? theme.palette.primary.main: theme.palette.primary.light}
             padding="20px"
             
           >
@@ -55,7 +78,7 @@ const GameQuestion=({action})=>{
           <Box
             width="33%"
             minHeight="100vh"
-            backgroundColor={theme.palette.neutral.light}
+            backgroundColor= {theme.palette.primary.main}
             border="3px solid green"
             padding="20px"
             boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
@@ -69,6 +92,9 @@ const GameQuestion=({action})=>{
             </Box>
             <Typography variant="h3" >
               {action?.questionText}
+            </Typography>
+            <Typography variant="h3" >
+              Time: {timer}
             </Typography>
             <Box
               width="100%"
@@ -117,7 +143,7 @@ const GameQuestion=({action})=>{
           <Box
             width="33%"
             minHeight="100vh"
-            backgroundColor={theme.palette.primary.light}
+            backgroundColor={isAnimating.right?  theme.palette.neutral.light : theme.palette.primary.light}
             padding="20px"
             
           >
