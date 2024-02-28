@@ -281,6 +281,7 @@ export const restartGame: EventHandler = async (data, socket) => {
     startGame({ roomId: gameId, userId }, socket); 
 
     socket.emit('restartGameSuccess', { message: "Game reset successfully." });
+    //emit gameStarted, dto
 
   } catch (error) {
     console.error("Error resetting game:", error);

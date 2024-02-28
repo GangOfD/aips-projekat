@@ -5,6 +5,7 @@ import { UserState } from "../IUserState"
 import Game from "./gameModel";
 import Player from "../playerModel";
 import { GameState } from "../gameStates";
+import { CommandHistory } from "../../commands/CommandHistory";
 
 export interface UserResponse {
     userId: string;
@@ -18,6 +19,7 @@ export class GameData {
     currentQuestionIndex: number;
     responses: Map<string, UserResponse[]>; 
     state:GameState;
+    commandHistory:CommandHistory;
 
     constructor(questions: IQuestion[], playersData: Map<string, UserState>) {
         this.players = playersData;
@@ -25,6 +27,7 @@ export class GameData {
         this.currentQuestionIndex = 0;
         this.responses = new Map();
         this.state=GameState.Waiting;
+        this.commandHistory=new CommandHistory();
     }
 
     recordResponse(questionId: string, response: UserResponse) {

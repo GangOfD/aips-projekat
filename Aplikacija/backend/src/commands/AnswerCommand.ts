@@ -1,14 +1,13 @@
 import ICommand from './ICommand';
-import Store from '../managers/store';
+import { Store } from '../managers/store';
 
-export default class AnswerCommand implements ICommand {
-    private userId: string | null;
-    private answerValue: null | number; 
-    private gameId: string;
+export default class AnswerCommand extends ICommand {
+    private answerValue: null | number;     
 
 
-    constructor(userId: string, answerValue: null | number,gameId:string) {
-        this.userId=userId;
+    constructor(userId: string, answerValue: null | number,gameId:string,store:Store) {
+        super(userId, gameId, store);
+
         this.answerValue = answerValue;
         this.gameId = gameId;
     }
@@ -17,7 +16,14 @@ export default class AnswerCommand implements ICommand {
         if (this.userId === null) {
             throw new Error('Invalid token');
         }
-       Store.gameLogic.recordUserAnswer(this.gameId,this.userId,this.answerValue)
+        const game = this.store.getGame(this.gameId);
+        game?.commandHistory.addCommand(this);     
+        
+       this.store.gameLogic.recordUserAnswer(this.gameId,this.userId,this.answerValue)
 
+    }
+
+    undo(): void {
+        
     }
 }

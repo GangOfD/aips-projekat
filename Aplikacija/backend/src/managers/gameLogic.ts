@@ -57,6 +57,7 @@ export class GameLogic {
         userState.answerTime = Date.now()
     }
 
+
       gameParamsFiller(roomId: string): HostMessageParams | undefined {
         const game = this.store.getGame(roomId);
     
@@ -91,8 +92,7 @@ export class GameLogic {
             return;
         }
 
-        const currentQuestionIndex = gameData.currentQuestionIndex;
-        console.log("Current question index is: ", currentQuestionIndex," ,while gamedata question length is: ", gameData.questions.length);
+        const currentQuestionIndex = gameData.currentQuestionIndex - 1; 
 
         if (currentQuestionIndex < 0 || currentQuestionIndex >= gameData.questions.length) {
             console.error("Invalid question index. Current question index is: ", currentQuestionIndex," ,while gamedata question length is: ", gameData.questions.length);

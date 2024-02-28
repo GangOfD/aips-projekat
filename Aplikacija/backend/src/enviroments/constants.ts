@@ -15,4 +15,7 @@ export const ENV = {
     ScoreBoardIntervalMs:6000,
     beforeGameIntervalMs:5000,
     num_of_tags:5,
+    firstKeyOption:'A',
+    secondKeyOption:'S',
+    undoKeyOption:'D'
   };

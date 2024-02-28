@@ -11,7 +11,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { joinGame, leaveGame, restartGame, startGame } from './controllers/gameController';
 import AnswerCommand from '../src/commands/AnswerCommand';
 import wrapEvent from './eventWrapper'
-import {receiveAnswer} from './controllers/answerController'
+import {receiveAnswer, receiveKeyAnswer} from './controllers/answerController'
 import axios from 'axios';
 import Question from './models/questionModel';
 
@@ -57,7 +57,9 @@ const setupSocketEvents = (io: SocketIOServer) => {
       wrapEvent(socket, 'startGame', startGame);
       wrapEvent(socket, 'leaveGame', leaveGame);
       wrapEvent(socket, 'receiveAnswer', receiveAnswer);
+      wrapEvent(socket, 'receiveKeyPressAnswer',  receiveKeyAnswer);
       wrapEvent(socket, 'restartGame',  restartGame);
+
   });
 };
 

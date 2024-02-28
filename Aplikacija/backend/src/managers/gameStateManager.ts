@@ -46,7 +46,8 @@ class GameStateManager {
         }
 
         if (this.store.gameLogic.isGameOver(roomId)) {
-            this.io.to(roomId).emit('gameOver');
+            this.gameComplete(roomId);
+            //this.io.to(roomId).emit('gameOver');
             return;
         }
 
