@@ -271,17 +271,24 @@ export const restartGame: EventHandler = async (data, socket) => {
       return;
     }
 
+    
     Store.deleteGame(gameId);
+
+    const gamedb=await Game.findOne({gameId:gameId});
+    if(!gamedb)
+    return;
 
     const newQuestions = await fetchQuestionsForGame(ENV.numOfQuestions); 
     game.questions = newQuestions;
+    game.state=GameState.Waiting;
 
-    Store.addGame(gameId, game);
+    gamedb.status=GameState.Waiting;
+    gamedb.questions=newQuestions.map(q => q.id)
+    await gamedb.save();
 
     startGame({ roomId: gameId, userId }, socket); 
 
     socket.emit('restartGameSuccess', { message: "Game reset successfully." });
-    //emit gameStarted, dto
 
   } catch (error) {
     console.error("Error resetting game:", error);

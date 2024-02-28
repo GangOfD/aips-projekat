@@ -38,6 +38,7 @@ export class Store {
 
     public addGame(roomId: string, gameData: GameData): void {
         if (this.games.has(roomId)) {
+            console.log(this.games.get(roomId))
             throw new Error(`Game with ID ${roomId} already exists.`);
         }
         this.games.set(roomId, gameData);
@@ -47,7 +48,8 @@ export class Store {
         if (!this.games.has(roomId)) {
             throw new Error(`Game with ID ${roomId} does not exist.`);
         }
-        this.games.delete(roomId);
+        const a=this.games.delete(roomId);
+        console.log("Delete game, ",a)
     }
     
 
@@ -59,6 +61,16 @@ export class Store {
         this.userStates.set(userId, userState);
     }
 
+    public printStore(): void {
+        console.log("Current games in the store:");
+        this.games.forEach((gameData, gameId) => {
+            console.log(`Game ID: ${gameId}, Status: ${gameData.state}`);
+        });
+
+        if(this.games.size === 0) {
+            console.log("No games currently in the store.");
+        }
+    }
 
     // public setHostParams = (gameId: string): HostMessageParams => {
     //     const gameData = GameDataManagement.getGameData(gameId);

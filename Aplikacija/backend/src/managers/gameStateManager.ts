@@ -32,6 +32,8 @@ class GameStateManager {
         gameData.state=GameState.InProgress;
         
         this.store.gameDataManagment.addGameData(roomId, gameData);
+        this.store.printStore();
+
         //const initialGameState=Store.getInitialState(roomId);
 
         setTimeout(() => {

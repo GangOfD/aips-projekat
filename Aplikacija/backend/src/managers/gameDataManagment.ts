@@ -9,10 +9,7 @@ export class GameDataManagement {
         this.store = store;
     }
 
-    public addGameData(roomId: string, gameData: GameData) {
-        if (store.getGame(roomId))
-            throw new Error(`Game with ID ${roomId} already exists`);
-        
+    public addGameData(roomId: string, gameData: GameData) { 
          store.addGame(roomId, gameData); 
     }
 
