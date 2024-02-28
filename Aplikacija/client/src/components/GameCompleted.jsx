@@ -1,14 +1,14 @@
 import { useTheme } from "@emotion/react";
 import { IconButton, Typography } from "@mui/material";
 import {
-    PlayCircleOutline
+    RestartAlt
   } from "@mui/icons-material";
 import {Box} from "@mui/material";
 import socket from "Socket/socketInstance";
 import { useSelector } from "react-redux";
 
 
-const GameCompleted=()=>{
+const GameCompleted=({score})=>{
 
     const game=useSelector((state)=>state.game);
     const token=useSelector((state)=>state.token);
@@ -16,46 +16,50 @@ const GameCompleted=()=>{
     const dateDisplay=date.toISOString().split('T')[0];
     const theme=useTheme();
     
+    
 
     return (
         <Box
-            p="1.5rem"
-            width="40%"
+            p="2.5rem"
+            width="60%"
             m="1rem auto"
             borderRadius="20px"
             backgroundColor={theme.palette.neutral.light}
             textAlign="center"
+            boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
             >
-            <Typography variant="h4" color={theme.palette.primary.main} mb={2}>
-                Game is finnished
+            <Typography variant="h1" color={theme.palette.primary.main} mb={2}>
+                🏆 Game Over 🏆
             </Typography>
-            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
+            <Typography variant="h4" color={theme.palette.text.secondary} mb={1}>
                 Game created at: {dateDisplay}
             </Typography>
-            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
-                Players who participated in the game
+            <Typography variant="h4" color={theme.palette.text.secondary} mb={1}>
+                🎮 Players who participated in the game 🎮
             </Typography>
             <Box mb={2}>
-                {game.players.map((player, index) => (
+                {score?.scoreBoard.map((player, index) => (
                 <Typography
                     key={index}
-                    variant="body2"
+                    variant="h4"
                     color={theme.palette.text.secondary}
                 >
-                    {player}
+                    {player.username} : {player.points} points
                 </Typography>
                 ))}
             </Box>
-            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
-                Game status: {game.status}
+            <Typography variant="h4" color={theme.palette.text.secondary} mb={1}>
+                🏁 Game Status: {game.status}
             </Typography>
-            <Typography variant="body1" color={theme.palette.text.secondary} mb={1}>
-                Room id: {game.gameId}
+            <Typography variant="h4" color={theme.palette.text.secondary} mb={1}>
+                🆔 Room ID: {game.gameId}
             </Typography>
-            <Typography variant="body1" color={theme.palette.text.secondary}>
-                Winner: {game.winner}
+            <IconButton onClick={()=>socket.emit('restartGame',{gameId:game.gameId, token:token})}>
+                <RestartAlt sx={{ fontSize: "55px" }} />
+            </IconButton>
+            <Typography variant="h4" color={theme.palette.primary.main} mb={2}>
+                Restart game
             </Typography>
-            
         </Box>
     );
 }

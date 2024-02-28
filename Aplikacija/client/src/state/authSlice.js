@@ -31,10 +31,15 @@ export const authSlice=createSlice({
         setGame:(state,action)=>{
             state.game= action.payload.game;
         },
-   
+        setGameStatus: (state, action) => {
+            
+            if (state.game) {
+              state.game.status = action.payload.status;
+            }
+          },
         
     },
 });
 
-export const { setMode,changeMode, setLogin, setUser, setLogout, setGame} = authSlice.actions;
+export const { setMode,changeMode, setLogin, setUser, setLogout, setGame, setGameStatus} = authSlice.actions;
 export default authSlice.reducer;

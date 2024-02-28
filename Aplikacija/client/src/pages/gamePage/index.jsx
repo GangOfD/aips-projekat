@@ -3,7 +3,7 @@ import Navbar from "components/Navbar";
 import { useNavigate } from "react-router-dom";
 import { useSelector,useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
-import { setGame } from "state/authSlice";
+import { setGame, setGameStatus } from "state/authSlice";
 import socket from "Socket/socketInstance";
 import GameStatus from "components/GameStatus";
 
@@ -11,6 +11,7 @@ const GamePage=()=>{
 
     const token=useSelector((state)=>state.token);
     const game= useSelector((state)=>state.game);
+    const [score, setScore]= useState({});
     const dispatch= useDispatch();
     const navigate=useNavigate();
 
@@ -29,9 +30,10 @@ const GamePage=()=>{
             dispatch(setGame({game:data}));
         });
 
-        socket.on('gameCompleted',(data)=>{
-            console.log("Hello from completed game", data);
-            dispatch(setGame({game:data}));
+        socket.on('gameOver',(scoreboardTable)=>{
+            console.log("Hello from completed game", scoreboardTable);
+            setScore(scoreboardTable);
+            dispatch(setGameStatus({ status: "finished" }));
         })
 
         return ()=>{
@@ -45,7 +47,7 @@ const GamePage=()=>{
     return(
         <>
             <Navbar/>
-            <GameStatus status={game.status}/>
+            <GameStatus status={game.status} score={score}/>
             
         </>
     ) 

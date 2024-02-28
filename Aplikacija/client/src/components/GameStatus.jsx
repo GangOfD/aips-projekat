@@ -5,12 +5,12 @@ import GameCompleted from "./GameCompleted";
 import GameFlow from "./GameFlow";
 import { Box } from "@mui/material";
 
-const GameStatus = ({ status }) => {
+const GameStatus = ({ status, score }) => {
     
     const statusComponents = {
       waiting: GameWaiting,
       inProgress: GameFlow,
-      completed: GameCompleted,
+      finished: GameCompleted,
     };
   
     
@@ -18,7 +18,7 @@ const GameStatus = ({ status }) => {
   
     return (
       <>
-        <SelectedStatus/>
+        <SelectedStatus score={score}/>
       </>
     );
   };
