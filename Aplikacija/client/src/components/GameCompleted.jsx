@@ -27,8 +27,10 @@ const GameCompleted=({score})=>{
             backgroundColor={theme.palette.neutral.light}
             textAlign="center"
             boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
+            display="flex"
+            flexDirection="column"
             >
-            <Typography variant="h1" color={theme.palette.primary.main} mb={2}>
+            <Typography fontSize="5vw" color={theme.palette.primary.main} mb={2}>
                 🏆 Game Over 🏆
             </Typography>
             <Typography variant="h4" color={theme.palette.text.secondary} mb={1}>

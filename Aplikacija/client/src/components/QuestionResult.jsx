@@ -27,11 +27,11 @@ const QuestionResult=({action})=>{
           backgroundColor={theme.palette.primary.light}
           padding="15px"
           gap="5px"
-          height="40vh"  
+          height="40%"  
           margin="auto"  
           marginTop="15vh"
         >
-          <Typography variant="h3" color="#fff" fontWeight="bold">
+          <Typography fontSize="2.5rem" color="#fff" fontWeight="bold">
             Question asked: {action.questionsAsked}
           </Typography>
 
@@ -40,6 +40,7 @@ const QuestionResult=({action})=>{
             borderRadius="10px"
             backgroundColor={theme.palette.background.default}
             boxShadow="0 4px 8px rgba(0, 0, 0, 0.1)"
+            margin="auto"
           >
             <Typography variant="h3" marginBottom="20px" color={theme.palette.primary.main}>
               Scoreboard:

@@ -39,8 +39,11 @@ const JoinGame=({freeRooms})=>{
         });
         socket.on('gameJoined',(data)=>{
             console.log("Helo from gameJoined",data.DTO);
-            dispatch(setGame({game:data.DTO}));
-            navigate(`/game/${data.DTO.gameId}`);
+            if(data.DTO.players.find((player)=>player===user.username)){
+                dispatch(setGame({game:data.DTO}));
+                navigate(`/game/${data.DTO.gameId}`);
+            }
+            
         });
 
 
