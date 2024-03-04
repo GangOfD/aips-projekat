@@ -9,6 +9,7 @@ import {ENV} from '../enviroments/constants'
 import Game from '../models/gameModel/gameModel'
 import { GameRepo } from '../repository/gameRepository';
 import { GameState } from '../models/gameStates';
+import { error } from 'console';
 
 class GameStateManager {
     private io: SocketIOServer;
@@ -77,6 +78,7 @@ class GameStateManager {
     }
 
     async showHostMessage(roomId: string) {
+        try{
         const params = this.store.gameLogic.gameParamsFiller(roomId)
 
         if (!params)
@@ -89,6 +91,13 @@ class GameStateManager {
             this.sendQuestion(roomId);
         }, ENV.hostMessageIntervalMs);
     }
+    catch(Error){
+        console.log("Host message error, " , Error)
+    }
+    }
+
+
+    
 
     async gameComplete(roomId: string): Promise<void> {
         const game = this.store.getGame(roomId);

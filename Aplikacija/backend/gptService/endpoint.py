@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 
 from gptService import chat_gpt
-from host import HostMessageParams, generate_observations
+from host import HostMessageParams
 
 app = Flask(__name__)
 
@@ -15,7 +15,7 @@ def chat_gpt_endpoint():
 
         params = HostMessageParams(
             correctAnswers=hostMess.get('correctAnswers', []),
-            wrongAnswers=hostMess.get('wrongAnswers', []),
+            hasAnswered=hostMess.get('hasAnswered', []),
             playerPositions=hostMess.get('playerPositions', []),
             playerNames=hostMess.get('playerNames') 
         )

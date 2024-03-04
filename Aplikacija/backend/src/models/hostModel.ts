@@ -1,6 +1,6 @@
 export interface HostMessageParams {
     correctAnswers: boolean[]; 
-    wrongAnswers: boolean[];
+    hasAnswered: boolean[];
     playerPositions: number[]; 
     playerNames:string[] | undefined;
 }

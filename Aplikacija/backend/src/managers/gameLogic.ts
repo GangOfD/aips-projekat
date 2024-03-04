@@ -69,17 +69,18 @@ export class GameLogic {
         const playerStates = Array.from(game.players.values());
     
         const correctAnswers = playerStates.map(state => state.isCorrect);
-        const wrongAnswers = playerStates.map(state => !state.isCorrect);
+        const hasAnswered = playerStates.map(state => state.hasAnswered);
         const playerNames = playerStates.map(state => state.username);
     
         const playerPositions = playerStates
             .map((state, index) => ({ index: index + 1, score: state.score }))
             .sort((a, b) => b.score - a.score)
             .map(player => player.index);
+            this.resetUserStateAnswers(roomId);
     
         return {
             correctAnswers,
-            wrongAnswers,
+            hasAnswered,
             playerPositions,
             playerNames
         };
@@ -115,11 +116,13 @@ export class GameLogic {
                 else if (index === 2) pointsAwarded = ENV.pointsThirdCorrectAnswer;
                 else if (index === 3) pointsAwarded = ENV.pointsForthCorrectAnswer;
                 userState.score += pointsAwarded;
+                userState.isCorrect=true;
+                userState.hasAnswered = true;
             } else if (userState.hasAnswered) {
                 userState.score += ENV.pointsLostWrongAnswer; 
+                userState.isCorrect=false;
+                userState.hasAnswered = true;
             }
-            userState.currentAnswer = -1;
-            userState.hasAnswered = false;
         });
     }
 
@@ -134,6 +137,24 @@ export class GameLogic {
 
         //Check also for the substates
         return true;
+    }
+
+    public resetUserStateAnswers(roomId: string): void {
+        const game = this.store.getGame(roomId);
+    
+        if (!game) {
+            console.log("Game not found:", roomId);
+            return;
+        }
+    
+        game.players.forEach((userState, userId) => {
+            userState.hasAnswered = false;
+            userState.currentAnswer = -1; 
+            userState.isCorrect = false; 
+            userState.answerTime = null;
+        });
+    
+        console.log(`Reset user states for game ${roomId}`);
     }
 
 }

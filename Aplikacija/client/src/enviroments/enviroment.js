@@ -1,0 +1,2 @@
+const numOfPlayers=4;
+
