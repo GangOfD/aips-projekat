@@ -1,6 +1,7 @@
 import ICommand from './ICommand';
 import { Store } from '../managers/store';
 import keyToAnswerValue from '../commandAdapter';
+import { CommandHistory } from './CommandHistory';
 
 export class KeyPressCommand extends ICommand {
     constructor(userId: string, protected key: string, gameId: string, store: Store) {
@@ -11,7 +12,9 @@ export class KeyPressCommand extends ICommand {
     async execute(): Promise<void> {
         console.log(`User ${this.userId} pressed key ${this.key} for game ${this.gameId}`);
         const game = this.store.getGame(this.gameId);
-        game?.commandHistory.addCommand(this);
+        const commandHistory = CommandHistory.getInstance();
+        commandHistory.addCommand(this)
+        //game?.commandHistory.addCommand(this);
 
         const answerValue = keyToAnswerValue(this.key);
 

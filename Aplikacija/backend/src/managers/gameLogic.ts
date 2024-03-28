@@ -57,6 +57,31 @@ export class GameLogic {
         userState.answerTime = Date.now()
     }
 
+    public undoUserAnswer(roomId: string, userId: string) {
+        const game = this.store.getGame(roomId);
+        if (!game) {
+            throw new Error('Game not found -recordUserAnswer')
+            // return;
+        }
+
+        if(!this.isAnswerableMode(roomId)){
+            console.log("Cannot save an answer")
+            return;
+        }
+
+        const userState = game.players.get(userId);
+        if (!userState) {
+            console.log(`User ${userId} not found in game ${roomId}.`);
+            throw new Error('userState not found -recordUserAnswer')
+            // return; 
+        }
+
+
+        userState.currentAnswer = null;
+        userState.hasAnswered= false;
+        userState.answerTime = Date.now()
+    }
+
 
       gameParamsFiller(roomId: string): HostMessageParams | undefined {
         const game = this.store.getGame(roomId);

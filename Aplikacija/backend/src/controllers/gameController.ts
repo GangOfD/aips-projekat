@@ -103,12 +103,11 @@ export const joinGame = async (data: { roomId: string, token: string }, socket: 
   try {
     const { roomId, token } = data;
     const userId = verifyToken(token);
-    
+
     if (!userId) {
       socket.emit('joinError', 'Invalid or expired token');
       return;
     }
-
 
     const game = await gameRepo.getById(roomId);
     if (!game) {
@@ -117,46 +116,52 @@ export const joinGame = async (data: { roomId: string, token: string }, socket: 
     }
 
     const userIdObj = new mongoose.Types.ObjectId(userId);
-    if (game.players.includes(userIdObj)) {
-      socket.emit('joinError', 'You have already joined this game');
-      return;
-    }
+    const isAlreadyJoined = game.players.includes(userIdObj);
 
-    if (game.players.length == ENV.roomCapacity) {
+    if (game.players.length == ENV.roomCapacity && !isAlreadyJoined) {
       socket.emit('joinError', 'Game is already full');
       return;
     }
 
-    const updatedGame = await gameRepo.update(game._id, { 
-      players: [...game.players, userIdObj]
-    });
-
-    
-    await updatedGame?.save(); 
+    let updatedGame;
+    if (!isAlreadyJoined) {
+      updatedGame = await gameRepo.update(game._id, {
+        players: [...game.players, userIdObj]
+      });
+      await updatedGame?.save();
+    } else {
+      updatedGame = game;
+    }
 
     const playerIds = updatedGame?.players;
     const players = await Player.find({ _id: { $in: playerIds } });
     const playerNames = players.map(player => player.username);
-    let DTO: gameDto = {
+
+    let DTO = {
       createdAt: updatedGame?.createdAt ? updatedGame?.createdAt : null,
-      players:playerNames,
-      status:updatedGame?.status ? updatedGame?.status : GameState.Waiting,
-      gameId:updatedGame?.gameId ? updatedGame?.gameId : "Error",
+      players: playerNames,
+      status: updatedGame?.status ? updatedGame?.status : GameState.Waiting,
+      gameId: updatedGame?.gameId ? updatedGame?.gameId : "Error",
       createdBy: (await Player.findById(updatedGame?.createdBy))?.username ?? "Unknown"
     };
 
-      socket.join(roomId);
+    socket.join(roomId);
 
-      // socket.emit('gameJoined', { DTO });
-      // socket.broadcast.emit('gameJoined', { DTO });
-      io.to(roomId).emit('gameJoined', { DTO }); 
+    if (!isAlreadyJoined) {
+      io.to(roomId).emit('gameJoined', { DTO });
+    }
 
+    if (isAlreadyJoined) {
+      //Something should be slightly different here
+      io.to(roomId).emit('gameJoined', { DTO });
+    }
     
   } catch (error) {
     console.error('Error in joinGame:', error);
     socket.emit('joinError', 'Error joining game');
   }
 };
+
 
 
 

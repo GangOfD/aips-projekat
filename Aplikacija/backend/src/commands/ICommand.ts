@@ -11,7 +11,7 @@ export default abstract class ICommand {
     }
 
     abstract execute():void;
-    abstract undo():void;
+    //abstract undo():void;
 }
 
 

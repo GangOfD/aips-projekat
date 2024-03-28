@@ -3,6 +3,7 @@ import openai
 import requests
 from dotenv import load_dotenv
 from openai import OpenAI
+from prompts import PROMPT 
 
 from host import generate_observations
 
@@ -15,7 +16,6 @@ client = OpenAI(
     api_key=api_key,
 )
 
-PROMPT = "Act as if you were a game host. Give some roasting comments about the ones that did not answer or that answered incorrectly. Up to 3 sentences."
 
 def chat_gpt(params):
     game_state = generate_observations(params)

@@ -1,5 +1,6 @@
 import ICommand from './ICommand';
 import { Store } from '../managers/store';
+import { CommandHistory } from './CommandHistory';
 
 export default class AnswerCommand extends ICommand {
     private answerValue: null | number;     
@@ -17,7 +18,9 @@ export default class AnswerCommand extends ICommand {
             throw new Error('Invalid token');
         }
         const game = this.store.getGame(this.gameId);
-        game?.commandHistory.addCommand(this);     
+        const commandHistory = CommandHistory.getInstance();
+        commandHistory.addCommand(this)
+        //game?.commandHistory.addCommand(this);     
         
        this.store.gameLogic.recordUserAnswer(this.gameId,this.userId,this.answerValue)
 

@@ -72,40 +72,6 @@ export class Store {
         }
     }
 
-    // public setHostParams = (gameId: string): HostMessageParams => {
-    //     const gameData = GameDataManagement.getGameData(gameId);
-    //     if (!gameData) {
-    //         throw new Error('Game data not found');
-    //     }
-    
-    //     const correctAnswers: boolean[] = [];
-    //     const wrongAnswers: boolean[] = [];
-    //     const playerPositions: number[] = [];
-    //     const playerNames:string[]=[];
-    
-    //     gameData.players.forEach((userState:any, playerId:any) => {
-    //         const isCorrect = userState.isCorrect || false;
-    //         correctAnswers.push(isCorrect);
-    //         wrongAnswers.push(!isCorrect);
-    
-    //         // Determine the player position based on score
-    //         let position = 1;
-    //         gameData.players.forEach((otherUserState, otherPlayerId) => {
-    //             if (otherPlayerId !== playerId && otherUserState.score > userState.score) {
-    //                 position++;
-    //             }
-    //         });
-    //         playerPositions.push(position);
-    //     });
-    
-    //     return {
-    //         correctAnswers,
-    //         wrongAnswers,
-    //         playerPositions,
-    //         playerNames
-
-    //     };
-    // };
     public static getInstance(): Store {
         if (!Store.instance) {
             Store.instance = new Store();

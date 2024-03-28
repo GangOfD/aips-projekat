@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package game;
+
+//game service definition.
+service GameService {
+  rpc SendRoast (GameStateRequest) returns (RoastResponse) {}
+}
+
+message GameStateRequest {
+  repeated string observations = 1;
+}
+
+message RoastResponse {
+  string content = 1;
+}

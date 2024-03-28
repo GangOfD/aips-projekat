@@ -1,14 +1,25 @@
 import ICommand from "./ICommand";
 
-export class CommandHistory {
+export  class CommandHistory {
+    private static instance: CommandHistory;
     private commandQueue: ICommand[] = [];
     private userCommandMap: Map<string, ICommand> = new Map();
     //public roomId:string;
 
-    public addCommand(command: ICommand) {
-        this.commandQueue.push(command); // Add command to the queue for execution order
-        this.userCommandMap.set(command.userId, command); // Map user to their latest command for undo
+    public static getInstance(): CommandHistory {
+        if (!CommandHistory.instance) {
+            CommandHistory.instance = new CommandHistory();
+        }
+        return CommandHistory.instance;
     }
+    private constructor() {}
+
+
+    public addCommand(command: ICommand) {
+        this.commandQueue.push(command); 
+        this.userCommandMap.set(command.userId, command); 
+    }
+
 
     getLatestCommand():ICommand|null {
         const command = this.commandQueue.pop();
@@ -18,6 +29,22 @@ export class CommandHistory {
 
         return command;
     }
+
+    public getCommand(userId:string):ICommand|undefined {
+      const command=this.userCommandMap.get(userId)
+      return command;
+    }
+
+    deleteCommand(command:ICommand){
+    const userId=command.userId;
+
+    this.userCommandMap.delete(userId)
+    }
+
+    deleteHistory(){
+        //TODO
+    }
+
     executeLatestCommand() {
         const command = this.commandQueue.pop();
         if (command) {
@@ -29,7 +56,7 @@ export class CommandHistory {
     undoUserCommand(userId: string) {
         const command = this.userCommandMap.get(userId);
         if (command) {
-            command.undo();
+            //command.undo();
             this.userCommandMap.delete(userId);
             // Maybe i should delete from queue also
         }
