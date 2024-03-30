@@ -32,8 +32,15 @@ const GamePage=()=>{
 
         socket.on('gameOver',(scoreboardTable)=>{
             console.log("Hello from completed game", scoreboardTable);
-            setScore(scoreboardTable);
-            dispatch(setGameStatus({ status: "finished" }));
+            if(game.gameId == scoreboardTable.gameId){
+                console.log(game.gameId);
+                setScore(scoreboardTable);
+                dispatch(setGameStatus({ status: "finished", gameId:scoreboardTable.gameId }));
+            }
+            else{
+                console.log(game.gameId);
+            }
+            
         })
 
         return ()=>{

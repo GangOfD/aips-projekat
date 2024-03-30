@@ -77,6 +77,7 @@ const Navbar = () => {
               socket.emit('leaveGame', {roomId:game.gameId, token:token});
               dispatch(setGame({game:null}));
               navigate("/home");
+              window.location.reload();
               }} 
               sx={{ marginRight:"30px" }}>
               <RunCircle sx={{ fontSize:"25px" }} />

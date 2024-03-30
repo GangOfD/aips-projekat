@@ -33,7 +33,7 @@ export const authSlice=createSlice({
         },
         setGameStatus: (state, action) => {
             
-            if (state.game) {
+            if (state.game && state.game.gameId==action.payload.gameId) {
               state.game.status = action.payload.status;
             }
           },
