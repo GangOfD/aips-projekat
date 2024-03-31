@@ -90,7 +90,22 @@ export const leaveGame = async (data: { roomId: string, userId: string }, socket
       }
       
       const updatedGame = await gameRepo.removePlayerFromGame(game, userId);
-      io.to(data.roomId).emit('gameLeft',{ roomId: gameId, userId: userId } );
+  
+      const playerIds = updatedGame?.players;
+      const players = await Player.find({ _id: { $in: playerIds } });
+      const playerNames = players.map(player => player.username);
+  
+      let DTO = {
+        createdAt: updatedGame?.createdAt ? updatedGame?.createdAt : null,
+        players: playerNames,
+        status: updatedGame?.status ? updatedGame?.status : GameState.Waiting,
+        gameId: updatedGame?.gameId ? updatedGame?.gameId : "Error",
+        createdBy: (await Player.findById(updatedGame?.createdBy))?.username ?? "Unknown"
+      };
+
+      io.to(data.roomId).emit('gameLeft',{ DTO} );
+
+      //TODO, break the socket connection, but just 
       
   } catch (error) {
       console.error('Error in leaveGame:', error);

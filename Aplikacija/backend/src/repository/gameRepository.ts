@@ -86,8 +86,8 @@ async canStartGame(gameId: string): Promise<{ canStart: boolean, message: string
 
   if (game.players?.length !== ENV.roomCapacity) {
       let maks=process.env.numberOfPlayers
-      console.log("Game must have exactly 4 players")
-      return { canStart: false, message: "Game must have exactly 4 players" };
+      console.log(`Game must have exactly ${ENV.roomCapacity} players`)
+      return { canStart: false, message: `Game must have exactly ${ENV.roomCapacity} players` };
   }
 
   if (game.status !== ENV.waitingMessage) {
