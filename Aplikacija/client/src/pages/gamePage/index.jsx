@@ -25,6 +25,11 @@ const GamePage=()=>{
             dispatch(setGame({game:data.DTO}));
         });
 
+        socket.on('gameLeft',(data)=>{
+            console.log(data.DTO);
+            dispatch(setGame({game:data.DTO}));
+        });
+
         socket.on('gameStarted',(data)=>{
             console.log("Hello form Started",data);
             dispatch(setGame({game:data}));
