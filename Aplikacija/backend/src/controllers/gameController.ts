@@ -35,7 +35,7 @@ export const startGame = async (data: { roomId: string, userId: string }, socket
     const { canStart, message } = await gameRepo.canStartGame(data.roomId);
 
     if (!canStart) {
-      socket.emit('startError', message);
+      io.to(data.roomId).emit('startError', message);
       return;
     }
 
@@ -59,7 +59,7 @@ export const startGame = async (data: { roomId: string, userId: string }, socket
       gameId:game.gameId,
       createdBy: (await Player.findById(game.createdBy))?.username ?? "Unknown"
     };
-
+  
     io.to(data.roomId).emit('gameStarted', DTO);
 
     const gameStateManager = new GameStateManager(io, data.roomId, Store);
@@ -103,9 +103,9 @@ export const leaveGame = async (data: { roomId: string, userId: string }, socket
         createdBy: (await Player.findById(updatedGame?.createdBy))?.username ?? "Unknown"
       };
 
-      io.to(data.roomId).emit('gameLeft',{ DTO} );
+      io.to(data.roomId).emit('gameLeft',{ DTO } );
 
-      //TODO, break the socket connection, but just 
+      //TODO, break the socket connection, but just with the one who left
       
   } catch (error) {
       console.error('Error in leaveGame:', error);
