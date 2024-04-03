@@ -13,17 +13,12 @@ export default class UndoAnswerCommand extends ICommand {
         const game=this.store.getGame(this.gameId)
         const command=commandHistory.getCommand(this.userId)
 
-
-        //2.izbrisi je iz istorije
+        //2. izbrisi je iz istorije
         if(command)
         commandHistory.deleteCommand(command)
 
-
         //3.updatuj store 
         this.store.gameLogic.undoUserAnswer(this.gameId,this.userId)
-
-    }
-    undo():void{
 
     }
 }

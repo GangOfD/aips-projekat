@@ -1,6 +1,6 @@
 import ICommand from "./ICommand";
 
-export  class CommandHistory {
+export class CommandHistory {
     private static instance: CommandHistory;
     private commandQueue: ICommand[] = [];
     private userCommandMap: Map<string, ICommand> = new Map();
@@ -12,44 +12,41 @@ export  class CommandHistory {
         }
         return CommandHistory.instance;
     }
-    private constructor() {}
+
+    private constructor() { }
 
 
     public addCommand(command: ICommand) {
-        this.commandQueue.push(command); 
-        this.userCommandMap.set(command.userId, command); 
+        this.commandQueue.push(command);
+        this.userCommandMap.set(command.userId, command);
     }
 
-
-    getLatestCommand():ICommand|null {
-        const command = this.commandQueue.pop();
-
-        if(!command)
-        return null;
-
+    public getCommand(userId: string): ICommand | undefined {
+        const command = this.userCommandMap.get(userId)
         return command;
     }
 
-    public getCommand(userId:string):ICommand|undefined {
-      const command=this.userCommandMap.get(userId)
-      return command;
+    public deleteCommand(command: ICommand) {
+        const userId = command.userId;
+
+        this.userCommandMap.delete(userId)
     }
 
-    deleteCommand(command:ICommand){
-    const userId=command.userId;
 
-    this.userCommandMap.delete(userId)
-    }
+    getLatestCommand(): ICommand | null {
+        const command = this.commandQueue.pop();
 
-    deleteHistory(){
-        //TODO
+        if (!command)
+            return null;
+
+        return command;
     }
 
     executeLatestCommand() {
         const command = this.commandQueue.pop();
         if (command) {
             command.execute();
-            this.userCommandMap.set(command.userId, command); 
+            this.userCommandMap.set(command.userId, command);
         }
     }
 
@@ -58,7 +55,7 @@ export  class CommandHistory {
         if (command) {
             //command.undo();
             this.userCommandMap.delete(userId);
-            // Maybe i should delete from queue also
+            // Maybe i should delete from the queue also
         }
     }
 

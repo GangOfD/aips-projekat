@@ -11,10 +11,7 @@ export default abstract class ICommand {
     }
 
     abstract execute():void;
+    
     //abstract undo():void;
 }
 
-
-export class CommandSaver {
-    
-}

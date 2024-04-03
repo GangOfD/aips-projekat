@@ -10,10 +10,9 @@ export class KeyPressCommand extends ICommand {
     }
 
     async execute(): Promise<void> {
-        console.log(`User ${this.userId} pressed key ${this.key} for game ${this.gameId}`);
         const game = this.store.getGame(this.gameId);
         const commandHistory = CommandHistory.getInstance();
-        commandHistory.addCommand(this)
+        commandHistory.addCommand(this);
         //game?.commandHistory.addCommand(this);
 
         const answerValue = keyToAnswerValue(this.key);
@@ -23,9 +22,5 @@ export class KeyPressCommand extends ICommand {
         } else {
             console.log(`Invalid key pressed: ${this.key}`);
         }        
-    }
-
-    undo(): void {
-        
     }
 }

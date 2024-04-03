@@ -113,6 +113,7 @@ import {
                 // console.log(game);
                 // navigate(`/game/${createdGame.game.gameId}`);
                 setMessage(createdGame.message);
+                getFreeRooms();
               }
              
               

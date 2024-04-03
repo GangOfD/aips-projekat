@@ -25,8 +25,5 @@ export default class AnswerCommand extends ICommand {
        this.store.gameLogic.recordUserAnswer(this.gameId,this.userId,this.answerValue)
 
     }
-
-    undo(): void {
-        
-    }
+    
 }
