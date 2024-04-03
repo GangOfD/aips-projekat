@@ -73,8 +73,9 @@ const Navbar = () => {
           </IconButton>
           {token  && (
           <Box>
-            {game &&(<IconButton onClick={()=>{
+            {(game?.status=='waiting' || game?.status=='finished') &&(<IconButton onClick={()=>{
               socket.emit('leaveGame', {roomId:game.gameId, token:token});
+              socket.off();
               dispatch(setGame({game:null}));
               navigate("/home");
               window.location.reload();

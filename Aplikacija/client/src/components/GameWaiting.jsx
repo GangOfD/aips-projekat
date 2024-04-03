@@ -6,6 +6,7 @@ import {
 import {Box} from "@mui/material";
 import socket from "Socket/socketInstance";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 
 const GameWaiting=()=>{
@@ -15,7 +16,14 @@ const GameWaiting=()=>{
     const date=new Date(game.createdAt);
     const dateDisplay=date.toISOString().split('T')[0];
     const theme=useTheme();
+    const [message, setMessage]= useState("");
     
+    useEffect(()=>{
+        socket.on('startError',(data)=>{
+            console.log(data);
+            setMessage(data);
+        })
+    },[])
 
     return (
         <Box
@@ -60,6 +68,9 @@ const GameWaiting=()=>{
             </IconButton>
             <Typography variant="h4" color={theme.palette.primary.main} mb={2}>
                 Start game
+            </Typography>
+            <Typography variant="h4" color={theme.palette.primary.main} mb={2}>
+                {message}
             </Typography>
         </Box>
     );
